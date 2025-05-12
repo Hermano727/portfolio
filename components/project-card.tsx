@@ -21,7 +21,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
           className="relative w-full md:w-[420px] h-[280px] md:h-[320px] flex-shrink-0 bg-gray-100"
         >
           <Image
-            src={project.imageUrl || "/placeholder.png"}
+            src={project.image || "/placeholder.png"}
             alt={project.title}
             className="object-cover hover:scale-105 transition-transform duration-300"
             fill
@@ -40,13 +40,13 @@ export function ProjectCard({ project }: ProjectCardProps) {
           </Link>
           <div className="flex items-center justify-between mt-auto">
             <div className="flex flex-wrap gap-2">
-              {project.tags && project.tags.map((tag) => (
+              {project.categories && project.categories.map((category) => (
                 <Badge 
-                  key={tag} 
+                  key={category} 
                   variant="secondary"
                   className="bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors"
                 >
-                  {tag}
+                  {category}
                 </Badge>
               ))}
             </div>
@@ -75,7 +75,9 @@ export function ProjectCard({ project }: ProjectCardProps) {
             </div>
           </div>
           <div className="mt-4">
-            <Button variant="outline">View Project</Button>
+            <Link href={`/projects/${project.id}`}>
+              <Button variant="outline">View Project</Button>
+            </Link>
           </div>
         </div>
       </div>

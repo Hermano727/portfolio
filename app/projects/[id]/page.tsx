@@ -15,7 +15,7 @@ import { motion } from "framer-motion"
 
 export default function ProjectPage({ params }: { params: Promise<{ id: string }> }) {
   const unwrappedParams = React.use(params)
-  const projectId = parseInt(unwrappedParams.id)
+  const projectId = unwrappedParams.id
   const project = projects.find((p) => p.id === projectId)
 
   if (!project) {
@@ -52,9 +52,9 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <div className="space-y-4">
               <div className="flex flex-wrap gap-2 mb-2">
-                {project.tags && project.tags.map((tag) => (
-                  <Badge key={tag} className="bg-white/10 hover:bg-white/20 text-white">
-                    {tag}
+                {project.categories && project.categories.map((category) => (
+                  <Badge key={category} className="bg-white/10 hover:bg-white/20 text-white">
+                    {category}
                   </Badge>
                 ))}
               </div>
@@ -85,7 +85,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
 
             <div className="relative aspect-video rounded-xl overflow-hidden">
               <Image
-                src={project.imageUrl || "/placeholder.svg?height=450&width=800"}
+                src={project.image || "/placeholder.svg?height=450&width=800"}
                 alt={project.title}
                 fill
                 className="object-cover"
@@ -119,7 +119,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
               {activeTab === "overview" && (
                 <TabsContent value="overview" className="pt-8">
                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="prose max-w-none">
-                    <p className="text-lg leading-relaxed">{project.description}</p>
+                    <p className="text-lg leading-relaxed">{project.longDescription}</p>
                   </motion.div>
                 </TabsContent>
               )}
@@ -152,9 +152,9 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
                 <div>
                   <h4 className="text-sm font-medium text-gray-500">Technologies</h4>
                   <div className="flex flex-wrap gap-2 mt-2">
-                    {project.tags && project.tags.map((tag) => (
-                      <Badge key={tag} variant="secondary">
-                        {tag}
+                    {project.tools && project.tools.map((tool) => (
+                      <Badge key={tool} variant="secondary">
+                        {tool}
                       </Badge>
                     ))}
                   </div>
