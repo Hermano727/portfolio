@@ -1,5 +1,6 @@
 "use client"
 
+import React from "react"
 import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
@@ -12,9 +13,9 @@ import { projects } from "@/lib/data"
 import { ArrowLeft, Calendar, Edit, ExternalLink, Github, PenToolIcon as Tool, Home } from "lucide-react"
 import { motion } from "framer-motion"
 
-export default function ProjectPage({ params }: { params: { id: string } }) {
-  const id = `${params.id}`
-  const project = projects.find((p) => p.id === id)
+export default function ProjectPage({ params }: { params: Promise<{ id: string }> }) {
+  const unwrappedParams = React.use(params)
+  const project = projects.find((p) => p.id === unwrappedParams.id)
 
   if (!project) {
     notFound()
