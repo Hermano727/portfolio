@@ -60,10 +60,10 @@ export default function Home() {
               >
                 <Link href="/projects">
                   <Button 
-                    className="text-lg font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg" 
+                    className="text-lg font-semibold bg-gradient-to-r from-[#8A2BE2] to-[#9370DB] text-white shadow-lg 
+                    transition-all duration-300 hover:scale-105 hover:shadow-purple-500/40" 
                     size="lg"
                     radius="full" 
-                    color="default"
                     endContent={<ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />}
                     variant="shadow"
                     disableRipple={false}
