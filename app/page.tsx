@@ -99,13 +99,10 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.8 }}
               >
-                <Link href="https://github.com" target="_blank" className="text-gray-400 hover:text-white transition-colors">
+                <Link href="https://github.com/Hermano727" target="_blank" className="text-gray-400 hover:text-white transition-colors">
                   <Github className="h-6 w-6" />
                 </Link>
-                <Link href="https://twitter.com" target="_blank" className="text-gray-400 hover:text-white transition-colors">
-                  <Twitter className="h-6 w-6" />
-                </Link>
-                <Link href="https://linkedin.com" target="_blank" className="text-gray-400 hover:text-white transition-colors">
+                <Link href="http://linkedin.com/in/herman-hundsberger-577600295" target="_blank" className="text-gray-400 hover:text-white transition-colors">
                   <Linkedin className="h-6 w-6" />
                 </Link>
               </motion.div>

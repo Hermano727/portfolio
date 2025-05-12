@@ -74,7 +74,7 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
 
               <div className="flex flex-wrap gap-3 pt-4">
                 <Link href={`/projects/${project.id}/edit`}>
-                  <Button variant="outline" size="sm" className="gap-1 border-white/20 text-white hover:bg-white/10">
+                  <Button variant="outline" size="sm" className="gap-1 border-white/20 text-white hover:bg-white/10 bg-white/10">
                     <Edit className="h-4 w-4" />
                     Edit
                   </Button>
@@ -89,7 +89,7 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
                 )}
                 {project.githubUrl && (
                   <Link href={project.githubUrl} target="_blank" rel="noopener noreferrer">
-                    <Button variant="outline" size="sm" className="gap-1 border-white/20 text-white hover:bg-white/10">
+                    <Button variant="outline" size="sm" className="gap-1 border-white/20 text-white hover:bg-white/10 bg-white/10">
                       <Github className="h-4 w-4" />
                       View Code
                     </Button>
@@ -263,7 +263,7 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
                 </h3>
                 <p className="text-gray-300 text-sm">View the source code and contribute to this project on GitHub.</p>
                 <Link href={project.githubUrl} target="_blank" rel="noopener noreferrer" className="inline-block">
-                  <Button variant="outline" className="w-full border-white/20 text-white hover:bg-white/10">
+                  <Button variant="outline" className="w-full border-white/20 text-white hover:bg-white/10 bg-white/10">
                     View Repository
                     <ExternalLink className="ml-2 h-4 w-4" />
                   </Button>
