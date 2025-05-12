@@ -1,10 +1,12 @@
 "use client"
 
+import React from 'react';
 import Link from "next/link"
 import Image from "next/image"
 import { Badge } from "@/components/ui/badge"
 import { Github } from "lucide-react"
 import type { Project } from "@/lib/data"
+import { Button } from './ui/button';
 
 interface ProjectCardProps {
   project: Project
@@ -71,6 +73,9 @@ export function ProjectCard({ project }: ProjectCardProps) {
                 </a>
               )}
             </div>
+          </div>
+          <div className="mt-4">
+            <Button variant="outline">View Project</Button>
           </div>
         </div>
       </div>
