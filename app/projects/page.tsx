@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { ProjectCard } from "@/components/project-card"
 import { projects } from "@/lib/data"
 import { Badge } from "@/components/ui/badge"
-import { Filter, Search, X, Sparkles } from "lucide-react"
+import { Filter, Search, X, Sparkles, ChevronDown, Home } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
 export default function ProjectsPage() {
@@ -40,6 +40,20 @@ export default function ProjectsPage() {
         </div>
 
         <div className="container px-4 md:px-6 relative z-10">
+          <div className="flex items-center gap-3 mb-6">
+            <Link href="/">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="relative group h-10 w-10 rounded-full bg-white/5 hover:bg-white/10 transition-all"
+                aria-label="Go to homepage"
+              >
+                <span className="absolute inset-0 rounded-full bg-purple-600/20 scale-0 group-hover:scale-100 transition-transform duration-300"></span>
+                <Home className="h-5 w-5 text-white transition-all group-hover:scale-110" />
+              </Button>
+            </Link>
+          </div>
+          
           <motion.div 
             className="max-w-3xl"
             initial={{ opacity: 0, y: 20 }}
@@ -80,8 +94,9 @@ export default function ProjectsPage() {
               </div>
               <Button
                 variant="outline"
-                className={`border-white/20 text-white transition-colors ${showFilters ? 'bg-white/20 hover:bg-white/30' : 'hover:bg-white/10'}`}
+                size="sm"
                 onClick={() => setShowFilters(!showFilters)}
+                className={`border-white/20 text-white bg-white/10 transition-colors ${showFilters ? 'bg-white/20 hover:bg-white/30' : 'hover:bg-white/20'}`}
               >
                 {showFilters ? <X className="mr-2 h-4 w-4" /> : <Filter className="mr-2 h-4 w-4" />}
                 Filters

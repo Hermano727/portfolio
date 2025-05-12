@@ -9,11 +9,12 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
 import { projects } from "@/lib/data"
-import { ArrowLeft, Calendar, Edit, ExternalLink, Github, PenToolIcon as Tool } from "lucide-react"
+import { ArrowLeft, Calendar, Edit, ExternalLink, Github, PenToolIcon as Tool, Home } from "lucide-react"
 import { motion } from "framer-motion"
 
 export default function ProjectPage({ params }: { params: { id: string } }) {
-  const project = projects.find((p) => p.id === params.id)
+  const id = `${params.id}`
+  const project = projects.find((p) => p.id === id)
 
   if (!project) {
     notFound()
@@ -27,6 +28,17 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
       <div className="bg-black text-white">
         <div className="container px-4 md:px-6 py-12">
           <div className="flex items-center gap-2 mb-8">
+            <Link href="/">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="relative group h-10 w-10 rounded-full bg-white/5 hover:bg-white/10 transition-all"
+                aria-label="Go to homepage"
+              >
+                <span className="absolute inset-0 rounded-full bg-purple-600/20 scale-0 group-hover:scale-100 transition-transform duration-300"></span>
+                <Home className="h-5 w-5 text-white transition-all group-hover:scale-110" />
+              </Button>
+            </Link>
             <Link href="/projects">
               <Button variant="ghost" size="sm" className="gap-1 text-gray-300 hover:text-white">
                 <ArrowLeft className="h-4 w-4" />
@@ -74,14 +86,14 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
 
               <div className="flex flex-wrap gap-3 pt-4">
                 <Link href={`/projects/${project.id}/edit`}>
-                  <Button variant="outline" size="sm" className="gap-1 border-white/20 text-white hover:bg-white/10 bg-white/10">
+                  <Button variant="outline" size="sm" className="gap-1 border-white/20 text-white bg-white/10 hover:bg-white/20 transition-colors">
                     <Edit className="h-4 w-4" />
                     Edit
                   </Button>
                 </Link>
                 {project.liveUrl && (
                   <Link href={project.liveUrl} target="_blank" rel="noopener noreferrer">
-                    <Button size="sm" className="gap-1 bg-purple-700 hover:bg-purple-800">
+                    <Button size="sm" className="gap-1 bg-purple-700 hover:bg-purple-800 transition-colors">
                       <ExternalLink className="h-4 w-4" />
                       Live Demo
                     </Button>
@@ -89,7 +101,7 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
                 )}
                 {project.githubUrl && (
                   <Link href={project.githubUrl} target="_blank" rel="noopener noreferrer">
-                    <Button variant="outline" size="sm" className="gap-1 border-white/20 text-white hover:bg-white/10 bg-white/10">
+                    <Button variant="outline" size="sm" className="gap-1 border-white/20 text-white bg-white/10 hover:bg-white/20 transition-colors">
                       <Github className="h-4 w-4" />
                       View Code
                     </Button>
@@ -263,7 +275,7 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
                 </h3>
                 <p className="text-gray-300 text-sm">View the source code and contribute to this project on GitHub.</p>
                 <Link href={project.githubUrl} target="_blank" rel="noopener noreferrer" className="inline-block">
-                  <Button variant="outline" className="w-full border-white/20 text-white hover:bg-white/10 bg-white/10">
+                  <Button variant="outline" className="w-full border-white/20 text-white bg-white/10 hover:bg-white/20 transition-colors">
                     View Repository
                     <ExternalLink className="ml-2 h-4 w-4" />
                   </Button>

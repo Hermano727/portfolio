@@ -54,9 +54,9 @@ export function ProjectCard({ project }: ProjectCardProps) {
                   href={project.liveUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-gray-900 hover:text-purple-700 transition-colors font-medium"
+                  className="inline-flex items-center gap-2 text-white bg-purple-600 hover:bg-purple-700 transition-colors font-medium rounded-md px-3 py-1 text-sm"
                 >
-                  <span className="text-sm">Live Demo</span>
+                  <span>Live Demo</span>
                 </a>
               )}
               {project.githubUrl && (
@@ -64,10 +64,10 @@ export function ProjectCard({ project }: ProjectCardProps) {
                   href={project.githubUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-gray-900 hover:text-purple-700 transition-colors font-medium"
+                  className="inline-flex items-center gap-2 text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors font-medium rounded-md px-3 py-1 text-sm"
                 >
-                  <Github className="h-5 w-5" />
-                  <span className="text-sm">View Code</span>
+                  <Github className="h-4 w-4" />
+                  <span>View Code</span>
                 </a>
               )}
             </div>
