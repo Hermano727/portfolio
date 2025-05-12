@@ -12,21 +12,25 @@ import { motion, AnimatePresence } from "framer-motion"
 
 export default function ProjectsPage() {
   const [searchQuery, setSearchQuery] = useState("")
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  const [selectedTag, setSelectedTag] = useState<string | null>(null)
   const [showFilters, setShowFilters] = useState(false)
 
-  // Get all unique categories
-  const categories = Array.from(new Set(projects.flatMap((project) => project.categories)))
+  // Get all unique tags
+  const tags = Array.from(
+    new Set(projects.flatMap((project) => project.tags || []))
+  )
 
-  // Filter projects based on search query and selected category
+  // Filter projects based on search query and selected tag
   const filteredProjects = projects.filter((project) => {
     const matchesSearch =
       project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       project.description.toLowerCase().includes(searchQuery.toLowerCase())
 
-    const matchesCategory = selectedCategory ? project.categories.includes(selectedCategory) : true
+    const matchesTag = selectedTag 
+      ? project.tags && project.tags.includes(selectedTag) 
+      : true
 
-    return matchesSearch && matchesCategory
+    return matchesSearch && matchesTag
   })
 
   return (
@@ -44,8 +48,8 @@ export default function ProjectsPage() {
             <Link href="/">
               <Button 
                 variant="ghost" 
-                size="icon" 
-                className="relative group h-10 w-10 rounded-full bg-white/5 hover:bg-white/10 transition-all"
+                size="sm" 
+                className="relative group rounded-full bg-white/5 hover:bg-white/10 transition-all"
                 aria-label="Go to homepage"
               >
                 <span className="absolute inset-0 rounded-full bg-purple-600/20 scale-0 group-hover:scale-100 transition-transform duration-300"></span>
@@ -74,7 +78,7 @@ export default function ProjectsPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.3 }}
             >
-              Browse through all projects, filter by category, or search for specific ones.
+              Browse through all projects, filter by tag, or search for specific ones.
             </motion.p>
             <motion.div 
               className="flex flex-col sm:flex-row gap-4"
@@ -100,7 +104,7 @@ export default function ProjectsPage() {
               >
                 {showFilters ? <X className="mr-2 h-4 w-4" /> : <Filter className="mr-2 h-4 w-4" />}
                 Filters
-                {selectedCategory && (
+                {selectedTag && (
                   <span className="ml-2 flex h-2 w-2 rounded-full bg-purple-500"></span>
                 )}
               </Button>
@@ -154,30 +158,30 @@ export default function ProjectsPage() {
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="font-medium flex items-center gap-2">
                     <Sparkles className="h-4 w-4 text-purple-500" />
-                    Filter by Category
+                    Filter by Tag
                   </h3>
                   <Button
                     variant="ghost"
                     size="sm"
                     className="h-8 text-gray-500 hover:text-black transition-colors"
-                    onClick={() => setSelectedCategory(null)}
+                    onClick={() => setSelectedTag(null)}
                   >
                     Clear filters
                   </Button>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {categories.map((category) => (
+                  {tags.map((tag) => (
                     <Badge
-                      key={category}
-                      variant={selectedCategory === category ? "default" : "outline"}
+                      key={tag}
+                      variant={selectedTag === tag ? "default" : "outline"}
                       className={`cursor-pointer transition-all ${
-                        selectedCategory === category 
+                        selectedTag === tag 
                           ? "bg-black text-white hover:bg-purple-600" 
                           : "hover:bg-gray-100"
                       }`}
-                      onClick={() => setSelectedCategory(selectedCategory === category ? null : category)}
+                      onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
                     >
-                      {category}
+                      {tag}
                     </Badge>
                   ))}
                 </div>
@@ -197,9 +201,9 @@ export default function ProjectsPage() {
             <h2 className="text-2xl font-bold flex items-center gap-2">
               <span className="text-purple-600">{filteredProjects.length}</span> 
               {filteredProjects.length === 1 ? "Project" : "Projects"}
-              {selectedCategory && (
+              {selectedTag && (
                 <span className="font-normal text-gray-500 flex items-center gap-1">
-                  in <span className="font-medium text-black">{selectedCategory}</span>
+                  with <span className="font-medium text-black">{selectedTag}</span>
                 </span>
               )}
             </h2>
@@ -241,7 +245,7 @@ export default function ProjectsPage() {
               variant="outline"
               onClick={() => {
                 setSearchQuery("")
-                setSelectedCategory(null)
+                setSelectedTag(null)
               }}
               className="hover:bg-gray-100 transition-colors"
             >
