@@ -17,7 +17,7 @@ export default function ProjectsPage() {
 
   // Get all unique tags
   const tags = Array.from(
-    new Set(projects.flatMap((project) => project.tags || []))
+    new Set(projects.flatMap((project) => project.categories || []))
   )
 
   // Filter projects based on search query and selected tag
@@ -27,7 +27,7 @@ export default function ProjectsPage() {
       project.description.toLowerCase().includes(searchQuery.toLowerCase())
 
     const matchesTag = selectedTag 
-      ? project.tags && project.tags.includes(selectedTag) 
+      ? project.categories && project.categories.includes(selectedTag) 
       : true
 
     return matchesSearch && matchesTag
