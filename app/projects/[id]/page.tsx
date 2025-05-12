@@ -5,7 +5,8 @@ import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { notFound } from "next/navigation"
-import { Button } from "@/components/ui/button"
+import { Button as ShadcnButton } from "@/components/ui/button"
+import { Button } from "@nextui-org/react"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
@@ -32,18 +33,20 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
           <div className="flex items-center gap-2 mb-8">
             <Link href="/">
               <Button 
-                variant="ghost" 
-                size="sm" 
-                className="relative group rounded-full bg-white/5 hover:bg-white/10 transition-all"
+                isIconOnly
+                variant="flat"
+                className="bg-white/10 text-white rounded-full"
                 aria-label="Go to homepage"
               >
-                <span className="absolute inset-0 rounded-full bg-purple-600/20 scale-0 group-hover:scale-100 transition-transform duration-300"></span>
-                <Home className="h-5 w-5 text-white transition-all group-hover:scale-110" />
+                <Home className="h-5 w-5" />
               </Button>
             </Link>
             <Link href="/projects">
-              <Button variant="ghost" size="sm" className="gap-1 text-gray-300 hover:text-white">
-                <ArrowLeft className="h-4 w-4" />
+              <Button 
+                variant="flat" 
+                className="text-gray-300 hover:text-white bg-transparent"
+                startContent={<ArrowLeft className="h-4 w-4" />}
+              >
                 Back to Projects
               </Button>
             </Link>
@@ -66,16 +69,32 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
               <div className="flex flex-wrap gap-3 pt-4">
                 {project.liveUrl && (
                   <Link href={project.liveUrl} target="_blank" rel="noopener noreferrer">
-                    <Button size="sm" className="gap-1 bg-purple-700 hover:bg-purple-800 transition-colors">
-                      <ExternalLink className="h-4 w-4" />
+                    <Button 
+                      className="bg-gradient-to-tr from-purple-600 to-purple-800 text-white shadow-lg font-medium 
+                      hover:shadow-purple-500/30 transition-all duration-300 hover:scale-105 
+                      hover:from-purple-700 hover:to-purple-900"
+                      size="sm"
+                      endContent={<ExternalLink className="h-4 w-4 group-hover:translate-x-1 transition-transform" />}
+                      radius="md"
+                      disableRipple={false}
+                      disableAnimation={false}
+                    >
                       Live Demo
                     </Button>
                   </Link>
                 )}
                 {project.githubUrl && (
                   <Link href={project.githubUrl} target="_blank" rel="noopener noreferrer">
-                    <Button variant="outline" size="sm" className="gap-1 border-white/20 text-white bg-white/10 hover:bg-white/20 transition-colors">
-                      <Github className="h-4 w-4" />
+                    <Button 
+                      variant="flat" 
+                      className="bg-white/10 text-white hover:bg-white/20 border-white/20
+                      transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                      size="sm"
+                      startContent={<Github className="h-4 w-4 transition-transform group-hover:scale-110" />}
+                      radius="md"
+                      disableRipple={false}
+                      disableAnimation={false}
+                    >
                       View Code
                     </Button>
                   </Link>

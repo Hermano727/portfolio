@@ -2,7 +2,8 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import { Button } from "@/components/ui/button"
+import { Button as ShadcnButton } from "@/components/ui/button"
+import { Button } from "@nextui-org/react" 
 import { ProjectCard } from "@/components/project-card"
 import { projects } from "@/lib/data"
 import { ArrowRight, Github, Twitter, Linkedin } from "lucide-react"
@@ -58,9 +59,16 @@ export default function Home() {
                 transition={{ duration: 0.5, delay: 0.6 }}
               >
                 <Link href="/projects">
-                  <Button className="group bg-white text-black hover:bg-gray-100 text-lg px-6 py-6 h-auto">
+                  <Button 
+                    className="text-lg font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg" 
+                    size="lg"
+                    radius="full" 
+                    color="default"
+                    endContent={<ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />}
+                    variant="shadow"
+                    disableRipple={false}
+                  >
                     View Projects
-                    <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                   </Button>
                 </Link>
                 <Link
@@ -70,23 +78,32 @@ export default function Home() {
                     window.open("/resume.pdf", "_blank")
                   }}
                 >
-                  <Button className="bg-purple-700 text-white hover:bg-purple-800 text-lg px-6 py-6 h-auto">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="mr-2"
-                    >
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                      <polyline points="7 10 12 15 17 10" />
-                      <line x1="12" y1="15" x2="12" y2="3" />
-                    </svg>
+                  <Button 
+                    className="text-lg font-semibold bg-gradient-to-tr from-purple-500 to-purple-700 text-white shadow-lg
+                    hover:shadow-purple-500/40 transition-all duration-300 hover:scale-105 
+                    hover:from-purple-600 hover:to-purple-800" 
+                    size="lg" 
+                    radius="full"
+                    disableRipple={false}
+                    startContent={
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="group-hover:translate-y-1 transition-transform"
+                      >
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="7 10 12 15 17 10" />
+                        <line x1="12" y1="15" x2="12" y2="3" />
+                      </svg>
+                    }
+                  >
                     Download Resume
                   </Button>
                 </Link>
@@ -180,9 +197,16 @@ export default function Home() {
             transition={{ duration: 0.5, delay: 0.6 }}
           >
             <Link href="/projects">
-              <Button className="group bg-black text-white hover:bg-gray-900">
+              <Button 
+                className="bg-gradient-to-r from-black to-gray-800 text-white font-medium
+                hover:shadow-xl transition-all duration-300 hover:scale-105
+                hover:from-gray-900 hover:to-black"
+                endContent={<ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />}
+                radius="sm"
+                variant="shadow"
+                disableRipple={false}
+              >
                 View All Projects
-                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Button>
             </Link>
           </motion.div>

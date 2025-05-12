@@ -2,7 +2,8 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
+import { Button as ShadcnButton } from "@/components/ui/button"
+import { Button } from "@nextui-org/react"
 import { Input } from "@/components/ui/input"
 import { ProjectCard } from "@/components/project-card"
 import { projects } from "@/lib/data"
@@ -47,13 +48,12 @@ export default function ProjectsPage() {
           <div className="flex items-center gap-3 mb-6">
             <Link href="/">
               <Button 
-                variant="ghost" 
-                size="sm" 
-                className="relative group rounded-full bg-white/5 hover:bg-white/10 transition-all"
+                isIconOnly
+                className="bg-white/10 text-white w-10 h-10 rounded-full"
+                variant="flat"
                 aria-label="Go to homepage"
               >
-                <span className="absolute inset-0 rounded-full bg-purple-600/20 scale-0 group-hover:scale-100 transition-transform duration-300"></span>
-                <Home className="h-5 w-5 text-white transition-all group-hover:scale-110" />
+                <Home className="h-5 w-5" />
               </Button>
             </Link>
           </div>
@@ -97,12 +97,11 @@ export default function ProjectsPage() {
                 />
               </div>
               <Button
-                variant="outline"
-                size="sm"
+                variant="flat"
+                className={`bg-white/10 text-white hover:bg-white/20 transition-all ${showFilters ? 'bg-white/20' : ''}`}
+                startContent={showFilters ? <X className="h-4 w-4" /> : <Filter className="h-4 w-4" />}
                 onClick={() => setShowFilters(!showFilters)}
-                className={`border-white/20 text-white bg-white/10 transition-colors ${showFilters ? 'bg-white/20 hover:bg-white/30' : 'hover:bg-white/20'}`}
               >
-                {showFilters ? <X className="mr-2 h-4 w-4" /> : <Filter className="mr-2 h-4 w-4" />}
                 Filters
                 {selectedTag && (
                   <span className="ml-2 flex h-2 w-2 rounded-full bg-purple-500"></span>
@@ -115,23 +114,27 @@ export default function ProjectsPage() {
                   window.open("/resume.pdf", "_blank")
                 }}
               >
-                <Button className="bg-purple-700 hover:bg-purple-800 transition-colors">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="mr-2 h-4 w-4"
-                  >
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                    <polyline points="7 10 12 15 17 10" />
-                    <line x1="12" y1="15" x2="12" y2="3" />
-                  </svg>
+                <Button 
+                  className="bg-gradient-to-tr from-purple-500 to-purple-700 text-white shadow-md"
+                  startContent={
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="h-4 w-4"
+                    >
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="7 10 12 15 17 10" />
+                      <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                  }
+                >
                   Download Resume
                 </Button>
               </Link>
@@ -161,9 +164,9 @@ export default function ProjectsPage() {
                     Filter by Tag
                   </h3>
                   <Button
-                    variant="ghost"
+                    variant="light"
                     size="sm"
-                    className="h-8 text-gray-500 hover:text-black transition-colors"
+                    className="text-gray-500 hover:text-black transition-colors"
                     onClick={() => setSelectedTag(null)}
                   >
                     Clear filters
@@ -242,14 +245,14 @@ export default function ProjectsPage() {
             <h3 className="text-xl font-medium">No projects found</h3>
             <p className="text-gray-500 mt-2 mb-6">Try adjusting your search or filters</p>
             <Button
-              variant="outline"
+              variant="flat"
+              className="bg-gray-50 hover:bg-gray-100"
               onClick={() => {
                 setSearchQuery("")
                 setSelectedTag(null)
               }}
-              className="hover:bg-gray-100 transition-colors"
             >
-              Clear all filters
+              Reset All Filters
             </Button>
           </motion.div>
         )}
