@@ -102,39 +102,45 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
               <TabsList className="grid w-full grid-cols-2 bg-gray-100 p-1 rounded-lg">
                 <TabsTrigger
                   value="overview"
-                  className="rounded-md data-[state=active]:bg-black data-[state=active]:text-white"
+                  className={`rounded-md ${activeTab === "overview" ? "bg-black text-white" : ""}`}
+                  onClick={() => setActiveTab("overview")}
                 >
                   Overview
                 </TabsTrigger>
                 <TabsTrigger
                   value="details"
-                  className="rounded-md data-[state=active]:bg-black data-[state=active]:text-white"
+                  className={`rounded-md ${activeTab === "details" ? "bg-black text-white" : ""}`}
+                  onClick={() => setActiveTab("details")}
                 >
                   Details
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="overview" className="pt-8">
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="prose max-w-none">
-                  <p className="text-lg leading-relaxed">{project.description}</p>
-                </motion.div>
-              </TabsContent>
+              {activeTab === "overview" && (
+                <TabsContent value="overview" className="pt-8">
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="prose max-w-none">
+                    <p className="text-lg leading-relaxed">{project.description}</p>
+                  </motion.div>
+                </TabsContent>
+              )}
 
-              <TabsContent value="details" className="pt-8">
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
-                  <div className="space-y-6">
-                    <div className="relative pl-8 pb-8">
-                      <div className="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-black"></div>
-                      <div className="flex flex-col gap-1">
-                        <div className="flex items-center gap-2">
-                          <h4 className="font-bold text-lg">Project Details</h4>
+              {activeTab === "details" && (
+                <TabsContent value="details" className="pt-8">
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+                    <div className="space-y-6">
+                      <div className="relative pl-8 pb-8">
+                        <div className="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-black"></div>
+                        <div className="flex flex-col gap-1">
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-bold text-lg">Project Details</h4>
+                          </div>
+                          <p className="text-gray-600">{project.description}</p>
                         </div>
-                        <p className="text-gray-600">{project.description}</p>
                       </div>
                     </div>
-                  </div>
-                </motion.div>
-              </TabsContent>
+                  </motion.div>
+                </TabsContent>
+              )}
             </Tabs>
           </div>
 

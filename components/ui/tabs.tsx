@@ -1,6 +1,6 @@
 "use client"
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 interface TabsProps {
   value: string;
@@ -34,14 +34,17 @@ interface TabsTriggerProps {
   value: string;
   className?: string;
   children: React.ReactNode;
+  onClick?: () => void;
 }
 
-export function TabsTrigger({ value, className = "", children }: TabsTriggerProps) {
+export function TabsTrigger({ value, className = "", children, onClick }: TabsTriggerProps) {
+  // Use the Tabs context or parent value to determine if active
+  
   return (
     <button 
       className={`px-4 py-2 ${className}`}
-      data-state={value === window.location.hash.slice(1) ? "active" : "inactive"}
-      onClick={() => window.location.hash = value}
+      data-state="inactive"
+      onClick={onClick}
     >
       {children}
     </button>
@@ -55,10 +58,6 @@ interface TabsContentProps {
 }
 
 export function TabsContent({ value, className = "", children }: TabsContentProps) {
-  const isActive = value === window.location.hash.slice(1);
-  
-  if (!isActive) return null;
-  
   return (
     <div className={className}>
       {children}
