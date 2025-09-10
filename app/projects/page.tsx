@@ -214,7 +214,7 @@ export default function ProjectsPage() {
         </motion.div>
 
         {filteredProjects.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {filteredProjects.map((project, index) => (
               <motion.div
                 key={project.id}
@@ -226,7 +226,7 @@ export default function ProjectsPage() {
                   boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
                   transition: { duration: 0.2 }
                 }}
-                className="rounded-xl overflow-hidden"
+                className="h-full"
               >
                 <ProjectCard project={project} />
               </motion.div>

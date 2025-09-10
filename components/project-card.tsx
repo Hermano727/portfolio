@@ -14,11 +14,11 @@ interface ProjectCardProps {
 
 export function ProjectCard({ project }: ProjectCardProps) {
   return (
-    <div className="group bg-white border border-gray-100 rounded-2xl overflow-hidden hover:shadow-lg transition-all">
-      <div className="flex flex-col md:flex-row h-full">
+    <div className="group bg-white border border-gray-100 rounded-2xl overflow-hidden hover:shadow-lg transition-all h-full">
+      <div className="flex flex-col h-full">
         <Link
           href={`/projects/${project.id}`}
-          className="relative w-full md:w-[420px] h-[280px] md:h-[320px] flex-shrink-0 bg-gray-100"
+          className="relative w-full h-[200px] bg-gray-100 flex-shrink-0"
         >
           <Image
             src={project.image || "/placeholder.png"}
@@ -28,55 +28,66 @@ export function ProjectCard({ project }: ProjectCardProps) {
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         </Link>
-        <div className="flex-1 p-8 flex flex-col">
+        <div className="flex-1 p-6 flex flex-col">
           <Link 
             href={`/projects/${project.id}`} 
             className="block flex-grow group/link"
           >
-            <h3 className="text-2xl font-semibold mb-3 text-gray-900 group-hover/link:text-purple-700 transition-colors">
+            <h3 className="text-xl font-semibold mb-3 text-gray-900 group-hover/link:text-purple-700 transition-colors line-clamp-2">
               {project.title}
             </h3>
-            <p className="text-gray-600 mb-6">{project.description}</p>
+            <p className="text-gray-600 mb-4 text-sm line-clamp-3">{project.description}</p>
           </Link>
-          <div className="flex items-center justify-between mt-auto">
-            <div className="flex flex-wrap gap-2">
-              {project.categories && project.categories.map((category) => (
-                <Badge 
-                  key={category} 
-                  variant="secondary"
-                  className="bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors"
-                >
-                  {category}
-                </Badge>
-              ))}
-            </div>
-            <div className="flex items-center gap-4">
-              {project.liveUrl && (
-                <a
-                  href={project.liveUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-white bg-purple-600 hover:bg-purple-700 transition-colors font-medium rounded-md px-3 py-1 text-sm"
-                >
-                  <span>Live Demo</span>
-                </a>
-              )}
-              {project.githubUrl && (
-                <a
-                  href={project.githubUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors font-medium rounded-md px-3 py-1 text-sm"
-                >
-                  <Github className="h-4 w-4" />
-                  <span>View Code</span>
-                </a>
-              )}
-            </div>
+          
+          <div className="flex flex-wrap gap-2 mb-4">
+            {project.categories && project.categories.slice(0, 3).map((category) => (
+              <Badge 
+                key={category} 
+                variant="secondary"
+                className="bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors text-xs"
+              >
+                {category}
+              </Badge>
+            ))}
+            {project.categories && project.categories.length > 3 && (
+              <Badge 
+                variant="secondary"
+                className="bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors text-xs"
+              >
+                +{project.categories.length - 3} more
+              </Badge>
+            )}
           </div>
-          <div className="mt-4">
+
+          <div className="flex items-center gap-2 mb-4">
+            {project.liveUrl && (
+              <a
+                href={project.liveUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-white bg-purple-600 hover:bg-purple-700 transition-colors font-medium rounded-md px-3 py-1.5 text-xs"
+              >
+                <span>Live Demo</span>
+              </a>
+            )}
+            {project.githubUrl && (
+              <a
+                href={project.githubUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors font-medium rounded-md px-3 py-1.5 text-xs"
+              >
+                <Github className="h-3 w-3" />
+                <span>Code</span>
+              </a>
+            )}
+          </div>
+
+          <div className="mt-auto">
             <Link href={`/projects/${project.id}`}>
-              <Button variant="outline">View Project</Button>
+              <Button variant="outline" size="sm" className="w-full">
+                View Project
+              </Button>
             </Link>
           </div>
         </div>

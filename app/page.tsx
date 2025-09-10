@@ -4,7 +4,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { Button as ShadcnButton } from "@/components/ui/button"
 import { Button } from "@nextui-org/react" 
-import { ProjectCard } from "@/components/project-card"
+import { FeaturedProjectCard } from "@/components/featured-project-card"
 import { projects } from "@/lib/data"
 import { ArrowRight, Github, Twitter, Linkedin } from "lucide-react"
 import { motion } from "framer-motion"
@@ -16,12 +16,30 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
-      <section className="w-full py-24 md:py-32 bg-black text-white relative overflow-hidden">
+      <section className="w-full py-24 md:py-32 bg-gradient-to-br from-black via-gray-900 to-black text-white relative overflow-hidden">
         {/* Animated background gradient */}
         <div className="absolute inset-0 opacity-20">
           <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_30%_20%,rgba(109,40,217,0.4)_0%,transparent_40%)] animate-pulse"></div>
           <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(circle_at_70%_80%,rgba(109,40,217,0.4)_0%,transparent_40%)] animate-pulse" style={{ animationDelay: "1s" }}></div>
         </div>
+
+        {/* TFT Penguin */}
+        <motion.div 
+          className="absolute top-6 right-6 z-20"
+          initial={{ opacity: 0, scale: 0 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 1 }}
+          whileHover={{ scale: 1.1, rotate: 5 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <button 
+            className="text-4xl cursor-pointer hover:animate-bounce transition-all duration-300"
+            onClick={() => window.open("https://www.teamfighttactics.com/", "_blank")}
+            title="TFT #1 Enthusiast! 🐧"
+          >
+            🐧
+          </button>
+        </motion.div>
 
         <div className="max-w-6xl mx-auto px-6 md:px-10 relative z-10">
           <div className="flex flex-col-reverse md:flex-row items-center justify-between gap-12">
@@ -38,9 +56,9 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
               >
-                <span className="block">Document</span>
+                <span className="block">Building the future,</span>
                 <span className="block">
-                  Your <span className="text-purple-500 inline-block hover:scale-110 transition-transform">Journey</span>
+                  one line of code at a time <span className="text-purple-500 inline-block hover:scale-110 transition-transform">✨</span>
                 </span>
               </motion.h1>
               <motion.p 
@@ -49,8 +67,8 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.4 }}
               >
-                Welcome to my portfolio. I showcase my personal projects, track my progress, and share what I've learned
-                along the way.
+                First-gen Math-CS student at UC San Diego, passionate about building software that's intuitive, impactful, and accessible. 
+                #1 TFT enthusiast when I'm not coding! 🐧
               </motion.p>
               <motion.div 
                 className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start"
@@ -75,7 +93,7 @@ export default function Home() {
                   href="#"
                   onClick={(e) => {
                     e.preventDefault()
-                    window.open("/resume.pdf", "_blank")
+                    window.open("/Herman_Hundsberger_Resume.pdf", "_blank")
                   }}
                 >
                   <Button 
@@ -134,7 +152,7 @@ export default function Home() {
             >
               <div className="relative w-48 h-48 md:w-64 md:h-64 rounded-full overflow-hidden border-4 border-purple-500/20">
                 <Image
-                  src="/me.jpg"
+                  src="/pfp.jpg"
                   alt="Profile picture"
                   width={256}
                   height={256}
@@ -184,7 +202,7 @@ export default function Home() {
                 }}
                 className="rounded-xl overflow-hidden"
               >
-                <ProjectCard project={project} />
+                <FeaturedProjectCard project={project} />
               </motion.div>
             ))}
           </div>
@@ -214,7 +232,7 @@ export default function Home() {
       </section>
 
       {/* Get in Touch Section */}
-      <section className="w-full py-24 bg-black text-white">
+      <section className="w-full py-24 bg-gradient-to-br from-black via-gray-900 to-black text-white">
         <div className="max-w-7xl mx-auto px-16 md:px-24">
           <div className="flex flex-col md:flex-row items-center justify-between gap-12">
             <div className="md:w-1/2 space-y-6">
