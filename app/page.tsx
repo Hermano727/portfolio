@@ -8,10 +8,15 @@ import { FeaturedProjectCard } from "@/components/featured-project-card"
 import { projects } from "@/lib/data"
 import { ArrowRight, Github, Twitter, Linkedin } from "lucide-react"
 import { motion } from "framer-motion"
+import { Dancing_Script } from "next/font/google"
+
+const cursive = Dancing_Script({ subsets: ["latin"], weight: ["500"] })
 
 export default function Home() {
-  // Get featured projects (most recent 3)
-  const featuredProjects = projects.slice(0, 3)
+  // Get featured projects (most recent 3, sorted by start date)
+  const featuredProjects = projects
+    .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
+    .slice(0, 3)
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -26,39 +31,48 @@ export default function Home() {
         {/* TFT Penguin */}
         <motion.div 
           className="absolute top-6 right-6 z-20"
-          initial={{ opacity: 0, scale: 0 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, delay: 1 }}
-          whileHover={{ scale: 1.1, rotate: 5 }}
+          initial={{ opacity: 0, x: 100 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8, delay: 1, type: "spring", stiffness: 100 }}
+          whileHover={{ scale: 1.05, x: -10 }}
           whileTap={{ scale: 0.95 }}
         >
           <button 
-            className="text-4xl cursor-pointer hover:animate-bounce transition-all duration-300"
-            onClick={() => window.open("https://www.teamfighttactics.com/", "_blank")}
+            className="cursor-pointer transition-all duration-300"
+            onClick={() => window.open("https://lolchess.gg/profile/na/hermano727-lmao/set13", "_blank")}
             title="TFT #1 Enthusiast! 🐧"
           >
-            🐧
+            <Image
+              src="/tft-pengu.jpg"
+              alt="TFT Penguin"
+              width={80}
+              height={80}
+              className="rounded-full border-2 border-purple-500/30 hover:border-purple-400/60 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/25"
+            />
           </button>
         </motion.div>
 
-        <div className="max-w-6xl mx-auto px-6 md:px-10 relative z-10">
-          <div className="flex flex-col-reverse md:flex-row items-center justify-between gap-12">
+        <div className="max-w-7xl mx-auto px-6 md:px-10 relative z-10">
+          <div className="flex flex-col-reverse md:flex-row items-center justify-between gap-10">
             {/* Text */}
             <motion.div 
-              className="text-center md:text-left md:flex-1"
+              className="text-center md:text-left md:w-3/5"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
               <motion.h1 
-                className="text-5xl md:text-7xl font-bold tracking-tight leading-tight mb-6"
+                className="text-5xl md:text-6xl font-bold tracking-tight leading-normal mb-6"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
               >
-                <span className="block">Building the future,</span>
-                <span className="block">
-                  one line of code at a time <span className="text-purple-500 inline-block hover:scale-110 transition-transform">✨</span>
+                <span className="block">Come build the future!</span>
+                <span className="block text-3xl md:text-5xl md:whitespace-nowrap mt-5">
+                  Designing intuitive, impactful software
+                </span>
+                <span className={`${cursive.className} block text-3xl md:text-4xl mt-5` }>
+                  one thoughtful commit at a time <span className="ml-1">🙂‍↕️</span>
                 </span>
               </motion.h1>
               <motion.p 
@@ -78,7 +92,7 @@ export default function Home() {
               >
                 <Link href="/projects">
                   <Button 
-                    className="text-lg font-semibold bg-gradient-to-r from-[#8A2BE2] to-[#9370DB] text-white shadow-lg 
+                    className="text-lg font-semibold bg-gradient-to-r from-purple-700 to-purple-900 text-white shadow-lg 
                     transition-all duration-300 hover:scale-105 hover:shadow-purple-500/40" 
                     size="lg"
                     radius="full" 
@@ -89,17 +103,28 @@ export default function Home() {
                     View Projects
                   </Button>
                 </Link>
-                <Link
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault()
-                    window.open("/Herman_Hundsberger_Resume.pdf", "_blank")
-                  }}
+                <Link href="/experience">
+                  <Button 
+                    className="text-lg font-semibold bg-gradient-to-r from-purple-700 to-purple-900 text-white shadow-lg 
+                    transition-all duration-300 hover:scale-105 hover:shadow-purple-500/40" 
+                    size="lg"
+                    radius="full" 
+                    endContent={<ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />}
+                    variant="shadow"
+                    disableRipple={false}
+                  >
+                    View Experience
+                  </Button>
+                </Link>
+                <a
+                  href="/Herman_Hundsberger_Resume.pdf"
+                  download="Herman_Hundsberger_Resume.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
                   <Button 
-                    className="text-lg font-semibold bg-gradient-to-tr from-purple-500 to-purple-700 text-white shadow-lg
-                    hover:shadow-purple-500/40 transition-all duration-300 hover:scale-105 
-                    hover:from-purple-600 hover:to-purple-800" 
+                    className="text-lg font-semibold bg-gradient-to-r from-purple-700 to-purple-900 text-white shadow-lg
+                    hover:shadow-purple-500/40 transition-all duration-300 hover:scale-105" 
                     size="lg" 
                     radius="full"
                     disableRipple={false}
@@ -124,7 +149,7 @@ export default function Home() {
                   >
                     Download Resume
                   </Button>
-                </Link>
+                </a>
               </motion.div>
 
               {/* Social Links */}
@@ -145,7 +170,7 @@ export default function Home() {
 
             {/* Image */}
             <motion.div 
-              className="flex justify-center md:justify-end md:flex-1"
+              className="flex justify-center md:justify-end md:w-2/5"
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
@@ -169,7 +194,7 @@ export default function Home() {
       </section>
 
       {/* Featured Projects */}
-      <section className="w-full py-24 bg-gray-50">
+      <section className="w-full py-24 bg-[linear-gradient(180deg,rgba(245,245,248,1)_0%,rgba(240,240,245,1)_40%,rgba(235,235,242,1)_100%)]">
         <div className="max-w-6xl mx-auto px-6 md:px-10">
           <motion.div 
             className="flex flex-col items-center text-center mb-12"
@@ -178,7 +203,7 @@ export default function Home() {
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            <div className="inline-block bg-purple-100 text-purple-700 px-4 py-1.5 rounded-full text-sm font-medium mb-4">
+            <div className="inline-block bg-purple-100 text-purple-700 px-6 py-2 rounded-full text-base font-medium mb-4">
               Featured Work
             </div>
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">Recent Projects</h2>
