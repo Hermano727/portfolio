@@ -8,9 +8,9 @@ import { FeaturedProjectCard } from "@/components/featured-project-card"
 import { projects } from "@/lib/data"
 import { ArrowRight, Github, Twitter, Linkedin } from "lucide-react"
 import { motion } from "framer-motion"
-import { Dancing_Script } from "next/font/google"
+import { Satisfy } from "next/font/google"
 
-const cursive = Dancing_Script({ subsets: ["latin"], weight: ["500"] })
+const cursive = Satisfy({ subsets: ["latin"], weight: ["400"] })
 
 export default function Home() {
   // Get featured projects (most recent 3, sorted by start date)
@@ -90,28 +90,32 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.6 }}
               >
-                <Link href="/projects">
+                <Link href="/projects" className="block">
                   <Button 
                     className="text-lg font-semibold bg-gradient-to-r from-purple-700 to-purple-900 text-white shadow-lg 
-                    transition-all duration-300 hover:scale-105 hover:shadow-purple-500/40" 
+                    transition-all duration-300 hover:scale-105 hover:shadow-purple-500/40 w-full sm:w-auto" 
                     size="lg"
                     radius="full" 
                     endContent={<ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />}
                     variant="shadow"
                     disableRipple={false}
+                    onTouchStart={(e) => e.stopPropagation()}
+                    onTouchEnd={(e) => e.stopPropagation()}
                   >
                     View Projects
                   </Button>
                 </Link>
-                <Link href="/experience">
+                <Link href="/experience" className="block">
                   <Button 
                     className="text-lg font-semibold bg-gradient-to-r from-purple-700 to-purple-900 text-white shadow-lg 
-                    transition-all duration-300 hover:scale-105 hover:shadow-purple-500/40" 
+                    transition-all duration-300 hover:scale-105 hover:shadow-purple-500/40 w-full sm:w-auto" 
                     size="lg"
                     radius="full" 
                     endContent={<ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />}
                     variant="shadow"
                     disableRipple={false}
+                    onTouchStart={(e) => e.stopPropagation()}
+                    onTouchEnd={(e) => e.stopPropagation()}
                   >
                     View Experience
                   </Button>
@@ -121,13 +125,16 @@ export default function Home() {
                   download="Herman_Hundsberger_Resume.pdf"
                   target="_blank"
                   rel="noopener noreferrer"
+                  className="block"
                 >
                   <Button 
                     className="text-lg font-semibold bg-gradient-to-r from-purple-700 to-purple-900 text-white shadow-lg
-                    hover:shadow-purple-500/40 transition-all duration-300 hover:scale-105" 
+                    hover:shadow-purple-500/40 transition-all duration-300 hover:scale-105 w-full sm:w-auto" 
                     size="lg" 
                     radius="full"
                     disableRipple={false}
+                    onTouchStart={(e) => e.stopPropagation()}
+                    onTouchEnd={(e) => e.stopPropagation()}
                     startContent={
                       <svg
                         xmlns="http://www.w3.org/2000/svg"

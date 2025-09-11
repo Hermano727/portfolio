@@ -138,7 +138,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
               {activeTab === "overview" && (
                 <TabsContent value="overview" className="pt-8">
                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="prose max-w-none">
-                    <p className="text-lg leading-relaxed">{project.longDescription}</p>
+                    <p className="text-lg leading-relaxed text-gray-800">{project.longDescription}</p>
                   </motion.div>
                 </TabsContent>
               )}
@@ -153,7 +153,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
                           <div className="flex items-center gap-2">
                             <h4 className="font-bold text-lg">Project Details</h4>
                           </div>
-                          <p className="text-gray-600">{project.description}</p>
+                          <p className="text-gray-800">{project.description}</p>
                         </div>
                       </div>
                     </div>
