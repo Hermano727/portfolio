@@ -9,6 +9,7 @@ import { projects } from "@/lib/data"
 import { ArrowRight, Github, Twitter, Linkedin } from "lucide-react"
 import { motion } from "framer-motion"
 import { Satisfy } from "next/font/google"
+import { useState } from "react"
 
 const cursive = Satisfy({ subsets: ["latin"], weight: ["400"] })
 
@@ -17,6 +18,61 @@ export default function Home() {
   const featuredProjects = projects
     .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
     .slice(0, 3)
+
+  // Contact form UI state
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
+  const [errorMsg, setErrorMsg] = useState<string | null>(null)
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    if (status === "loading") return
+    setStatus("loading")
+    setErrorMsg(null)
+
+    try {
+      const form = e.currentTarget
+      const formData = new FormData(form)
+      const payload = {
+        name: String(formData.get("name") || "").trim(),
+        email: String(formData.get("email") || "").trim(),
+        message: String(formData.get("message") || "").trim(),
+        company: String(formData.get("company") || "").trim(), // honeypot
+      }
+
+      // simple client-side validation for immediate UX
+      if (payload.company) {
+        // bot detected, pretend success
+        setStatus("success")
+        form.reset()
+        return
+      }
+      if (payload.name.length < 2) throw new Error("Please enter your name.")
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email)) throw new Error("Please enter a valid email.")
+      if (payload.message.length < 10) throw new Error("Message should be at least 10 characters.")
+
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      })
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data?.error || "Failed to send message. Please try again.")
+      }
+
+      setStatus("success")
+      form.reset()
+    } catch (err: any) {
+      setStatus("error")
+      setErrorMsg(err?.message || "Something went wrong. Please try again later.")
+    } finally {
+      // Keep success visible; reset error/loading back to idle after short delay
+      if (status !== "success") {
+        setTimeout(() => setStatus("idle"), 2000)
+      }
+    }
+  }
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -327,7 +383,9 @@ export default function Home() {
             </div>
             <div className="md:w-1/2 w-full">
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 md:p-8">
-                <form className="space-y-4">
+                <form className="space-y-4" onSubmit={handleSubmit} noValidate>
+                  {/* honeypot field for bots */}
+                  <input type="text" name="company" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <label htmlFor="name" className="text-sm font-medium">
@@ -335,7 +393,10 @@ export default function Home() {
                       </label>
                       <input
                         id="name"
+                        name="name"
                         type="text"
+                        required
+                        minLength={2}
                         className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
                         placeholder="Your name"
                       />
@@ -346,7 +407,9 @@ export default function Home() {
                       </label>
                       <input
                         id="email"
+                        name="email"
                         type="email"
+                        required
                         className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
                         placeholder="Your email"
                       />
@@ -358,16 +421,32 @@ export default function Home() {
                     </label>
                     <textarea
                       id="message"
+                      name="message"
                       rows={4}
+                      required
+                      minLength={10}
                       className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
                       placeholder="Your message"
                     ></textarea>
                   </div>
+
+                  {/* Status feedback */}
+                  <div role="status" aria-live="polite" className="text-sm min-h-5">
+                    {status === "success" && (
+                      <p className="text-green-400">Thanks! Your message has been sent.</p>
+                    )}
+                    {status === "error" && (
+                      <p className="text-red-400">{errorMsg ?? "Something went wrong. Please try again."}</p>
+                    )}
+                  </div>
+
                   <button
                     type="submit"
-                    className="w-full bg-purple-700 hover:bg-purple-800 text-white font-medium py-3 px-4 rounded-lg transition-colors"
+                    disabled={status === "loading"}
+                    aria-busy={status === "loading"}
+                    className="w-full bg-purple-700 hover:bg-purple-800 disabled:opacity-70 disabled:cursor-not-allowed text-white font-medium py-3 px-4 rounded-lg transition-colors"
                   >
-                    Send Message
+                    {status === "loading" ? "Sending..." : "Send Message"}
                   </button>
                 </form>
               </div>

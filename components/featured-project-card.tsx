@@ -82,27 +82,23 @@ export function FeaturedProjectCard({ project }: FeaturedProjectCardProps) {
               </div>
               <div className="flex items-center gap-4">
                 {project.liveUrl && (
-                  <a
-                    href={project.liveUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => e.stopPropagation()}
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); window.open(project.liveUrl!, "_blank", "noopener,noreferrer") }}
                     className="inline-flex items-center gap-2 text-white bg-purple-600 hover:bg-purple-700 transition-colors font-medium rounded-md px-3 py-1 text-sm"
                   >
                     <span>Live Demo</span>
-                  </a>
+                  </button>
                 )}
                 {project.githubUrl && (
-                  <a
-                    href={project.githubUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => e.stopPropagation()}
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); window.open(project.githubUrl!, "_blank", "noopener,noreferrer") }}
                     className="inline-flex items-center gap-2 text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors font-medium rounded-md px-3 py-1 text-sm"
                   >
                     <Github className="h-4 w-4" />
                     <span>View Code</span>
-                  </a>
+                  </button>
                 )}
               </div>
             </div>
