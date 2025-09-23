@@ -25,24 +25,104 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
   const [activeTab, setActiveTab] = useState("overview")
 
   // Story sections for the Details tab
+  type Section = { title: string; body?: string; bullets?: string[] }
   const sections = useMemo(() => {
-    if (!project) return [] as { title: string; body: string }[]
+    if (!project) return [] as Section[]
     switch (project.id) {
       case "splitr":
         return [
-          { title: "Inspiration (0%)", body: "We kept running into annoying bill‑splitting at restaurants, so we built a tool to remove the friction and awkward math." },
-          { title: "Tech & Architecture (25%)", body: "React Native + Expo Go for rapid iteration; Firebase Auth for phone sign‑in; Google Vision OCR parsed with MistralAI and a Python service to transform into components." },
-          { title: "Midway Challenges (50%)", body: "OCR accuracy on messy receipts; normalizing item/price pairs from inconsistent layouts; piping image → backend → app reliably under time pressure." },
-          { title: "MVP Reached (75%)", body: "End‑to‑end flow: upload receipt, extract items, assign to people, compute totals including tax/tip fairly with a smooth UX." },
-          { title: "Finish & Next (100%)", body: "Editable receipt step, Firestore history, Venmo/CashApp integration, advanced split options, and UI polish." },
+          {
+            title: "Inspiration (0%)",
+            bullets: [
+              "We kept running into awkward, slow bill‑splitting at restaurants and wanted a tool that removed friction at the table.",
+              "Definition of done: reduce time‑to‑settle and make costs transparent; deliver a friendly, confident UX vs. just a raw OCR demo.",
+            ],
+          },
+          {
+            title: "Tech & Architecture (25%)",
+            bullets: [
+              "React Native + Expo Go for rapid iteration and on‑device testing; Firebase Auth (phone) for one‑tap onboarding and future history.",
+              "Pipeline: Google Vision OCR → MistralAI converts to structured JSON → FastAPI/Python validates/normalizes → RN renders assignable items.",
+              "I owned system design + UI: typed JSON contracts between RN and FastAPI, resilient loading/repair/edit states, consistent token/spacing system, and safe third‑party key injection.",
+              "Fair‑split logic: tax/tip allocated proportionally; totals validated against OCR output with guardrails.",
+            ],
+          },
+          {
+            title: "Midway Challenges (50%)",
+            bullets: [
+              "LLM benchmarking: compared Llama3/OpenAI/Mistral on curated receipt images; selected Mistral for cost/latency/JSON reliability.",
+              "Prompt/formatting issues: line breaks and multi‑quantity items initially broke schema parsing; we tightened the schema and added repair heuristics.",
+              "Data flow reliability: large images device → backend → app; added compression caps, retries, and clear progress states.",
+              "Product decision trade‑off: teammates wanted to pursue ~10% parsing accuracy gains; I proposed focusing the last 12 hours on a stronger MVP (Profile, History, polish) to impress judges.",
+              "Execution: created a timeline, branched off, and owned the risk—worked through the night to avoid blocking core features.",
+            ],
+          },
+          {
+            title: "MVP Reached (75%)",
+            bullets: [
+              "Delivered Profile tab and receipt History backed by Firebase; persisted user data reliably by demo time.",
+              "End‑to‑end flow: upload → extract → assign → fair split → final summary, all with clear UI states and minimal surprises.",
+              "Reliability: ≈90%+ extraction on our test set; prioritized UX clarity over chasing marginal accuracy gains.",
+              "Outcome: shipped a cohesive demo that showcased real value, not just OCR.",
+            ],
+          },
+          {
+            title: "Finish & Next (100%)",
+            bullets: [
+              "Editable receipts to quickly fix OCR misreads before splitting.",
+              "Full Firestore history, Venmo/Cash App integrations, and advanced split modes (percentages, shared items).",
+              "Accessibility polish and continuous prompt + pre‑processing improvements for diverse receipt formats.",
+              "Personal takeaways: communicate trade‑offs early, define typed service contracts, design resilient UI states first, and take ownership when making bold scope calls.",
+            ],
+          },
         ]
+        
       case "crisis-compass":
         return [
-          { title: "Inspiration (0%)", body: "Wildfire impact on friends/family motivated us to build a resource finder for crises." },
-          { title: "Tech & Architecture (25%)", body: "React front‑end, Google Maps + React Google Maps Library for autocomplete/search, Supabase for live chat, deployed via AWS Amplify." },
-          { title: "Midway Challenges (50%)", body: "First hackathon, role organization, sparse docs for the maps library, integrating features quickly." },
-          { title: "MVP Reached (75%)", body: "Interactive map to nearby resources, real‑time city‑scoped chat, resource links page—all shipped under time." },
-          { title: "Finish & Next (100%)", body: "Add danger‑zone API with live notifications and routes; deliver a mobile app for on‑the‑go access." },
+          {
+            title: "Inspiration (0%)",
+            bullets: [
+              "Wildfire impact on friends and family made it hard to quickly find credible, nearby help.",
+              "We scoped a tool that reduces search time under stress: a map of vetted resources + lightweight city‑scoped chat.",
+              "Design target: load fast on spotty connections, make first action obvious (Search → See resources → Get directions).",
+            ],
+          },
+          {
+            title: "Tech & Architecture (25%)",
+            bullets: [
+              "React front‑end with a typed component layer; deployed via AWS Amplify for quick, repeatable releases.",
+              "Google Places/Maps integration for autocomplete and nearby search; React Google Maps Library for rendering.",
+              "Supabase backs lightweight, city‑scoped real‑time chat so neighbors can share updates.",
+              "My role: system design + UI + Google Places integration. I migrated an HTML/Flask proof‑of‑concept into idiomatic React components, established a safe API‑key injection pattern, and defined the map/places hook API our UI consumes.",
+            ],
+          },
+          {
+            title: "Midway Challenges (50%)",
+            bullets: [
+              "Integration hurdles: the original Places demo was a plain HTML script. Porting to React initially failed to mount, and keys wouldn’t load.",
+              "Resolution: paired with the team, studied Google docs + examples, split init into a React provider and hooks, and moved key management to environment configs.",
+              "First hackathon dynamics: role clarity and speed. We created small, testable slices (search box, map marker list, chat channel) so work could proceed in parallel.",
+              "Sparse library docs: relied on source reading and minimal repros to verify behaviors (e.g., debounced autocomplete, map re‑center on query).",
+            ],
+          },
+          {
+            title: "MVP Reached (75%)",
+            bullets: [
+              "Resource discovery: users type a place or use current location → we show nearby hospitals, shelters, food banks, etc.",
+              "City‑scoped real‑time chat for coordination without information overload.",
+              "Resource links page for quick access to official alerts and help portals.",
+              "Shipped under time with a clean, accessible UI and sensible empty/loading states.",
+            ],
+          },
+          {
+            title: "Finish & Next (100%)",
+            bullets: [
+              "Danger‑zone API: live notifications, evacuation routes, and highlighted zones overlayed on the map.",
+              "Mobile experience: deliver a PWA/native shell for offline‑first access during outages.",
+              "Operational hardening: rate‑limit guards, retries, and telemetry on Places requests; secrets rotation and key scoping.",
+              "UX depth: saved searches, resource filters, and clearer confidence/updated‑time signals on results.",
+            ],
+          },
         ]
       default:
         return [
@@ -55,58 +135,74 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
     }
   }, [project])
 
-  // Progress based on section in view
-  const [progress, setProgress] = useState(0) // 0..100
+  // Progress (0,25,50,75,100) and section refs
+  const [progress, setProgress] = useState(0)
   const sectionRefs = useRef<HTMLElement[]>([])
-
-  // Measure story container to match progress rail height
   const storyContainerRef = useRef<HTMLDivElement | null>(null)
-  const [railHeight, setRailHeight] = useState<number>(520)
 
+  // Per-project gallery images (user-provided assets)
+  const galleryImages = useMemo(() => {
+    if (!project) return [] as string[]
+    switch (project.id) {
+      case "splitr":
+        return [
+          "/assets/projects/splitr-profile.png",
+          "/assets/projects/splitr-bill.jpg",
+        ]
+      case "crisis-compass":
+        return [
+          "/assets/projects/cc-map.jpg",
+          "/assets/projects/cc-chat.jpg",
+        ]
+      default:
+        return project.image ? [project.image] : []
+    }
+  }, [project])
+
+  // Only show the left-column gallery if we have at least 3 assets to make it feel full
+  const showGallery = useMemo(() => galleryImages.length >= 3, [galleryImages.length])
+
+  // Compute progress based on scroll position relative to the story area.
+  // We snap to the nearest 25% step.
   useEffect(() => {
-    const obs = new IntersectionObserver(
-      (entries) => {
-        // Choose the section with highest intersection ratio
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0]
-        if (visible) {
-          const idx = Number((visible.target as HTMLElement).dataset.idx)
-          const pct = Math.min(100, Math.max(0, idx * 25))
-          setProgress(pct)
-        }
-      },
-      { root: null, rootMargin: "-20% 0px -55% 0px", threshold: [0.2, 0.4, 0.6, 0.8] }
-    )
-    sectionRefs.current.filter(Boolean).forEach((el) => obs.observe(el as Element))
-    return () => obs.disconnect()
-  }, [activeTab, sections.length])
+    const onScroll = () => {
+      const container = storyContainerRef.current
+      if (!container) return
 
-  // Keep the rail height in sync with the left story column (no ResizeObserver to avoid feedback loops)
-  useEffect(() => {
-    const el = storyContainerRef.current
-    if (!el) return
+      // Ensure 0% at the very top of the page regardless of initial layout
+      if (window.scrollY <= 2) {
+        setProgress(0)
+        return
+      }
 
-    const measure = () => {
-      // Use scrollHeight to capture content height only, not stretched grid height
-      const h = el.scrollHeight
-      setRailHeight(h)
+      const rect = container.getBoundingClientRect()
+      const containerTop = rect.top + window.scrollY
+      const containerBottom = containerTop + container.scrollHeight
+
+      // Use the bottom of the viewport so 100% occurs when the bottom of
+      // the viewport reaches the bottom of the story container.
+      const viewportTop = window.scrollY
+      const viewportBottom = viewportTop + window.innerHeight
+
+      // If we're above the story, 0; when bottom reaches story bottom, 100
+      const raw = viewportBottom <= containerTop
+        ? 0
+        : viewportTop >= containerBottom
+          ? 1
+          : (viewportBottom - containerTop) / (containerBottom - containerTop)
+
+      const pct = Math.max(0, Math.min(100, Math.round(raw * 100)))
+      // Snap to nearest 25
+      const snapped = Math.round(pct / 25) * 25
+      setProgress(snapped)
     }
 
-    // Measure after paint
-    const raf = requestAnimationFrame(measure)
-
-    // Debounced resize handler
-    let t: any
-    const onResize = () => {
-      clearTimeout(t)
-      t = setTimeout(measure, 120)
-    }
-    window.addEventListener("resize", onResize)
-
+    onScroll()
+    window.addEventListener("scroll", onScroll, { passive: true })
+    window.addEventListener("resize", onScroll)
     return () => {
-      cancelAnimationFrame(raf)
-      window.removeEventListener("resize", onResize)
+      window.removeEventListener("scroll", onScroll)
+      window.removeEventListener("resize", onScroll)
     }
   }, [activeTab, sections.length])
 
@@ -203,7 +299,14 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
                           className="scroll-mt-24"
                         >
                           <h3 className="text-2xl md:text-3xl font-bold mb-3">{s.title}</h3>
-                          <p className="text-gray-200 leading-relaxed">{s.body}</p>
+                          {s.body && <p className="text-gray-200 leading-relaxed">{s.body}</p>}
+                          {s.bullets && (
+                            <ul className="list-disc pl-6 text-gray-200 space-y-2">
+                              {s.bullets.map((b, i) => (
+                                <li key={i}>{b}</li>
+                              ))}
+                            </ul>
+                          )}
                         </section>
                       ))}
 
@@ -215,35 +318,59 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
                           <li>We had fun learning, shipping, and collaborating under pressure.</li>
                         </ul>
                       </section>
+
+                      {showGallery && (
+                        <section className="pt-6 space-y-4">
+                          <h3 className="text-2xl md:text-3xl font-bold">Gallery</h3>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            {galleryImages.slice(0,4).map((src, i) => (
+                              <div key={src + i} className="relative w-full h-[360px] rounded-xl overflow-hidden bg-white/5 ring-1 ring-white/10">
+                                <Image
+                                  src={src}
+                                  alt={`${project.title} screenshot ${i + 1}`}
+                                  fill
+                                  className="object-contain"
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        </section>
+                      )}
                     </div>
 
                     {/* Right: vertical progress rail (integrated with details container) */}
                     <aside className="hidden lg:block">
                       <div className="sticky top-24">
                         <h4 className="mb-4 text-sm uppercase tracking-widest text-white/70">Progress</h4>
-                        <div className="relative" style={{ height: railHeight }}>
-                          {/* Track */}
-                          <div className="absolute inset-0 left-6 w-1 rounded bg-white/20" />
-                          {/* Fill from top (0%) downward */}
+                        {/* Make the rail fill the visible right column height (entire right side of the screen area). */}
+                        <div className="relative w-40" style={{ height: "calc(100vh - 6rem)" }}>
+                          {/* Track (thicker and centered) */}
+                          <div className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-2 rounded bg-white/25" />
+                          {/* Fill from top (0%) downward, centered on the same axis */}
                           <div
-                            className="absolute top-0 left-6 w-1 rounded-t bg-cyan-500 transition-[height] duration-300 ease-out"
+                            className="absolute top-0 left-1/2 -translate-x-1/2 w-2 rounded-t bg-cyan-500 transition-[height] duration-300 ease-out"
                             style={{ height: `${progress}%` }}
                           />
 
-                          {/* Moving indicator dot */}
-                          <div className="absolute left-0 right-0 pointer-events-none transition-all duration-300 ease-out" style={{ top: `${progress}%` }}>
-                            <div className="absolute -mt-1.5 left-[26px] -translate-x-1/2 h-3 w-3 rounded-full bg-cyan-500 shadow-[0_0_0_4px_rgba(6,182,212,0.18)]" />
+                          {/* Moving indicator dot aligned to the rail center */}
+                          <div className="absolute left-1/2 -translate-x-1/2 pointer-events-none transition-all duration-300 ease-out" style={{ top: `${progress}%` }}>
+                            <div className="absolute -mt-2 h-4 w-4 rounded-full bg-cyan-500 shadow-[0_0_0_5px_rgba(6,182,212,0.20)]" />
                           </div>
 
                           {/* Steps with labels: 0% at top, 100% at bottom */}
                           {[0,25,50,75,100].map((p, i) => {
                             const activeIdx = Math.round(progress / 25)
-                            const isActive = i === activeIdx
+                            const isCompleted = i <= activeIdx
                             return (
-                              <div key={p} className="absolute left-0 right-0" style={{ top: `${p}%` }}>
-                                <div className="flex items-center gap-3">
-                                  <div className={`h-3 w-3 rounded-full border ${isActive ? "bg-cyan-500 border-cyan-400 ring-4 ring-cyan-500/20" : "bg-white/40 border-white/60"}`} />
-                                  <div className={`text-xs ${isActive ? "text-white" : "text-white/70"}`}>{p}%</div>
+                              <div key={p} className="absolute inset-x-0" style={{ top: `${p}%` }}>
+                                {/* Dot centered on the rail */}
+                                <div className={`absolute left-1/2 -translate-x-1/2 h-3.5 w-3.5 rounded-full border ${isCompleted ? "bg-cyan-500 border-cyan-400 ring-4 ring-cyan-500/20" : "bg-white/40 border-white/60"}`} />
+                                {/* Label shifted to the right of the rail */}
+                                <div
+                                  className={`absolute -mt-2 whitespace-nowrap ${isCompleted ? "text-white" : "text-white/70"} text-sm md:text-base`}
+                                  style={{ left: "calc(50% + 18px)" }}
+                                >
+                                  {p}%
                                 </div>
                               </div>
                             )
@@ -280,6 +407,33 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
                     </a>
                   </div>
                 )}
+              </div>
+            </div>
+
+            {/* Additional Previews: large images without card chrome */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-bold text-white/90">Additional Previews</h3>
+              <div className="space-y-8">
+                {(() => {
+                  const imgs = galleryImages.length ? galleryImages : (project.image ? [project.image] : [])
+                  return (imgs.length ? imgs : ["/placeholder.svg?height=800&width=600"]).slice(0,2).map((src, i) => {
+                    const isPortrait = project.id === "splitr"
+                    const aspect = isPortrait ? "aspect-[9/16]" : "aspect-video" // 16:9 default
+                    return (
+                      <div key={src + i} className="rounded-xl p-[2px] bg-gradient-to-tr from-purple-500/40 via-indigo-500/40 to-cyan-500/40">
+                        <div className={`relative w-full ${aspect} rounded-[0.70rem] overflow-hidden`}>
+                          <Image
+                            src={src}
+                            alt={`${project.title} preview ${i + 1}`}
+                            fill
+                            className="object-contain"
+                            sizes="(min-width: 1024px) 360px, 100vw"
+                          />
+                        </div>
+                      </div>
+                    )
+                  })
+                })()}
               </div>
             </div>
 
