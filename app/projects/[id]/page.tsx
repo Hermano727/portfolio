@@ -57,7 +57,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
 
   // Progress based on section in view
   const [progress, setProgress] = useState(0) // 0..100
-  const sectionRefs = useRef<HTMLDivElement[]>([])
+  const sectionRefs = useRef<HTMLElement[]>([])
 
   // Measure story container to match progress rail height
   const storyContainerRef = useRef<HTMLDivElement | null>(null)
@@ -78,7 +78,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
       },
       { root: null, rootMargin: "-20% 0px -55% 0px", threshold: [0.2, 0.4, 0.6, 0.8] }
     )
-    sectionRefs.current.filter(Boolean).forEach((el) => obs.observe(el as HTMLDivElement))
+    sectionRefs.current.filter(Boolean).forEach((el) => obs.observe(el as Element))
     return () => obs.disconnect()
   }, [activeTab, sections.length])
 
