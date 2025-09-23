@@ -6,9 +6,10 @@ import { Button } from "@nextui-org/react"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { experiences } from "@/lib/experience"
-import { Filter, Search, X, Sparkles, Home, Github, ExternalLink } from "lucide-react"
+import { Filter, Search, X, Sparkles, Home, Github, Linkedin, ExternalLink } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import Image from "next/image"
+import Starfield from "@/components/effects/starfield"
 
 export default function ExperiencePage() {
   const [searchQuery, setSearchQuery] = useState("")
@@ -35,13 +36,14 @@ export default function ExperiencePage() {
   })
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 text-white relative overflow-hidden">
       {/* Header */}
       <div className="bg-gradient-to-br from-black via-gray-900 to-black text-white py-16 relative overflow-hidden">
-        {/* Animated background gradient */}
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_30%_20%,rgba(109,40,217,0.4)_0%,transparent_40%)] animate-pulse"></div>
-          <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(circle_at_70%_80%,rgba(109,40,217,0.4)_0%,transparent_40%)] animate-pulse" style={{ animationDelay: "1s" }}></div>
+        {/* Starfield + gradient */}
+        <div className="absolute inset-0 opacity-30">
+          <Starfield className="absolute inset-0 pointer-events-none" density={0.7} speed={0.12} color="rgba(255,255,255,0.35)" />
+          <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_30%_20%,rgba(109,40,217,0.35)_0%,transparent_40%)]"></div>
+          <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(circle_at_70%_80%,rgba(109,40,217,0.25)_0%,transparent_40%)]"></div>
         </div>
 
         <div className="container px-4 md:px-6 relative z-10">
@@ -65,7 +67,7 @@ export default function ExperiencePage() {
             transition={{ duration: 0.5 }}
           >
             <motion.h1 
-              className="text-4xl md:text-5xl font-bold tracking-tight mb-4"
+              className="text-4xl md:text-5xl font-bold tracking-tight mb-4 bg-gradient-to-r from-purple-200 via-indigo-200 to-sky-200 bg-clip-text text-transparent"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
@@ -115,7 +117,7 @@ export default function ExperiencePage() {
         <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-purple-500/50 to-transparent"></div>
       </div>
 
-      <div className="container px-4 md:px-6 py-12">
+      <div className="container px-4 md:px-6 py-14 relative z-10">
         {/* Filters */}
         <AnimatePresence>
           {showFilters && (
@@ -163,133 +165,50 @@ export default function ExperiencePage() {
         </AnimatePresence>
 
         {/* Results */}
-        <motion.div 
-          className="mb-6"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-        >
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold flex items-center gap-2">
-              <span className="text-purple-600">{filteredExperiences.length}</span> 
-              {filteredExperiences.length === 1 ? "Position" : "Positions"}
-              {selectedTag && (
-                <span className="font-normal text-gray-500 flex items-center gap-1">
-                  in <span className="font-medium text-black">{selectedTag}</span>
-                </span>
-              )}
-            </h2>
-          </div>
-        </motion.div>
 
         {filteredExperiences.length > 0 ? (
-          <div className="space-y-8">
-            {filteredExperiences.map((experience, index) => (
-              <motion.div
-                key={experience.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                whileHover={{ 
-                  y: -5,
-                  boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
-                  transition: { duration: 0.2 }
-                }}
-                className="bg-white border border-gray-100 rounded-2xl overflow-hidden hover:shadow-lg transition-all"
-              >
-                <div className="flex flex-col lg:flex-row">
-                  <div className="relative w-full lg:w-80 h-64 lg:h-auto flex-shrink-0 bg-gray-100">
-                    <Image
-                      src={experience.image || "/placeholder.png"}
-                      alt={experience.company}
-                      className="object-cover"
-                      fill
-                      sizes="(max-width: 1024px) 100vw, 320px"
-                    />
-                  </div>
-                  <div className="flex-1 p-8">
-                    <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between mb-4">
-                      <div>
-                        <h3 className="text-2xl font-semibold text-gray-900 mb-2">
-                          {experience.title}
-                        </h3>
-                        <div className="flex items-center gap-2 text-lg text-gray-600 mb-2">
-                          <span className="font-medium">{experience.company}</span>
-                          <span>•</span>
-                          <span>{experience.location}</span>
+          <div className="space-y-24">
+            {filteredExperiences.map((exp, index) => {
+              const reversed = index % 2 === 1
+              return (
+                <motion.div
+                  key={exp.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.05 }}
+                >
+                  <div className="relative">
+                    <div className={`absolute -inset-x-6 md:inset-y-[-48px] h-[220px] md:h-[320px] rounded-2xl bg-gradient-to-r from-purple-700 to-indigo-700 opacity-20 ${reversed ? 'right-0 md:left-1/2' : 'left-0 md:right-1/2'}`} aria-hidden />
+                    <div className="relative z-10 grid grid-cols-1 md:grid-cols-12 items-center gap-8">
+                      <div className={`${reversed ? 'md:col-start-8 md:col-span-5' : 'md:col-span-5'} relative aspect-[16/10] md:aspect-[16/9] overflow-hidden rounded-xl shadow-lg`}>
+                        <Image src={exp.image || '/placeholder.png'} alt={exp.title} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 40vw, 33vw" className="object-cover" />
+                      </div>
+                      <div className={`${reversed ? 'md:col-start-1 md:col-span-7 md:text-right' : 'md:col-start-6 md:col-span-7'}`}>
+                        <h3 className="text-3xl md:text-4xl font-bold mb-2">{exp.title}</h3>
+                        <p className="text-gray-300 mb-1">{exp.company} • {exp.location}</p>
+                        <p className={`text-gray-300 mb-6 max-w-2xl ${reversed ? 'ml-auto' : ''}`}>{exp.description}</p>
+                        <div className={`flex flex-wrap gap-2 mb-6 ${reversed ? 'justify-end' : ''}`}>
+                          {exp.categories.map((c) => (
+                            <span key={c} className="inline-flex items-center rounded-md border border-purple-300/40 bg-purple-200/10 text-purple-200 px-2 py-0.5 text-xs">{c}</span>
+                          ))}
                         </div>
-                        <div className="flex items-center gap-2 text-sm text-gray-500">
-                          <span>{experience.startDate}</span>
-                          {experience.endDate && (
-                            <>
-                              <span>•</span>
-                              <span>{experience.endDate}</span>
-                            </>
+                        <div className={`flex items-center gap-5 ${reversed ? 'justify-end' : ''}`}>
+                          {exp.websiteUrl && (
+                            <a href={exp.websiteUrl} target="_blank" rel="noopener noreferrer" className="uppercase text-white/90 hover:text-white border-b border-transparent hover:border-white/70 pb-0.5">Website</a>
                           )}
-                          <span>•</span>
-                          <Badge 
-                            variant={experience.status === "Current" ? "default" : "secondary"}
-                            className={experience.status === "Current" ? "bg-green-100 text-green-800" : ""}
-                          >
-                            {experience.status}
-                          </Badge>
+                          {exp.liveUrl && (
+                            <a href={exp.liveUrl} target="_blank" rel="noopener noreferrer" className="uppercase text-white/90 hover:text-white border-b border-transparent hover:border-white/70 pb-0.5">View</a>
+                          )}
+                          {exp.githubUrl && (
+                            <a href={exp.githubUrl} target="_blank" rel="noopener noreferrer" className="uppercase text-white/90 hover:text-white border-b border-white/60 pb-0.5">Code</a>
+                          )}
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 mt-4 lg:mt-0">
-                        {experience.liveUrl && (
-                          <a
-                            href={experience.liveUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-white bg-purple-600 hover:bg-purple-700 transition-colors font-medium rounded-md px-3 py-1.5 text-sm"
-                          >
-                            <ExternalLink className="h-3 w-3" />
-                            <span>View</span>
-                          </a>
-                        )}
-                        {experience.githubUrl && (
-                          <a
-                            href={experience.githubUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors font-medium rounded-md px-3 py-1.5 text-sm"
-                          >
-                            <Github className="h-3 w-3" />
-                            <span>Code</span>
-                          </a>
-                        )}
-                      </div>
-                    </div>
-                    
-                    <p className="text-gray-600 mb-6">{experience.description}</p>
-                    
-                    <div className="flex flex-wrap gap-2 mb-6">
-                      {experience.categories.map((category) => (
-                        <Badge 
-                          key={category} 
-                          variant="secondary"
-                          className="bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors"
-                        >
-                          {category}
-                        </Badge>
-                      ))}
-                    </div>
-
-                    <div>
-                      <h4 className="font-semibold text-gray-900 mb-3">Key Achievements:</h4>
-                      <ul className="space-y-2">
-                        {experience.achievements.map((achievement, idx) => (
-                          <li key={idx} className="flex items-start gap-2 text-gray-600">
-                            <span className="text-purple-500 mt-1">•</span>
-                            <span>{achievement}</span>
-                          </li>
-                        ))}
-                      </ul>
                     </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              )
+            })}
           </div>
         ) : (
           <motion.div
@@ -316,6 +235,37 @@ export default function ExperiencePage() {
           </motion.div>
         )}
       </div>
+
+      {/* Footer (copied from home) */}
+      <footer className="relative w-full py-16 bg-gradient-to-b from-gray-950 via-gray-900 to-black text-white overflow-hidden">
+        <Starfield className="absolute inset-0 pointer-events-none" density={0.9} speed={0.08} color="rgba(255,255,255,0.25)" />
+        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-purple-500/50 to-transparent"></div>
+        <div className="relative z-10 max-w-6xl mx-auto px-6 md:px-10 flex flex-col items-center gap-6">
+          <button
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            aria-label="Back to top"
+            className="group inline-flex items-center justify-center w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 transition-colors"
+            title="Back to top"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-6 h-6 text-white group-hover:-translate-y-0.5 transition-transform">
+              <path d="M12 19V5" />
+              <path d="m5 12 7-7 7 7" />
+            </svg>
+          </button>
+          <div className="flex items-center gap-6">
+            <Link href="https://github.com/Hermano727" target="_blank" className="text-gray-300 hover:text-white transition-colors" aria-label="GitHub">
+              <Github className="h-9 w-9" />
+            </Link>
+            <Link href="http://linkedin.com/in/herman-hundsberger-577600295" target="_blank" className="text-gray-300 hover:text-white transition-colors" aria-label="LinkedIn">
+              <Linkedin className="h-9 w-9" />
+            </Link>
+            <Link href="/#contact" className="ml-4">
+              <Button className="bg-purple-700 hover:bg-purple-800 text-white" radius="md">Contact Me</Button>
+            </Link>
+          </div>
+          <p className="text-xs text-gray-400">© {new Date().getFullYear()} Herman Hundsberger</p>
+        </div>
+      </footer>
     </div>
   )
 }

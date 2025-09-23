@@ -26,13 +26,13 @@ export function FeaturedProjectCard({ project }: FeaturedProjectCardProps) {
 
   return (
     <Link href={`/projects/${project.id}`} className="block">
-      <div className="group bg-white border border-gray-100 rounded-2xl overflow-hidden hover:shadow-lg transition-all cursor-pointer">
+      <div className="group bg-gray-50 border border-gray-200 rounded-2xl overflow-hidden hover:shadow-lg transition-all cursor-pointer">
         <div className="flex flex-col md:flex-row h-full">
           <div className="relative w-full md:w-[420px] h-[280px] md:h-[320px] flex-shrink-0 bg-gray-100">
             <Image
               src={project.image || "/placeholder.png"}
               alt={project.title}
-              className="object-cover hover:scale-105 transition-transform duration-300"
+              className="object-contain bg-gray-50 p-2 transition-transform duration-300"
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
@@ -68,19 +68,30 @@ export function FeaturedProjectCard({ project }: FeaturedProjectCardProps) {
               </div>
               <p className="text-gray-600 mb-6">{project.description}</p>
             </div>
-            <div className="flex items-center justify-between mt-auto">
-              <div className="flex flex-wrap gap-2">
-                {project.categories && project.categories.map((category) => (
-                  <Badge 
-                    key={category} 
-                    variant="secondary"
-                    className="bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors"
-                  >
-                    {category}
-                  </Badge>
-                ))}
+            <div className="flex items-center justify-between mt-auto gap-4">
+              <div className="flex-1">
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {project.categories && project.categories.map((category) => (
+                    <Badge 
+                      key={category} 
+                      variant="secondary"
+                      className="bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors"
+                    >
+                      {category}
+                    </Badge>
+                  ))}
+                </div>
+                {project.tools?.length ? (
+                  <div className="flex flex-wrap gap-2">
+                    {project.tools.slice(0, 6).map((t) => (
+                      <span key={t} className="inline-flex items-center rounded-md border border-purple-200 bg-purple-50 text-purple-700 px-2 py-0.5 text-xs">
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+                ) : null}
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
                 {project.liveUrl && (
                   <button
                     type="button"

@@ -2,14 +2,15 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { Button as ShadcnButton } from "@/components/ui/button"
 import { Button } from "@nextui-org/react"
 import { Input } from "@/components/ui/input"
-import { ProjectCard } from "@/components/project-card"
 import { projects } from "@/lib/data"
 import { Badge } from "@/components/ui/badge"
-import { Filter, Search, X, Sparkles, ChevronDown, Home } from "lucide-react"
+import { Filter, Search, X, Sparkles, ChevronDown, Home, Github, Linkedin } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
+import Starfield from "@/components/effects/starfield"
 
 export default function ProjectsPage() {
   const [searchQuery, setSearchQuery] = useState("")
@@ -35,13 +36,14 @@ export default function ProjectsPage() {
   })
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 text-white">
       {/* Header */}
       <div className="bg-black text-white py-16 relative overflow-hidden">
-        {/* Animated background gradient */}
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_30%_20%,rgba(109,40,217,0.4)_0%,transparent_40%)] animate-pulse"></div>
-          <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(circle_at_70%_80%,rgba(109,40,217,0.4)_0%,transparent_40%)] animate-pulse" style={{ animationDelay: "1s" }}></div>
+        {/* Starfield + gradient */}
+        <div className="absolute inset-0 opacity-30">
+          <Starfield className="absolute inset-0 pointer-events-none" density={0.7} speed={0.12} color="rgba(255,255,255,0.35)" />
+          <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_30%_20%,rgba(109,40,217,0.35)_0%,transparent_40%)]"></div>
+          <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(circle_at_70%_80%,rgba(109,40,217,0.25)_0%,transparent_40%)]"></div>
         </div>
 
         <div className="container px-4 md:px-6 relative z-10">
@@ -65,7 +67,7 @@ export default function ProjectsPage() {
             transition={{ duration: 0.5 }}
           >
             <motion.h1 
-              className="text-4xl md:text-5xl font-bold tracking-tight mb-4"
+              className="text-4xl md:text-5xl font-bold tracking-tight mb-4 bg-gradient-to-r from-purple-200 via-indigo-200 to-sky-200 bg-clip-text text-transparent"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
@@ -107,37 +109,6 @@ export default function ProjectsPage() {
                   <span className="ml-2 flex h-2 w-2 rounded-full bg-purple-500"></span>
                 )}
               </Button>
-              <Link
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault()
-                  window.open("/resume.pdf", "_blank")
-                }}
-              >
-                <Button 
-                  className="bg-gradient-to-tr from-purple-500 to-purple-700 text-white shadow-md"
-                  startContent={
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="h-4 w-4"
-                    >
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                      <polyline points="7 10 12 15 17 10" />
-                      <line x1="12" y1="15" x2="12" y2="3" />
-                    </svg>
-                  }
-                >
-                  Download Resume
-                </Button>
-              </Link>
             </motion.div>
           </motion.div>
         </div>
@@ -146,7 +117,7 @@ export default function ProjectsPage() {
         <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-purple-500/50 to-transparent"></div>
       </div>
 
-      <div className="container px-4 md:px-6 py-12">
+      <div className="container px-4 md:px-6 py-14">
         {/* Filters */}
         <AnimatePresence>
           {showFilters && (
@@ -194,43 +165,80 @@ export default function ProjectsPage() {
         </AnimatePresence>
 
         {/* Results */}
-        <motion.div 
-          className="mb-6"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-        >
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold flex items-center gap-2">
-              <span className="text-purple-600">{filteredProjects.length}</span> 
-              {filteredProjects.length === 1 ? "Project" : "Projects"}
-              {selectedTag && (
-                <span className="font-normal text-gray-500 flex items-center gap-1">
-                  with <span className="font-medium text-black">{selectedTag}</span>
-                </span>
-              )}
-            </h2>
-          </div>
-        </motion.div>
 
         {filteredProjects.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {filteredProjects.map((project, index) => (
-              <motion.div
-                key={project.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                whileHover={{ 
-                  y: -5,
-                  boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
-                  transition: { duration: 0.2 }
-                }}
-                className="h-full"
-              >
-                <ProjectCard project={project} />
-              </motion.div>
-            ))}
+          <div className="space-y-24">
+            {filteredProjects.map((project, index) => {
+              const reversed = index % 2 === 1
+              return (
+                <Link key={project.id} href={`/projects/${project.id}`} className="block group" prefetch>
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileHover={{ scale: 1.02, y: -2 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.25, ease: 'easeOut' }}
+                  >
+                    <div className="relative">
+                      {/* Accent block behind the image, aligned to the image side */}
+                      <div
+                        aria-hidden
+                        className={`absolute -inset-x-6 md:inset-y-[-48px] h-[220px] md:h-[340px] rounded-2xl bg-gradient-to-r from-purple-700 to-indigo-700 opacity-20 ${
+                          reversed ? 'right-0 md:left-1/2' : 'left-0 md:right-1/2'
+                        }`}
+                      />
+
+                      <div className="relative z-10 grid grid-cols-1 md:grid-cols-12 items-center gap-8">
+                        {/* Image */}
+                        <div className={`${reversed ? 'md:col-start-8 md:col-span-5' : 'md:col-span-5'} relative aspect-[16/10] md:aspect-[16/9] overflow-hidden rounded-xl shadow-lg`}>
+                          <Image
+                            src={project.image || '/placeholder.png'}
+                            alt={project.title}
+                            fill
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 40vw, 33vw"
+                            className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                          />
+                        </div>
+
+                        {/* Text */}
+                        <div className={`${reversed ? 'md:col-start-1 md:col-span-7 md:text-right' : 'md:col-start-6 md:col-span-7'}`}>
+                          <h3 className="text-3xl md:text-4xl font-bold mb-2">{project.title}</h3>
+                          <p className={`text-gray-300 mb-6 max-w-2xl ${reversed ? 'ml-auto' : ''}`}>{project.description}</p>
+                          {project.tools?.length ? (
+                            <div className={`flex flex-wrap gap-2 mb-6 ${reversed ? 'justify-end' : ''}`}>
+                              {project.tools.slice(0, 6).map((t) => (
+                                <span key={t} className="inline-flex items-center rounded-md border border-purple-300/40 bg-purple-200/10 text-purple-200 px-2 py-0.5 text-xs">
+                                  {t}
+                                </span>
+                              ))}
+                            </div>
+                          ) : null}
+                          <div className={`flex flex-wrap items-center gap-5 ${reversed ? 'justify-end' : ''}`}>
+                            {project.liveUrl && (
+                              <button
+                                type="button"
+                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.open(project.liveUrl!, '_blank', 'noopener,noreferrer') }}
+                                className="uppercase text-white/90 hover:text-white border-b border-transparent hover:border-white/70 pb-0.5"
+                              >
+                                Live App
+                              </button>
+                            )}
+                            {project.githubUrl && (
+                              <button
+                                type="button"
+                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.open(project.githubUrl!, '_blank', 'noopener,noreferrer') }}
+                                className="uppercase text-white/90 hover:text-white border-b border-white/60 pb-0.5"
+                              >
+                                View Code
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                </Link>
+              )
+            })}
           </div>
         ) : (
           <motion.div
@@ -257,6 +265,37 @@ export default function ProjectsPage() {
           </motion.div>
         )}
       </div>
+
+      {/* Footer (copied from home) */}
+      <footer className="relative w-full py-16 bg-gradient-to-b from-gray-950 via-gray-900 to-black text-white overflow-hidden">
+        <Starfield className="absolute inset-0 pointer-events-none" density={0.9} speed={0.08} color="rgba(255,255,255,0.25)" />
+        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-purple-500/50 to-transparent"></div>
+        <div className="relative z-10 max-w-6xl mx-auto px-6 md:px-10 flex flex-col items-center gap-6">
+          <button
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            aria-label="Back to top"
+            className="group inline-flex items-center justify-center w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 transition-colors"
+            title="Back to top"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-6 h-6 text-white group-hover:-translate-y-0.5 transition-transform">
+              <path d="M12 19V5" />
+              <path d="m5 12 7-7 7 7" />
+            </svg>
+          </button>
+          <div className="flex items-center gap-6">
+            <Link href="https://github.com/Hermano727" target="_blank" className="text-gray-300 hover:text-white transition-colors" aria-label="GitHub">
+              <Github className="h-9 w-9" />
+            </Link>
+            <Link href="http://linkedin.com/in/herman-hundsberger-577600295" target="_blank" className="text-gray-300 hover:text-white transition-colors" aria-label="LinkedIn">
+              <Linkedin className="h-9 w-9" />
+            </Link>
+            <Link href="/#contact" className="ml-4">
+              <Button className="bg-purple-700 hover:bg-purple-800 text-white" radius="md">Contact Me</Button>
+            </Link>
+          </div>
+          <p className="text-xs text-gray-400">© {new Date().getFullYear()} Herman Hundsberger</p>
+        </div>
+      </footer>
     </div>
   )
 }

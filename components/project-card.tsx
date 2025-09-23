@@ -14,7 +14,7 @@ interface ProjectCardProps {
 
 export function ProjectCard({ project }: ProjectCardProps) {
   return (
-    <div className="group bg-white border border-gray-100 rounded-2xl overflow-hidden hover:shadow-lg transition-all h-full">
+    <div className="group bg-gray-50 border border-gray-200 rounded-2xl overflow-hidden hover:shadow-lg transition-all h-full">
       <div className="flex flex-col h-full">
         <Link
           href={`/projects/${project.id}`}
@@ -23,7 +23,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
           <Image
             src={project.image || "/placeholder.png"}
             alt={project.title}
-            className="object-cover hover:scale-105 transition-transform duration-300"
+            className="object-contain bg-gray-50 p-2 transition-transform duration-300"
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />

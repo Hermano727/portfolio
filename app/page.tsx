@@ -4,20 +4,19 @@ import Link from "next/link"
 import Image from "next/image"
 import { Button as ShadcnButton } from "@/components/ui/button"
 import { Button } from "@nextui-org/react" 
-import { FeaturedProjectCard } from "@/components/featured-project-card"
 import { projects } from "@/lib/data"
-import { ArrowRight, Github, Twitter, Linkedin } from "lucide-react"
+import { ArrowRight, Github, Linkedin } from "lucide-react"
 import { motion } from "framer-motion"
-import { Satisfy } from "next/font/google"
 import { useState } from "react"
-
-const cursive = Satisfy({ subsets: ["latin"], weight: ["400"] })
+import Constellation from "@/components/effects/constellation"
+import Starfield from "@/components/effects/starfield"
+import SkillsPengu from "@/components/skills-pengu"
 
 export default function Home() {
-  // Get featured projects (most recent 3, sorted by start date)
-  const featuredProjects = projects
+  // Recent projects for the home page (show 4 in a zig-zag layout) — clone before sort to avoid mutating shared module state
+  const featuredProjects = [...projects]
     .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
-    .slice(0, 3)
+    .slice(0, 4)
 
   // Contact form UI state
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
@@ -77,11 +76,13 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
-      <section className="w-full py-24 md:py-32 bg-gradient-to-br from-black via-gray-900 to-black text-white relative overflow-hidden">
-        {/* Animated background gradient */}
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_30%_20%,rgba(109,40,217,0.4)_0%,transparent_40%)] animate-pulse"></div>
-          <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(circle_at_70%_80%,rgba(109,40,217,0.4)_0%,transparent_40%)] animate-pulse" style={{ animationDelay: "1s" }}></div>
+      <section id="top" className="w-full py-24 md:py-32 bg-gradient-to-br from-black via-gray-900 to-black text-white relative overflow-hidden">
+        {/* Constellation background */}
+        <Constellation className="absolute inset-0 pointer-events-none opacity-70" density={1.1} maxDistance={160} speed={0.35} />
+        {/* Animated background gradient overlay */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_30%_20%,rgba(109,40,217,0.28)_0%,transparent_40%)]"></div>
+          <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(circle_at_70%_80%,rgba(109,40,217,0.22)_0%,transparent_40%)]" />
         </div>
 
         {/* TFT Penguin */}
@@ -99,7 +100,7 @@ export default function Home() {
             title="TFT #1 Enthusiast! 🐧"
           >
             <Image
-              src="/tft-pengu.jpg"
+              src="/assets/tft-pengu.jpg"
               alt="TFT Penguin"
               width={80}
               height={80}
@@ -118,27 +119,20 @@ export default function Home() {
               transition={{ duration: 0.5 }}
             >
               <motion.h1 
-                className="text-5xl md:text-6xl font-bold tracking-tight leading-normal mb-6"
+                className="text-4xl md:text-6xl font-extrabold tracking-tight leading-tight mb-4 bg-gradient-to-r from-purple-200 via-indigo-200 to-sky-200 bg-clip-text text-transparent"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
               >
-                <span className="block">Come build the future!</span>
-                <span className="block text-3xl md:text-5xl md:whitespace-nowrap mt-5">
-                  Designing intuitive, impactful software
-                </span>
-                <span className={`${cursive.className} block text-3xl md:text-4xl mt-5` }>
-                  one thoughtful commit at a time <span className="ml-1">🙂‍↕️</span>
-                </span>
+                Designing intuitive, impactful software
               </motion.h1>
               <motion.p 
-                className="text-xl md:text-2xl text-gray-300 mb-8 max-w-xl mx-auto md:mx-0"
+                className="text-lg md:text-xl text-gray-300/90 mb-8 max-w-xl mx-auto md:mx-0"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.4 }}
+                transition={{ duration: 0.5, delay: 0.35 }}
               >
-                First-gen Math-CS student at UC San Diego, passionate about building software that's intuitive, impactful, and accessible. 
-                #1 TFT enthusiast when I'm not coding! 🐧
+                I care about crafting products that feel delightful and dependable—from thoughtful APIs to polished UIs. First‑gen Math‑CS @ UC San Diego. #1 TFT enthusiast when I'm not coding 🐧
               </motion.p>
               <motion.div 
                 className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start"
@@ -177,7 +171,7 @@ export default function Home() {
                   </Button>
                 </Link>
                 <a
-                  href="/Herman_Hundsberger_Resume.pdf"
+                  href="/assets/Herman_Hundsberger_Resume.pdf"
                   download="Herman_Hundsberger_Resume.pdf"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -223,10 +217,10 @@ export default function Home() {
                 transition={{ duration: 0.5, delay: 0.8 }}
               >
                 <Link href="https://github.com/Hermano727" target="_blank" className="text-gray-400 hover:text-white transition-colors">
-                  <Github className="h-6 w-6" />
+                  <Github className="h-9 w-9" />
                 </Link>
                 <Link href="http://linkedin.com/in/herman-hundsberger-577600295" target="_blank" className="text-gray-400 hover:text-white transition-colors">
-                  <Linkedin className="h-6 w-6" />
+                  <Linkedin className="h-9 w-9" />
                 </Link>
               </motion.div>
             </motion.div>
@@ -238,12 +232,12 @@ export default function Home() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
             >
-              <div className="relative w-48 h-48 md:w-64 md:h-64 rounded-full overflow-hidden border-4 border-purple-500/20">
+              <div className="relative w-44 h-44 md:w-60 md:h-60 rounded-full overflow-hidden border-4 border-purple-500/20">
                 <Image
-                  src="/pfp.jpg"
+                  src="/assets/pfp.jpg"
                   alt="Profile picture"
-                  width={256}
-                  height={256}
+                  width={240}
+                  height={240}
                   className="w-full h-full object-cover"
                   priority
                 />
@@ -256,57 +250,100 @@ export default function Home() {
         <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-purple-500/50 to-transparent"></div>
       </section>
 
-      {/* Featured Projects */}
-      <section className="w-full py-24 bg-[linear-gradient(180deg,rgba(245,245,248,1)_0%,rgba(240,240,245,1)_40%,rgba(235,235,242,1)_100%)]">
-        <div className="max-w-6xl mx-auto px-6 md:px-10">
-          <motion.div 
-            className="flex flex-col items-center text-center mb-12"
+      {/* Skills */}
+      <section className="relative w-full pt-20 pb-28 text-white bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 overflow-hidden">
+        {/* Starfield overlay for skills */}
+        <Starfield className="absolute inset-0 pointer-events-none" density={0.9} speed={0.08} color="rgba(255,255,255,0.25)" />
+        <div className="max-w-7xl mx-auto px-8 md:px-12 relative z-10">
+          <SkillsPengu />
+        </div>
+      </section>
+
+      {/* Projects (zig-zag) */}
+      <section className="relative w-full pt-16 pb-24 bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 text-white overflow-hidden">
+        <Starfield className="absolute inset-0 pointer-events-none z-0" density={0.9} speed={0.08} color="rgba(255,255,255,0.25)" />
+        <div className="relative max-w-6xl mx-auto px-6 md:px-10 z-10">
+          <motion.div
+            className="mb-14 md:-ml-10"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.4 }}
           >
-            <div className="inline-block bg-purple-100 text-purple-700 px-6 py-2 rounded-full text-base font-medium mb-4">
-              Featured Work
-            </div>
-            <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">Recent Projects</h2>
-            <p className="text-gray-600 max-w-2xl">
-              Explore my latest work and ongoing projects. Each project represents a unique challenge and learning opportunity.
-            </p>
+            <h2 className="text-5xl md:text-6xl font-bold tracking-tight bg-gradient-to-r from-purple-200 via-indigo-200 to-sky-200 bg-clip-text text-transparent">Recent Projects</h2>
           </motion.div>
 
-          <div className="space-y-6">
-            {featuredProjects.map((project, index) => (
-              <motion.div
-                key={project.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.2 }}
-                whileHover={{ 
-                  y: -5,
-                  boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
-                  transition: { duration: 0.2 }
-                }}
-                className="rounded-xl overflow-hidden"
-              >
-                <FeaturedProjectCard project={project} />
-              </motion.div>
-            ))}
+          <div className="space-y-24">
+            {featuredProjects.map((project, index) => {
+              const reversed = index % 2 === 1
+              return (
+                <motion.div
+                  key={project.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                >
+                  <div className="relative">
+                    {/* Accent block behind the image, aligned to the image side */}
+                    <div
+                      aria-hidden
+                      className={`absolute -inset-x-6 md:inset-y-[-48px] h-[220px] md:h-[340px] rounded-2xl bg-gradient-to-r from-purple-700 to-indigo-700 opacity-25 ${
+                        reversed ? 'right-0 md:left-1/2' : 'left-0 md:right-1/2'
+                      }`}
+                    />
+
+                    <div className="relative z-10 grid grid-cols-1 md:grid-cols-12 items-center gap-8">
+                      {/* Image */}
+                      <div className={`${reversed ? 'md:col-start-8 md:col-span-5' : 'md:col-span-5'} relative aspect-[16/10] md:aspect-[16/9] overflow-hidden rounded-xl shadow-lg`}>
+                        <Image
+                          src={project.image || '/placeholder.png'}
+                          alt={project.title}
+                          fill
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 40vw, 33vw"
+                          className="object-cover"
+                        />
+                      </div>
+
+                      {/* Text */}
+                      <div className={`${reversed ? 'md:col-start-1 md:col-span-7 md:text-right' : 'md:col-start-6 md:col-span-7'}`}>
+                        <h3 className="text-3xl md:text-4xl font-bold mb-2">{project.title}</h3>
+                        <p className={`text-gray-300 mb-6 max-w-2xl ${reversed ? 'ml-auto' : ''}`}>{project.description}</p>
+                        <div className={`flex items-center gap-6 text-sm tracking-wide ${reversed ? 'justify-end' : ''}`}>
+                          {project.liveUrl && (
+                            <button
+                              type="button"
+                              onClick={() => window.open(project.liveUrl!, '_blank', 'noopener,noreferrer')}
+                              className="uppercase text-white/90 hover:text-white border-b border-transparent hover:border-white/70 pb-0.5"
+                            >
+                              Live App
+                            </button>
+                          )}
+                          <Link
+                            href={`/projects/${project.id}`}
+                            className="uppercase text-white/90 hover:text-white border-b border-white/60 pb-0.5"
+                          >
+                            Learn More
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )
+            })}
           </div>
 
           <motion.div 
-            className="flex justify-center mt-12"
+            className="flex justify-center mt-24"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.6 }}
+            transition={{ duration: 0.4, delay: 0.2 }}
           >
             <Link href="/projects">
               <Button 
-                className="bg-gradient-to-r from-black to-gray-800 text-white font-medium
-                hover:shadow-xl transition-all duration-300 hover:scale-105
-                hover:from-gray-900 hover:to-black"
+                className="relative inline-flex items-center justify-center font-medium text-white px-6 py-2 rounded-md bg-gradient-to-r from-purple-700 via-purple-800 to-purple-950 hover:from-purple-600 hover:via-purple-700 hover:to-purple-900 shadow-lg"
                 endContent={<ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />}
                 radius="sm"
                 variant="shadow"
@@ -320,11 +357,12 @@ export default function Home() {
       </section>
 
       {/* Get in Touch Section */}
-      <section className="w-full py-24 bg-gradient-to-br from-black via-gray-900 to-black text-white">
-        <div className="max-w-7xl mx-auto px-16 md:px-24">
+      <section className="relative w-full py-24 bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 text-white overflow-hidden">
+        <Starfield className="absolute inset-0 pointer-events-none" density={0.9} speed={0.08} color="rgba(255,255,255,0.25)" />
+        <div className="relative max-w-7xl mx-auto px-16 md:px-24 z-10">
           <div className="flex flex-col md:flex-row items-center justify-between gap-12">
             <div className="md:w-1/2 space-y-6">
-              <h2 className="text-4xl md:text-5xl font-bold tracking-tight">Get in Touch</h2>
+              <h2 className="text-4xl md:text-5xl font-bold tracking-tight bg-gradient-to-r from-purple-200 via-indigo-200 to-sky-200 bg-clip-text text-transparent">Get in Touch</h2>
               <p className="text-xl text-gray-300">
                 Interested in working together? Feel free to reach out to discuss potential collaborations or
                 opportunities.
@@ -454,6 +492,38 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Footer */}
+      <footer className="relative w-full py-16 bg-gradient-to-b from-gray-950 via-gray-900 to-black text-white overflow-hidden">
+        <Starfield className="absolute inset-0 pointer-events-none" density={0.9} speed={0.08} color="rgba(255,255,255,0.25)" />
+        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-purple-500/50 to-transparent"></div>
+        <div className="relative z-10 max-w-6xl mx-auto px-6 md:px-10 flex flex-col items-center gap-6">
+          {/* Back to top arrow */}
+          <button
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            aria-label="Back to top"
+            className="group inline-flex items-center justify-center w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 transition-colors"
+            title="Back to top"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-6 h-6 text-white group-hover:-translate-y-0.5 transition-transform">
+              <path d="M12 19V5" />
+              <path d="m5 12 7-7 7 7" />
+            </svg>
+          </button>
+
+          {/* Socials */}
+          <div className="flex items-center gap-6">
+            <Link href="https://github.com/Hermano727" target="_blank" className="text-gray-300 hover:text-white transition-colors" aria-label="GitHub">
+              <Github className="h-9 w-9" />
+            </Link>
+            <Link href="http://linkedin.com/in/herman-hundsberger-577600295" target="_blank" className="text-gray-300 hover:text-white transition-colors" aria-label="LinkedIn">
+              <Linkedin className="h-9 w-9" />
+            </Link>
+          </div>
+
+          <p className="text-xs text-gray-400">© {new Date().getFullYear()} Herman Hundsberger</p>
+        </div>
+      </footer>
     </div>
   )
 }
