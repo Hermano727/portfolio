@@ -29,8 +29,7 @@ export default function SkillsPengu() {
           A snapshot of my toolkit
         </h3>
         <div className="flex flex-col space-y-5 md:space-y-6">
-          <p className="text-base md:text-xl text-gray-300 md:whitespace-nowrap">Focused set of languages, frameworks, and platforms I use to build intuitive, impactful software.</p>
-          <p className="text-base md:text-xl text-gray-300 md:whitespace-nowrap">Each tile below represents a tool I’ve used to ship projects! </p>
+          <p className="text-base md:text-xl text-gray-300 md:whitespace-nowrap">Focused set of languages, frameworks, and platforms I use to build software.</p>
         </div>
       </div>
 

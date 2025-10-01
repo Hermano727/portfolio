@@ -10,7 +10,7 @@ import { motion } from "framer-motion"
 import { useState } from "react"
 import Constellation from "@/components/effects/constellation"
 import Starfield from "@/components/effects/starfield"
-import SkillsPengu from "@/components/skills-pengu"
+import SkillsPengu from "@/components/skills-section"
 
 export default function Home() {
   // Recent projects for the home page (show 4 in a zig-zag layout) — clone before sort to avoid mutating shared module state
@@ -132,7 +132,8 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.35 }}
               >
-                I care about crafting products that feel delightful and dependable—from thoughtful APIs to polished UIs. First‑gen Math‑CS @ UC San Diego. #1 TFT enthusiast when I'm not coding 🐧
+                Full-stack developer <br />
+                Mathematics & Computer Science @ UC San Diego
               </motion.p>
               <motion.div 
                 className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start"
