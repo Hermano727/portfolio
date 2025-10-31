@@ -13,12 +13,10 @@ import Starfield from "@/components/effects/starfield"
 import SkillsPengu from "@/components/skills-section"
 
 export default function Home() {
-  // Recent projects for the home page (show 4 in a zig-zag layout) — clone before sort to avoid mutating shared module state
   const featuredProjects = [...projects]
     .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
     .slice(0, 4)
 
-  // Contact form UI state
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
 

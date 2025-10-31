@@ -33,47 +33,23 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
         return [
           {
             title: "Inspiration (0%)",
-            bullets: [
-              "We kept running into awkward, slow bill‑splitting at restaurants and wanted a tool that removed friction at the table.",
-              "Definition of done: reduce time‑to‑settle and make costs transparent; deliver a friendly, confident UX vs. just a raw OCR demo.",
-            ],
+            body: "The day before the hackathon, our team went out to eat and realized how inconvenient it was to split the bill. Everyone had different items, quantities, and prices, and it took way too long to figure out what each person owed. When we started brainstorming project ideas, this recurring hassle kept coming up, and we thought: why even deal with this process? That's when Splitr was born, a simple tool to take the stress out of bill splitting forever. Our goal was clear: reduce time to settle, make costs transparent, and deliver a friendly UX instead of just a raw OCR demo.",
           },
           {
             title: "Tech & Architecture (25%)",
-            bullets: [
-              "React Native + Expo Go for rapid iteration and on‑device testing; Firebase Auth (phone) for one‑tap onboarding and future history.",
-              "Pipeline: Google Vision OCR → MistralAI converts to structured JSON → FastAPI/Python validates/normalizes → RN renders assignable items.",
-              "I owned system design + UI: typed JSON contracts between RN and FastAPI, resilient loading/repair/edit states, consistent token/spacing system, and safe third‑party key injection.",
-              "Fair‑split logic: tax/tip allocated proportionally; totals validated against OCR output with guardrails.",
-            ],
+            body: "We built Splitr using React Native with Expo Go so we could rapidly iterate and test changes on our devices without any headaches. Firebase Auth handles user creation with just a phone number, making onboarding super quick and setting up future receipt history storage. The pipeline works like this: Google Vision OCR reads the receipt image, MistralAI parses it into structured JSON, our Python backend (FastAPI) validates and normalizes the data, and then React Native renders everything as assignable items. I owned the system design and UI, creating typed JSON contracts between the frontend and backend, designing resilient loading and error states, maintaining a consistent design system, and handling secure API key injection. The fair split logic distributes tax and tip proportionally based on what each person ordered, with validation against the OCR output to catch errors.",
           },
           {
             title: "Midway Challenges (50%)",
-            bullets: [
-              "LLM benchmarking: compared Llama3/OpenAI/Mistral on curated receipt images; selected Mistral for cost/latency/JSON reliability.",
-              "Prompt/formatting issues: line breaks and multi‑quantity items initially broke schema parsing; we tightened the schema and added repair heuristics.",
-              "Data flow reliability: large images device → backend → app; added compression caps, retries, and clear progress states.",
-              "Product decision trade‑off: teammates wanted to pursue ~10% parsing accuracy gains; I proposed focusing the last 12 hours on a stronger MVP (Profile, History, polish) to impress judges.",
-              "Execution: created a timeline, branched off, and owned the risk—worked through the night to avoid blocking core features.",
-            ],
+            body: "We ran into some interesting challenges along the way. First, we had to benchmark different LLMs (Llama3, OpenAI, Mistral) on real receipt images to find the best balance of cost, latency, and JSON reliability. Mistral won out. Then we hit prompt and formatting issues where line breaks and multi-quantity items kept breaking our schema parsing. We tightened the schema and added repair heuristics to handle edge cases. Managing data flow from device to backend to app with large images required adding compression limits, retries, and clear progress indicators. At one point, my teammates wanted to spend the last 12 hours chasing a 10% accuracy improvement, but I proposed we focus on building a stronger MVP with Profile, History, and polish to really impress the judges. I created a timeline, branched off, and owned that risk, working through the night to make sure core features weren't blocked.",
           },
           {
             title: "MVP Reached (75%)",
-            bullets: [
-              "Delivered Profile tab and receipt History backed by Firebase; persisted user data reliably by demo time.",
-              "End‑to‑end flow: upload → extract → assign → fair split → final summary, all with clear UI states and minimal surprises.",
-              "Reliability: ≈90%+ extraction on our test set; prioritized UX clarity over chasing marginal accuracy gains.",
-              "Outcome: shipped a cohesive demo that showcased real value, not just OCR.",
-            ],
+            body: "By demo time, we had delivered a Profile tab and receipt History backed by Firebase, with reliable user data persistence. The end-to-end flow was smooth: upload a receipt, extract items, assign them to people, calculate the fair split, and see the final summary. Everything had clear UI states with minimal surprises. We hit around 90% extraction accuracy on our test set and prioritized UX clarity over chasing marginal gains. The result was a cohesive demo that showcased real value, not just the OCR tech.",
           },
           {
             title: "Finish & Next (100%)",
-            bullets: [
-              "Editable receipts to quickly fix OCR misreads before splitting.",
-              "Full Firestore history, Venmo/Cash App integrations, and advanced split modes (percentages, shared items).",
-              "Accessibility polish and continuous prompt + pre‑processing improvements for diverse receipt formats.",
-              "Personal takeaways: communicate trade‑offs early, define typed service contracts, design resilient UI states first, and take ownership when making bold scope calls.",
-            ],
+            body: "Moving forward, we want to add editable receipts so users can quickly fix any OCR misreads before splitting. We plan to fully integrate Firestore for receipt history and add payment integrations like Venmo and Cash App so people can settle up directly from the app. Advanced split modes for percentages and shared items (like appetizers or group drinks) are also on the roadmap, along with accessibility improvements and better prompt engineering for diverse receipt formats. Personal takeaway: communicate trade-offs early, define typed service contracts upfront, design resilient UI states first, and take ownership when making bold scope decisions.",
           },
         ]
         
@@ -124,9 +100,55 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
             ],
           },
         ]
+      case "torrentia":
+        return [
+          {
+            title: "Inspiration (0%)",
+            body: "I've always been fascinated by distributed systems and wanted to build something practical that combined that interest with real-world usage. The idea of streaming movies, anime, and shows directly from torrents seemed like the perfect challenge. I wanted to create a fast, efficient client that could handle downloads in the background while providing a smooth viewing experience, eventually as both a web app and desktop application.",
+          },
+          {
+            title: "Tech & Architecture (25%)",
+            body: "I chose Go for its excellent concurrency primitives and performance characteristics. The core uses concurrent goroutines to handle multiple peer connections simultaneously, achieving much better throughput than sequential approaches. I'm using the anacrolix/torrent library as the foundation for BitTorrent protocol implementation. For peer discovery, I integrated DHT (distributed hash table) so the client doesn't rely solely on trackers. The storage layer is pluggable with asynchronous disk I/O, and every piece gets checksum validation to ensure data integrity. Communication between backend and any future frontend uses gRPC for efficiency.",
+          },
+          {
+            title: "Midway Challenges (50%)",
+            body: "Managing concurrent goroutines turned out to be trickier than expected. I had to be really careful about lifecycle management to avoid memory leaks and race conditions. Optimizing the piece selection strategy for streaming was interesting because you want sequential pieces near the playback position, but you also need to participate fairly in the swarm. Dealing with flaky peers that drop connections or send corrupted data required robust retry logic and peer scoring. Balancing aggressive piece requests with fair bandwidth sharing across the entire swarm took a lot of tuning.",
+          },
+          {
+            title: "MVP Reached (75%)",
+            body: "I reached a functional MVP that can download torrents with concurrent peer connections and stream video content with minimal buffering once the initial pieces are ready. The piece selection strategy prioritizes sequential downloading for the playback buffer while still contributing to the overall swarm health. Checksum validation catches corrupted pieces before they cause playback issues. Performance-wise, I'm seeing about 40% better throughput compared to my initial single-threaded baseline, which I'm really happy with.",
+          },
+          {
+            title: "Finish & Next (100%)",
+            body: "Next up is building a proper web UI with search functionality, library management, and playback controls. I also want to package it as a desktop app using either Electron or Wails for a native experience. Longer term, I'm interested in experimenting with more advanced piece selection algorithms that learn from network conditions, adding full magnet link support with metadata exchange, and implementing user-configurable bandwidth throttling for people on limited connections. I'd also like to explore distributed playback where multiple clients can share the buffering load.",
+          },
+        ]
+      case "echoes-of-pharloom":
+        return [
+          {
+            title: "Inspiration (0%)",
+            body: "Silksong finally came out after years of waiting, and I was completely hooked. The game brought back all the nostalgia from my childhood playing Hollow Knight, and I found myself totally immersed in both the gameplay and the atmosphere. I started finding these 'study with Hornet' videos on YouTube, pomodoro-style study sessions set to various Silksong soundtracks, and they were incredibly immersive. That's when I realized I wanted to create my own study app around this experience. The very first thing I built was the study page that plays the soundtracks while I coded the rest of the project. It was really fun building something I could actually use as I built it.",
+          },
+          {
+            title: "Tech & Architecture (25%)",
+            body: "I wanted to learn infrastructure as code and get real hands-on experience with AWS, so I chose to build with services I hadn't used much before. The frontend is React and TypeScript, using local state for instant interactions and smooth timer control. For the backend, I went with a full serverless stack: API Gateway for the REST API, Lambda functions for compute, DynamoDB for storage, and Cognito for user authentication. I also added MSW (Mock Service Worker) during development so I could test the frontend rapidly without waiting for backend changes. The whole infrastructure is defined as code using AWS CDK, which made it easy to deploy and iterate on the architecture.",
+          },
+          {
+            title: "Midway Challenges (50%)",
+            body: "The biggest technical challenges were around AWS integration. Hooking up Cognito properly with a custom domain took more work than expected, especially getting the OAuth flows right. Setting up cloud storage and DynamoDB tables to interact correctly with logged-in users required careful permission management with IAM roles. Implementing the streak logic was interesting because I had to sync between local state (for instant feedback) and cloud state (for persistence and cross-device access). Getting timers to feel reliable and fluid took more iteration than I expected. I had to be really careful about timer drift and ensuring the UI stayed responsive even during background sync operations.",
+          },
+          {
+            title: "MVP Reached (75%)",
+            body: "I delivered a smooth, responsive study timer with sub-10ms refresh rates that feels really snappy. The soundtrack selection is tied to different in-game areas from Silksong, which creates that immersive atmosphere I was going for. User login with Cognito works smoothly, and cloud persistence means your streaks and session history sync across devices. The automatic break scheduling works well, and the focus-loss detection catches when you switch away from the tab. The streak system keeps you motivated to stay consistent. Overall, the app does exactly what I wanted: makes studying more enjoyable by combining it with an atmosphere I love.",
+          },
+          {
+            title: "Finish & Next (100%)",
+            body: "Moving forward, I want to add more UI polish and improve the onboarding experience. Social features for sharing streaks with friends would be great for accountability. A mobile-friendly version for studying on the go is definitely needed. I'd also like to add more customization options: different timer lengths, custom soundtracks, themes based on other areas from the Silksong world. Maybe even add some gamification elements tied to the actual game progression. The whole experience taught me a ton about AWS and serverless architecture, and I'm really proud of building something I actually want to use every day.",
+          },
+        ]
       default:
         return [
-          { title: "Inspiration (0%)", body: "Why this project exists and the problem we’re solving." },
+          { title: "Inspiration (0%)", body: "Why this project exists and the problem we're solving." },
           { title: "Tech & Architecture (25%)", body: "Stack choices, design trade‑offs, and the first implementation steps." },
           { title: "Midway (50%)", body: "Key problems, experiments, and collaboration details." },
           { title: "MVP (75%)", body: "How we reached something usable and validated it." },
@@ -153,6 +175,11 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
         return [
           "/assets/projects/cc-map.jpg",
           "/assets/projects/cc-chat.jpg",
+        ]
+      case "echoes-of-pharloom":
+        return [
+          "/assets/projects/eop-home.png",
+          "/assets/projects/eop-study.png",
         ]
       default:
         return project.image ? [project.image] : []
@@ -280,7 +307,21 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
               {activeTab === "overview" && (
                 <TabsContent value="overview" className="pt-8">
                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="prose prose-invert max-w-none">
-                    <p className="text-lg leading-relaxed text-gray-200 whitespace-pre-line">{project.longDescription}</p>
+                    <div className="text-lg leading-relaxed text-gray-200 space-y-6">
+                      {project.longDescription.split('\n\n').map((paragraph, idx) => {
+                        // Check if it's a header (starts with **)
+                        if (paragraph.trim().startsWith('**') && paragraph.trim().endsWith('**')) {
+                          const headerText = paragraph.trim().slice(2, -2)
+                          return (
+                            <h2 key={idx} className="text-2xl font-bold text-white mt-8 mb-4 underline decoration-purple-400 decoration-2 underline-offset-4">
+                              {headerText}
+                            </h2>
+                          )
+                        }
+                        // Regular paragraph
+                        return <p key={idx} className="text-gray-200 leading-relaxed">{paragraph}</p>
+                      })}
+                    </div>
                   </motion.div>
                 </TabsContent>
               )}
@@ -298,7 +339,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
                           ref={(el) => { if (el) sectionRefs.current[idx] = el }}
                           className="scroll-mt-24"
                         >
-                          <h3 className="text-2xl md:text-3xl font-bold mb-3">{s.title}</h3>
+                          <h3 className="text-2xl md:text-3xl font-bold mb-3 underline decoration-purple-400 decoration-2 underline-offset-4">{s.title}</h3>
                           {s.body && <p className="text-gray-200 leading-relaxed">{s.body}</p>}
                           {s.bullets && (
                             <ul className="list-disc pl-6 text-gray-200 space-y-2">
@@ -313,9 +354,9 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
                       <section>
                         <h3 className="text-2xl md:text-3xl font-bold mb-3">Key Takeaways</h3>
                         <ul className="list-disc pl-6 text-gray-200 space-y-2">
-                          <li>Strong emphasis on rapid iteration and user‑centered design.</li>
-                          <li>Clear architecture decisions accelerated delivery.</li>
-                          <li>We had fun learning, shipping, and collaborating under pressure.</li>
+                          {project.takeaways.map((takeaway, i) => (
+                            <li key={i}>{takeaway}</li>
+                          ))}
                         </ul>
                       </section>
 

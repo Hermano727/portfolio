@@ -24,6 +24,7 @@
 .DS_Store
 *.pem
 WARP.md
+EDITING_GUIDE.md
 
 # debug
 npm-debug.log*

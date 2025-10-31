@@ -10,6 +10,7 @@ import { Filter, Search, X, Sparkles, Home, Github, Linkedin, ExternalLink } fro
 import { motion, AnimatePresence } from "framer-motion"
 import Image from "next/image"
 import Starfield from "@/components/effects/starfield"
+import { formatDateRange } from "@/lib/utils"
 
 export default function ExperiencePage() {
   const [searchQuery, setSearchQuery] = useState("")
@@ -21,19 +22,21 @@ export default function ExperiencePage() {
     new Set(experiences.flatMap((experience) => experience.categories || []))
   )
 
-  // Filter experiences based on search query and selected tag
-  const filteredExperiences = experiences.filter((experience) => {
-    const matchesSearch =
-      experience.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      experience.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      experience.description.toLowerCase().includes(searchQuery.toLowerCase())
+  // Filter experiences based on search query and selected tag, then sort by start date (most recent first)
+  const filteredExperiences = experiences
+    .filter((experience) => {
+      const matchesSearch =
+        experience.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        experience.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        experience.description.toLowerCase().includes(searchQuery.toLowerCase())
 
-    const matchesTag = selectedTag 
-      ? experience.categories && experience.categories.includes(selectedTag) 
-      : true
+      const matchesTag = selectedTag 
+        ? experience.categories && experience.categories.includes(selectedTag) 
+        : true
 
-    return matchesSearch && matchesTag
-  })
+      return matchesSearch && matchesTag
+    })
+    .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 text-white relative overflow-hidden">
@@ -128,16 +131,16 @@ export default function ExperiencePage() {
               transition={{ duration: 0.3, ease: "easeInOut" }}
               className="overflow-hidden mb-8"
             >
-              <div className="p-6 bg-gray-50 rounded-xl border border-gray-100 shadow-sm">
+              <div className="p-6 bg-white/10 backdrop-blur-md rounded-xl border border-white/20 shadow-lg">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-medium flex items-center gap-2">
-                    <Sparkles className="h-4 w-4 text-purple-500" />
+                  <h3 className="font-medium flex items-center gap-2 text-white">
+                    <Sparkles className="h-4 w-4 text-purple-400" />
                     Filter by Category
                   </h3>
                   <Button
                     variant="light"
                     size="sm"
-                    className="text-gray-500 hover:text-black transition-colors"
+                    className="text-gray-300 hover:text-white transition-colors"
                     onClick={() => setSelectedTag(null)}
                   >
                     Clear filters
@@ -150,8 +153,8 @@ export default function ExperiencePage() {
                       variant={selectedTag === tag ? "default" : "outline"}
                       className={`cursor-pointer transition-all ${
                         selectedTag === tag 
-                          ? "bg-black text-white hover:bg-purple-600" 
-                          : "hover:bg-gray-100"
+                          ? "bg-purple-600 text-white hover:bg-purple-700 border-purple-600" 
+                          : "bg-white/5 text-white border-white/30 hover:bg-white/10"
                       }`}
                       onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
                     >
@@ -186,6 +189,7 @@ export default function ExperiencePage() {
                       <div className={`${reversed ? 'md:col-start-1 md:col-span-7 md:text-right' : 'md:col-start-6 md:col-span-7'}`}>
                         <h3 className="text-3xl md:text-4xl font-bold mb-2">{exp.title}</h3>
                         <p className="text-gray-300 mb-1">{exp.company} • {exp.location}</p>
+                        <p className={`text-sm text-purple-300 mb-2 ${reversed ? 'md:text-right' : ''}`}>{formatDateRange(exp.startDate, exp.endDate)}</p>
                         <p className={`text-gray-300 mb-6 max-w-2xl ${reversed ? 'ml-auto' : ''}`}>{exp.description}</p>
                         <div className={`flex flex-wrap gap-2 mb-6 ${reversed ? 'justify-end' : ''}`}>
                           {exp.categories.map((c) => (
