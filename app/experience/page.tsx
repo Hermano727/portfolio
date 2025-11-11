@@ -174,43 +174,63 @@ export default function ExperiencePage() {
             {filteredExperiences.map((exp, index) => {
               const reversed = index % 2 === 1
               return (
-                <motion.div
-                  key={exp.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.05 }}
-                >
-                  <div className="relative">
-                    <div className={`absolute -inset-x-6 md:inset-y-[-48px] h-[220px] md:h-[320px] rounded-2xl bg-gradient-to-r from-purple-700 to-indigo-700 opacity-20 ${reversed ? 'right-0 md:left-1/2' : 'left-0 md:right-1/2'}`} aria-hidden />
-                    <div className="relative z-10 grid grid-cols-1 md:grid-cols-12 items-center gap-8">
-                      <div className={`${reversed ? 'md:col-start-8 md:col-span-5' : 'md:col-span-5'} relative aspect-[16/10] md:aspect-[16/9] overflow-hidden rounded-xl shadow-lg`}>
-                        <Image src={exp.image || '/placeholder.png'} alt={exp.title} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 40vw, 33vw" className="object-cover" />
-                      </div>
-                      <div className={`${reversed ? 'md:col-start-1 md:col-span-7 md:text-right' : 'md:col-start-6 md:col-span-7'}`}>
-                        <h3 className="text-3xl md:text-4xl font-bold mb-2">{exp.title}</h3>
-                        <p className="text-gray-300 mb-1">{exp.company} • {exp.location}</p>
-                        <p className={`text-sm text-purple-300 mb-2 ${reversed ? 'md:text-right' : ''}`}>{formatDateRange(exp.startDate, exp.endDate)}</p>
-                        <p className={`text-gray-300 mb-6 max-w-2xl ${reversed ? 'ml-auto' : ''}`}>{exp.description}</p>
-                        <div className={`flex flex-wrap gap-2 mb-6 ${reversed ? 'justify-end' : ''}`}>
-                          {exp.categories.map((c) => (
-                            <span key={c} className="inline-flex items-center rounded-md border border-purple-300/40 bg-purple-200/10 text-purple-200 px-2 py-0.5 text-xs">{c}</span>
-                          ))}
+                <Link key={exp.id} href={`/experience/${exp.id}`} className="block group" prefetch>
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileHover={{ scale: 1.02, y: -2 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.25, ease: 'easeOut' }}
+                  >
+                    <div className="relative">
+                      <div className={`absolute -inset-x-6 md:inset-y-[-48px] h-[220px] md:h-[320px] rounded-2xl bg-gradient-to-r from-purple-700 to-indigo-700 opacity-20 ${reversed ? 'right-0 md:left-1/2' : 'left-0 md:right-1/2'}`} aria-hidden />
+                      <div className="relative z-10 grid grid-cols-1 md:grid-cols-12 items-center gap-8">
+                        <div className={`${reversed ? 'md:col-start-8 md:col-span-5' : 'md:col-span-5'} relative aspect-[16/10] md:aspect-[16/9] overflow-hidden rounded-xl shadow-lg`}>
+                          <Image src={exp.image || '/placeholder.png'} alt={exp.title} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 40vw, 33vw" className="object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
                         </div>
-                        <div className={`flex items-center gap-5 ${reversed ? 'justify-end' : ''}`}>
-                          {exp.websiteUrl && (
-                            <a href={exp.websiteUrl} target="_blank" rel="noopener noreferrer" className="uppercase text-white/90 hover:text-white border-b border-transparent hover:border-white/70 pb-0.5">Website</a>
-                          )}
-                          {exp.liveUrl && (
-                            <a href={exp.liveUrl} target="_blank" rel="noopener noreferrer" className="uppercase text-white/90 hover:text-white border-b border-transparent hover:border-white/70 pb-0.5">View</a>
-                          )}
-                          {exp.githubUrl && (
-                            <a href={exp.githubUrl} target="_blank" rel="noopener noreferrer" className="uppercase text-white/90 hover:text-white border-b border-white/60 pb-0.5">Code</a>
-                          )}
+                        <div className={`${reversed ? 'md:col-start-1 md:col-span-7 md:text-right' : 'md:col-start-6 md:col-span-7'}`}>
+                          <h3 className="text-3xl md:text-4xl font-bold mb-2">{exp.title}</h3>
+                          <p className="text-gray-300 mb-1">{exp.company} • {exp.location}</p>
+                          <p className={`text-sm text-purple-300 mb-2 ${reversed ? 'md:text-right' : ''}`}>{formatDateRange(exp.startDate, exp.endDate)}</p>
+                          <p className={`text-gray-300 mb-6 max-w-2xl ${reversed ? 'ml-auto' : ''}`}>{exp.description}</p>
+                          <div className={`flex flex-wrap gap-2 mb-6 ${reversed ? 'justify-end' : ''}`}>
+                            {exp.categories.map((c) => (
+                              <span key={c} className="inline-flex items-center rounded-md border border-purple-300/40 bg-purple-200/10 text-purple-200 px-2 py-0.5 text-xs">{c}</span>
+                            ))}
+                          </div>
+                          <div className={`flex items-center gap-5 ${reversed ? 'justify-end' : ''}`}>
+                            {exp.websiteUrl && (
+                              <button
+                                type="button"
+                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.open(exp.websiteUrl!, '_blank', 'noopener,noreferrer') }}
+                                className="uppercase text-white/90 hover:text-white border-b border-transparent hover:border-white/70 pb-0.5"
+                              >
+                                Website
+                              </button>
+                            )}
+                            {exp.liveUrl && (
+                              <button
+                                type="button"
+                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.open(exp.liveUrl!, '_blank', 'noopener,noreferrer') }}
+                                className="uppercase text-white/90 hover:text-white border-b border-transparent hover:border-white/70 pb-0.5"
+                              >
+                                View
+                              </button>
+                            )}
+                            {exp.githubUrl && (
+                              <button
+                                type="button"
+                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.open(exp.githubUrl!, '_blank', 'noopener,noreferrer') }}
+                                className="uppercase text-white/90 hover:text-white border-b border-white/60 pb-0.5"
+                              >
+                                Code
+                              </button>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </motion.div>
+                  </motion.div>
+                </Link>
               )
             })}
           </div>

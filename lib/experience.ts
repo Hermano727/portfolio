@@ -15,6 +15,17 @@ export interface Experience {
   githubUrl?: string;
   liveUrl?: string;
   websiteUrl?: string;
+  fullDetails?: string[];
+  projects?: Array<{
+    title: string;
+    summary?: string;
+    bullets?: string[];
+    links?: { label: string; href: string }[];
+    videos?: { youtubeId?: string; title?: string }[];
+  }>;
+  workExamples?: string[]; // up to 2 image URLs
+  showYoutube?: boolean;
+  youtubeId?: string; // optional if showYoutube is true
 }
 
 export const experiences: Experience[] = [
@@ -37,7 +48,29 @@ export const experiences: Experience[] = [
       "Modularized legacy codebase into separate services with thread-safe queue system",
     ],
     githubUrl: "https://github.com/UCSD-Makerspace/Check-In",
-    liveUrl: "https://makerspace.ucsd.edu/",
+    liveUrl: "https://youtube.com/shorts/w_4UTGWlqxE?feature=share",
+    projects: [
+      {
+        title: "RFID Check in platform",
+        summary:
+          "Engineered a high-availability NFC check-in platform for 8,000+ UCSD students, eliminating manual verification bottlenecks and achieving 99.9% uptime via distributed design and automated failover.",
+        bullets: [
+          "Refactored legacy codebase into modular, thread-safe components and redesigned check-in logic to prioritize local-first execution across Raspberry Pi nodes.",
+          "Improved average check-in speed by 92% through local caching, async queuing, and deferred sync to Google Sheets, enabling real-time LED confirmation.",
+          "Built a queue-based background thread system with write-delay invariants to prevent race conditions and duplicate writes.",
+          "Implemented secure export pipeline with timeout-protected API calls and verbose logging for fault tolerance.",
+        ],
+        links: [
+          { label: "YouTube", href: "https://youtube.com/shorts/w_4UTGWlqxE?feature=share" },
+        ],
+        videos: [
+          { youtubeId: "w_4UTGWlqxE", title: "RFID Check-in Demo" },
+        ],
+      },
+    ],
+    workExamples: ["/assets/experience/makerspace-home.jpg", "/assets/experience/makerspace-barcode.jpg"],
+    showYoutube: true,
+    youtubeId: "w_4UTGWlqxE",
   },
   {
     id: "yonder-dynamics",
@@ -59,6 +92,35 @@ export const experiences: Experience[] = [
     ],
     liveUrl: "https://www.youtube.com/watch?v=8XUT9da2txI",
     websiteUrl: "https://yonderdynamics.org/",
+    projects: [
+      {
+        title: "Pure Pursuit Vectorization",
+        summary:
+          "Vector-based Leaflet mapping for autonomous path tracing and real-time rover tracking, improving planning efficiency and situational awareness.",
+        bullets: [
+          "Implemented Pure Pursuit path tracking with live path overlays and rover pose updates.",
+          "Optimized map rendering and update cadence for low-latency operator feedback.",
+        ],
+      },
+      {
+        title: "Camera Refactor",
+        bullets: [
+          "Unified distributed rover cameras (Flask API, Janus) into a ROS front-end.",
+          "Implemented start/stop/take-photo and driver functions for improved control surface.",
+          "Designed fullscreen UI with auto-fade HUD (battery, rover position) for autonomous missions.",
+        ],
+      },
+      {
+        title: "Documentation & Onboarding",
+        summary: "Established documentation standards and led onboarding workshops/system overviews.",
+        links: [
+          { label: "Notion", href: "https://www.notion.so/yonderdynamics/Intro-Workshop-Frontend-System-Documentation-2828f2bf79bf8051a5d4fcf502ee1b09" },
+        ],
+      },
+    ],
+    workExamples: ["/assets/projects/ROSLibJS.png", "/assets/projects/Yonder-frontend.png"],
+    showYoutube: true,
+    youtubeId: "8XUT9da2txI",
   },
   {
     id: "bioengineering-research",
@@ -80,5 +142,38 @@ export const experiences: Experience[] = [
     ],
     githubUrl: "https://github.com/UCSD-Makerspace/squat-press",
     liveUrl: "https://makerspace.ucsd.edu/",
+    projects: [
+      {
+        title: "MSPD",
+        summary:
+          "Distributed, IoT-driven behavioral research platform integrating multi-sensor inputs, real-time event processing, and automated hardware control.",
+        bullets: [
+          "Enabled high-throughput, reproducible behavioral studies via fault-tolerant edge data pipelines and automated closed-loop control.",
+          "Achieved 100% data fidelity with local SQLite buffering, automated rsync synchronization, and JSON event streaming.",
+          "Automated pellet dispensing, sensor calibration, and chamber ops via Python event handling, reducing manual intervention by 75%.",
+        ],
+      },
+      {
+        title: "Linear Sensor Unit Test",
+        summary:
+          "Reverse engineered Microchip LXK3302A serial protocol and implemented Python tooling; integrated NEMA17 motion to map velocities using TMC2209 and Arduino.",
+        links: [
+          { label: "GitHub (tests)", href: "https://github.com/UCSD-Makerspace/squat-press/tree/dev/tests/tmcarduino" },
+        ],
+        videos: [
+          { youtubeId: "Tfy9P3L2z1Q", title: "Sensor Unit Test" },
+        ],
+      },
+      {
+        title: "Pellet Dispenser Unit Test",
+        summary:
+          "ESP32 + A4988 stepper control to dispense pellets with precise 45° steps; event manager with daemon threads for unit-test orchestration.",
+        videos: [
+          { youtubeId: "x2Q3GgaJ1cM", title: "Pellet Dispenser Demo" },
+        ],
+      },
+    ],
+    workExamples: ["/assets/mice-squat.jpg", "/assets/mice-squat.jpg"],
+    showYoutube: false,
   },
 ];
