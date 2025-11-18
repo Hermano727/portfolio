@@ -13,9 +13,16 @@ import Starfield from "@/components/effects/starfield"
 import SkillsPengu from "@/components/skills-section"
 
 export default function Home() {
-  const featuredProjects = [...projects]
+  let featuredProjects = [...projects]
     .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
     .slice(0, 4)
+
+  // Ensure the Yonder project is visible on the home Recent Projects section
+  const yonderProject = projects.find((p) => p.id === "yonder")
+  if (yonderProject && !featuredProjects.some((p) => p.id === "yonder")) {
+    featuredProjects.unshift(yonderProject)
+    featuredProjects = featuredProjects.slice(0, 4)
+  }
 
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
@@ -318,6 +325,23 @@ export default function Home() {
                               Live App
                             </button>
                           )}
+
+                          {project.id === 'echoes-of-pharloom' && (
+                            <button
+                              type="button"
+                              onClick={() => window.open('https://www.echoesofpharloom.com', '_blank', 'noopener,noreferrer')}
+                              className="uppercase text-white/90 hover:text-white border-b border-transparent hover:border-white/70 pb-0.5"
+                            >
+                              Visit
+                            </button>
+                          )}
+
+                          {project.id === 'yonder' && (
+                            <Link href="/experience/yonder-dynamics" className="uppercase text-white/90 hover:text-white border-b border-white/60 pb-0.5">
+                              Explore Yonder
+                            </Link>
+                          )}
+
                           <Link
                             href={`/projects/${project.id}`}
                             className="uppercase text-white/90 hover:text-white border-b border-white/60 pb-0.5"
@@ -334,7 +358,7 @@ export default function Home() {
           </div>
 
           <motion.div 
-            className="flex justify-center mt-24"
+            className="flex justify-center gap-4 mt-24"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -349,6 +373,18 @@ export default function Home() {
                 disableRipple={false}
               >
                 View All Projects
+              </Button>
+            </Link>
+
+            <Link href="/experience">
+              <Button 
+                className="relative inline-flex items-center justify-center font-medium text-white px-6 py-2 rounded-md bg-gradient-to-r from-purple-700 via-purple-800 to-purple-950 hover:from-purple-600 hover:via-purple-700 hover:to-purple-900 shadow-lg"
+                endContent={<ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />}
+                radius="sm"
+                variant="shadow"
+                disableRipple={false}
+              >
+                View Experience
               </Button>
             </Link>
           </motion.div>

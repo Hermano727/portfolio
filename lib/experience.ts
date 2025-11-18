@@ -117,6 +117,24 @@ export const experiences: Experience[] = [
           { label: "Notion", href: "https://www.notion.so/yonderdynamics/Intro-Workshop-Frontend-System-Documentation-2828f2bf79bf8051a5d4fcf502ee1b09" },
         ],
       },
+      {
+        title: "System Version Tracking",
+        summary: "Workspace scanner for repository metadata and mission-time system visibility.",
+        bullets: [
+          "Developed a workspace scanner that collects commit hashes, branches, and repo metadata for all rover repositories at boot using Git.",
+          "Published this collected metadata over a ROS topic to provide mission-time system state visibility.",
+          "Integrated the data into a Redux slice and lightweight UI component for real-time system status during missions.",
+        ],
+      },
+      {
+        title: "Arm Visualization & Control Pipeline",
+        summary: "URDF-based arm modeling with live visualization and joint control integration.",
+        bullets: [
+          "Authored the rover arm URDF and visualization pipeline using RViz and robot_state_publisher.",
+          "Implemented live joint-state publishing and frontend integration to display arm state and provide joint/pose command capabilities.",
+          "Built a control interface that allowed operators to send joint commands and visualize expected poses before execution.",
+        ],
+      },
     ],
     workExamples: ["/assets/projects/ROSLibJS.png", "/assets/projects/Yonder-frontend.png"],
     showYoutube: true,
