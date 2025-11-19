@@ -17,9 +17,9 @@ export const metadata: Metadata = {
   title: "Herman Hundsberger",
   description: "Portfolio of Herman Hundsberger – projects, experience, and contact.",
   icons: {
-    icon: "/icon.jpg",
-    shortcut: "/icon.jpg",
-    apple: "/icon.jpg",
+    icon: "/pfp.jpg",
+    shortcut: "/pfp.jpg",
+    apple: "/pfp.jpg",
   },
 };
 

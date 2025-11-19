@@ -392,12 +392,6 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
                             className="absolute top-0 left-1/2 -translate-x-1/2 w-2 rounded-t bg-cyan-500 transition-[height] duration-300 ease-out"
                             style={{ height: `${progress}%` }}
                           />
-
-                          {/* Moving indicator dot aligned to the rail center */}
-                          <div className="absolute left-1/2 -translate-x-1/2 pointer-events-none transition-all duration-300 ease-out" style={{ top: `${progress}%` }}>
-                            <div className="absolute -mt-2 h-4 w-4 rounded-full bg-cyan-500 shadow-[0_0_0_5px_rgba(6,182,212,0.20)]" />
-                          </div>
-
                           {/* Steps with labels: 0% at top, 100% at bottom */}
                           {[0,25,50,75,100].map((p, i) => {
                             const activeIdx = Math.round(progress / 25)

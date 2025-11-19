@@ -114,7 +114,7 @@ I want to add more UI polish, introduce social features for sharing streaks with
     categories: ["Web Development", "Productivity"],
     tools: ["React", "TypeScript", "AWS CDK", "Lambda", "DynamoDB", "Cognito"],
     githubUrl: "https://github.com/Hermano727/echoes-of-pharloom",
-    liveUrl: undefined,
+    liveUrl: "https://echoesofpharloom.com/",
     takeaways: [
       "It's really fun building an app you care about and being able to use it as you build!",
       "Learned infrastructure as code with AWS CDK and serverless architecture",
