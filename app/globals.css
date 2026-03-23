@@ -3,12 +3,24 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  
+
   /* Theme variables */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* ── Celestial Architect Design System ──────────────────────────────────── */
+  --ds-surface:              #151314;
+  --ds-surface-low:          #1d1b1c;
+  --ds-surface-high:         #2b2829;
+  --ds-surface-highest:      #373435;
+  --ds-primary:              #e0b6ff;
+  --ds-primary-container:    #9d4edd;
+  --ds-on-surface:           #f4edf8;
+  --ds-on-surface-variant:   #d0c2d5;
+  --ds-outline-variant:      #4a4249;
+  --ds-background:           #151314;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -19,9 +31,43 @@
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--ds-background);
+  color: var(--ds-on-surface);
+  font-family: var(--font-geist-sans), Arial, sans-serif;
+}
+
+/* ── Contact footer input overrides ──────────────────────────────────────────
+   NextUI's Tailwind plugin injects base styles that override native <input>
+   backgrounds. Using !important here is intentional — it beats NextUI's reset
+   without needing to switch to the NextUI <Input> component. */
+.cf-input {
+  background: rgba(29, 27, 28, 0.65) !important;
+  color: #f4edf8 !important;
+  border: 1px solid rgba(74, 66, 73, 0.25) !important;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.85rem;
+  font-family: var(--font-manrope), var(--font-geist-sans), sans-serif;
+  width: 100%;
+  display: block;
+  appearance: none;
+  -webkit-appearance: none;
+  -webkit-text-fill-color: #f4edf8;
+  transition: border-color 0.15s ease;
+}
+.cf-input:focus {
+  outline: none !important;
+  border-color: rgba(224, 182, 255, 0.45) !important;
+}
+.cf-input::placeholder {
+  color: rgba(208, 194, 213, 0.3) !important;
+  opacity: 1;
+}
+
+/* ── Hero ring spin ──────────────────────────────────────────────────────────*/
+@keyframes hero-ring-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 }
 
 /* Line clamp utilities */

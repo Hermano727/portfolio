@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Space_Grotesk, Manrope } from "next/font/google";
 import { Providers } from "./providers";
 import "./globals.css";
 
@@ -13,13 +13,25 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-space-grotesk",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
+
+const manrope = Manrope({
+  variable: "--font-manrope",
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+});
+
 export const metadata: Metadata = {
   title: "Herman Hundsberger",
   description: "Portfolio of Herman Hundsberger – projects, experience, and contact.",
   icons: {
-    icon: "/pfp.jpg",
-    shortcut: "/pfp.jpg",
-    apple: "/pfp.jpg",
+    icon: "/assets/pfp.jpg",
+    shortcut: "/assets/pfp.jpg",
+    apple: "/assets/pfp.jpg",
   },
 };
 
@@ -31,7 +43,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} ${manrope.variable} antialiased`}
         suppressHydrationWarning={true}
       >
         <Providers>
