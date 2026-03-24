@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
+import { isTypingTarget } from "@/lib/dom"
 
 export type DeckMode = "experience" | "projects"
 
@@ -33,13 +34,7 @@ export function useDeckState(): DeckState {
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      const tag = (e.target as HTMLElement)?.tagName
-      if (
-        tag === "INPUT" ||
-        tag === "TEXTAREA" ||
-        tag === "SELECT" ||
-        (e.target as HTMLElement)?.isContentEditable
-      ) return
+      if (isTypingTarget(e.target)) return
 
       if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") {
         e.preventDefault()

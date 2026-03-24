@@ -13,6 +13,7 @@ export interface Project {
   githubUrl?: string;
   liveUrl?: string;
   takeaways: string[];
+  imageType?: "portrait" | "landscape";
 }
 
 // Ordered by display priority: Tier 1 first (Yonder, Echoes of Pharloom), then Tier 2 (Splitr)
@@ -27,9 +28,7 @@ export const projects: Project[] = [
     progress: 70,
     startDate: "2024-10-01",
     categories: ["Robotics", "ROS", "Navigation"],
-    tools: ["ROS", "Python", "RViz", "Leaflet", "Flask"],
-    githubUrl: undefined,
-    liveUrl: undefined,
+    tools: ["Python", "Flask", "Leaflet", "RViz", "ROS"],
     takeaways: [
       "Implemented Pure Pursuit path tracking with live Leaflet overlays; optimized map rendering for low-latency operator feedback during missions.",
       "Unified distributed rover cameras (Flask API, Janus) into a ROS front-end with start/stop/photo controls and an auto-fade autonomous HUD.",
@@ -45,9 +44,8 @@ export const projects: Project[] = [
     status: "In Progress",
     progress: 80,
     startDate: "2025-09-01",
-    endDate: undefined,
     categories: ["Web Development", "Productivity"],
-    tools: ["React", "TypeScript", "AWS CDK", "Lambda", "DynamoDB", "Cognito"],
+    tools: ["TypeScript", "React", "Lambda", "DynamoDB", "Cognito", "AWS CDK"],
     githubUrl: "https://github.com/Hermano727/echoes-of-pharloom",
     liveUrl: "https://echoesofpharloom.com/",
     takeaways: [
@@ -67,9 +65,10 @@ export const projects: Project[] = [
     startDate: "2025-04-01",
     endDate: "2025-04-30",
     categories: ["Mobile Development", "Finance"],
-    tools: ["React Native", "TypeScript", "Google Vision", "MistralAI", "FastAPI", "Firebase"],
+    tools: ["TypeScript", "React Native", "FastAPI", "Google Vision", "MistralAI", "Firebase"],
     githubUrl: "https://github.com/Hermano727/diamondhacks25",
     liveUrl: "https://devpost.com/software/splitr-wa2frd",
+    imageType: "portrait",
     takeaways: [
       "Designed multi-stage OCR pipeline: Google Vision extracts text → MistralAI converts to structured JSON → FastAPI validates → React Native renders assignments.",
       "Benchmarked Llama3, OpenAI, and Mistral to find the optimal balance of cost, latency, and JSON reliability for real-world receipt parsing.",

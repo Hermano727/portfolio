@@ -23,6 +23,18 @@ export interface ApertureCard {
   highlights: string[]
   /** True when a filter is active and this card doesn't match. */
   ghosted: boolean
+  /** Primary thumbnail / hero image */
+  image?: string
+  /** Secondary work-example images (up to 2) */
+  images?: string[]
+  githubUrl?: string
+  liveUrl?: string
+  /** YouTube video ID — if set, a thumbnail preview appears in expanded view */
+  youtubeId?: string
+  /** Drives layout branching: portrait stacks image to the side, landscape stacks it on top */
+  imageType?: "portrait" | "landscape"
+  /** Optional per-image orientation override for work examples */
+  workExampleTypes?: ("portrait" | "landscape")[]
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -53,6 +65,12 @@ function buildChronologicalPool(): ApertureCard[] {
       tags: e.tools,
       highlights: e.achievements,
       ghosted: false,
+      image:            e.image,
+      images:           e.workExamples,
+      workExampleTypes: e.workExampleTypes,
+      githubUrl:        e.githubUrl,
+      liveUrl:          e.liveUrl,
+      youtubeId:        e.showYoutube ? e.youtubeId : undefined,
     }))
 
   const projCards: ApertureCard[] = projects
@@ -68,6 +86,10 @@ function buildChronologicalPool(): ApertureCard[] {
       tags: p.tools,
       highlights: p.takeaways,
       ghosted: false,
+      image:     p.image,
+      githubUrl: p.githubUrl,
+      liveUrl:   p.liveUrl,
+      imageType: p.imageType,
     }))
 
   // Chronological merge: two-pointer greedy, newest-first

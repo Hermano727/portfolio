@@ -1,9 +1,10 @@
 "use client"
 
-import { AnimatePresence, motion, useMotionValue, type MotionValue } from "framer-motion"
+import { AnimatePresence, motion, useMotionValue } from "framer-motion"
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react"
 import DeckCard, { type DeckCardModel } from "./DeckCard"
 import type { ScenePhase } from "@/components/scene/SceneManager"
+import { EASE_DECK } from "@/lib/motion"
 
 // ── Public handle ───────────────────────────────────────────────────────────────
 
@@ -25,7 +26,6 @@ const PHASE_COLOR: Record<ScenePhase, string> = {
 
 export interface DeckColumnProps {
   title: string
-  subtitle?: string
   cards: DeckCardModel[]
   onFocusedIndexChange: (index: number) => void
   isActive?: boolean
@@ -33,12 +33,6 @@ export interface DeckColumnProps {
   onPointerInteraction?: () => void
   /** Pass false to suppress the title + active-bar header (e.g. when an external switcher owns the heading). */
   showHeader?: boolean
-}
-
-/** @deprecated — use DeckColumnHandle instead */
-export interface DeckColumnApi {
-  containerRef: React.RefObject<HTMLDivElement | null>
-  focusedIndexMV: MotionValue<number>
 }
 
 // ── Component ───────────────────────────────────────────────────────────────────
@@ -282,7 +276,7 @@ const DeckColumn = forwardRef<DeckColumnHandle, DeckColumnProps>(
                   initial={{ opacity: 0, scaleX: 0.5 }}
                   animate={{ opacity: 1, scaleX: 1 }}
                   exit={{ opacity: 0, scaleX: 0.5 }}
-                  transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+                  transition={{ duration: 0.3, ease: EASE_DECK }}
                   aria-hidden="true"
                   style={{
                     position:        "absolute",

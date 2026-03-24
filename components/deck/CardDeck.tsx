@@ -9,6 +9,8 @@ import { projects } from "@/lib/data"
 import DeckColumn, { type DeckColumnHandle } from "./DeckColumn"
 import type { DeckCardModel } from "./DeckCard"
 import { useDeckState } from "./DeckStateController"
+import { EASE_OUT } from "@/lib/motion"
+import { isTypingTarget } from "@/lib/dom"
 
 // Slide variants — custom value is the direction integer (+1 or -1).
 const SLIDE_VARIANTS = {
@@ -139,13 +141,7 @@ export default function CardDeck() {
   // ── Keyboard controller (Up/Down card nav, Enter/Space expand, Esc collapse) ─
   // A/D and ArrowLeft/Right are owned by useDeckState.
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    const tag = (e.target as HTMLElement)?.tagName
-    if (
-      tag === "INPUT" ||
-      tag === "TEXTAREA" ||
-      tag === "SELECT" ||
-      (e.target as HTMLElement)?.isContentEditable
-    ) return
+    if (isTypingTarget(e.target)) return
 
     switch (e.key) {
       case "ArrowUp":
@@ -263,7 +259,7 @@ export default function CardDeck() {
             initial="enter"
             animate="center"
             exit="exit"
-            transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.42, ease: EASE_OUT }}
             style={{
               position:       "absolute",
               inset:          0,

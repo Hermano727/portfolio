@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from "react"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
+import { EASE_OUT } from "@/lib/motion"
 
 // ─── Design Tokens ────────────────────────────────────────────────────────────
 
@@ -21,58 +22,6 @@ const T = {
 const NAME      = "Herman Hundsberger"
 const SUB_LABEL = "UCSD '27"
 
-// ─── Cloud Bank — frosted barrier the card "falls into" on exit ───────────────
-
-function CloudBank({ visible }: { visible: boolean }) {
-  return (
-    <AnimatePresence>
-      {visible && (
-        <motion.div
-          key="cloud-bank"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-          className="fixed top-0 left-0 right-0 pointer-events-none"
-          style={{
-            height:              "62vh",
-            zIndex:              30,
-            // ~40% translucent cloud layer — card rises through and is obscured
-            background:          `linear-gradient(
-              to bottom,
-              rgba(21,19,20,0.88)    0%,
-              rgba(21,19,20,0.62)    28%,
-              rgba(21,19,20,0.40)    54%,
-              rgba(21,19,20,0.18)    76%,
-              transparent            100%
-            )`,
-          }}
-          aria-hidden="true"
-        >
-          {/* Nebula fringe at cloud bank base */}
-          <div
-            style={{
-              position:   "absolute",
-              bottom:     0,
-              left:       "8%",
-              right:      "8%",
-              height:     "2px",
-              background: `linear-gradient(
-                to right,
-                transparent,
-                rgba(157,78,221,0.32) 28%,
-                rgba(224,182,255,0.55) 50%,
-                rgba(157,78,221,0.32) 72%,
-                transparent
-              )`,
-              filter: "blur(3px)",
-            }}
-          />
-        </motion.div>
-      )}
-    </AnimatePresence>
-  )
-}
-
 // ─── Portrait ring — conic gradient with purple glow ─────────────────────────
 
 function PortraitRing() {
@@ -80,7 +29,7 @@ function PortraitRing() {
     <motion.div
       initial={{ opacity: 0, scale: 0.72 }}
       animate={{ opacity: 1, scale: 1 }}
-      transition={{ delay: 0.2, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ delay: 0.2, duration: 0.7, ease: EASE_OUT }}
       style={{ position: "relative", width: 118, height: 118 }}
     >
       {/* Outer glow */}
@@ -166,7 +115,7 @@ function AnimatedName({ name }: { name: string }) {
                 transition={{
                   delay:    0.38 + i * 0.024,
                   duration: 0.52,
-                  ease:     [0.22, 1, 0.36, 1],
+                  ease:     EASE_OUT,
                 }}
                 style={{ display: "inline-block" }}
               >
@@ -215,7 +164,6 @@ interface HeroSectionProps {
 
 export default function HeroSection({ onStart, onExitStart }: HeroSectionProps) {
   const [exiting, setExiting] = useState(false)
-  const buttonRef    = useRef<HTMLButtonElement>(null)
   const tiltWrapRef  = useRef<HTMLDivElement>(null)
   const cardRef      = useRef<HTMLDivElement>(null)
   const glintRef     = useRef<HTMLDivElement>(null)
@@ -368,7 +316,7 @@ export default function HeroSection({ onStart, onExitStart }: HeroSectionProps) 
                       }
                     : { opacity: 1, y: 0, scale: 1 }
                 }
-                transition={{ delay: 0.1, duration: 0.82, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ delay: 0.1, duration: 0.82, ease: EASE_OUT }}
                 style={{
                   position:       "relative",
                   display:        "flex",
@@ -448,7 +396,7 @@ export default function HeroSection({ onStart, onExitStart }: HeroSectionProps) 
                 <motion.div
                   initial={{ scaleX: 0, opacity: 0 }}
                   animate={{ scaleX: 1, opacity: 1 }}
-                  transition={{ delay: 1.1, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+                  transition={{ delay: 1.1, duration: 0.55, ease: EASE_OUT }}
                   style={{
                     width:           "100%",
                     height:          "1px",
@@ -490,7 +438,6 @@ export default function HeroSection({ onStart, onExitStart }: HeroSectionProps) 
                     scroll to explore
                   </p>
                   <button
-                    ref={buttonRef}
                     onClick={handleStart}
                     onKeyDown={handleKey}
                     aria-label="Start — enter the portfolio"

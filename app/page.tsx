@@ -109,9 +109,7 @@ function HomeContent() {
               className="relative w-full"
               style={{ minHeight: "100vh", zIndex: 10 }}
             >
-              <div className="py-10 md:py-14">
-                <CardGrid dealSeed={dealSeed} />
-              </div>
+              <CardGrid dealSeed={dealSeed} />
             </section>
 
             {/* ── Contact + Footer (ISSUE-012) ── */}

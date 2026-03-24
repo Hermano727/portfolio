@@ -3,6 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion"
 import { useScrollOrchestrator } from "@/context/ScrollOrchestratorContext"
 import { getPhaseFromScroll } from "@/components/scene/SceneManager"
+import { EASE_DECK } from "@/lib/motion"
 
 /**
  * QuickNav — minimal jump-navigation pill.
@@ -29,7 +30,7 @@ export default function QuickNav() {
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 8 }}
-            transition={{ duration: 0.38, ease: [0.25, 0.46, 0.45, 0.94] }}
+            transition={{ duration: 0.38, ease: EASE_DECK }}
             onClick={isEarth ? jumpToHero : jumpToFooter}
             aria-label={isEarth ? "Back to top" : "Jump to contact section"}
             style={{ pointerEvents: "auto" }}

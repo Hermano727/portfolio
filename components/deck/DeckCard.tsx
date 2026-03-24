@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion, useTransform, type MotionValue } from "framer-motion"
 import Image from "next/image"
-import { useRef } from "react"
+import { EASE_DECK } from "@/lib/motion"
 
 // ── Design tokens ────────────────────────────────────────────────────────────
 
@@ -60,8 +60,6 @@ export default function DeckCard({
   isPeek = false,
   onExpand,
 }: DeckCardProps) {
-  const cardRef = useRef<HTMLDivElement | null>(null)
-
   // ── Depth motion values — fade/blur unfocused cards ──────────────────────────
   const opacity = useTransform(focusedIndex, (fi) => {
     const dist = Math.abs(fi - index)
@@ -84,18 +82,15 @@ export default function DeckCard({
   const filter = useTransform(blurPx, (b) => `blur(${b.toFixed(2)}px)`)
 
   const isFeatured = card.variant === "featured"
-  const expandTransition = { duration: 0.32, ease: [0.25, 0.46, 0.45, 0.94] as const }
+  const expandTransition = { duration: 0.32, ease: EASE_DECK }
 
   return (
     <motion.div
-      ref={(el) => {
-        cardRef.current = el
-        register(index)(el)
-      }}
+      ref={register(index)}
       initial={{ opacity: 0, y: -18 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ root: containerRef, once: true, amount: 0.1 }}
-      transition={{ duration: 0.38, ease: [0.25, 0.46, 0.45, 0.94] }}
+      transition={{ duration: 0.38, ease: EASE_DECK }}
       style={{ scale, filter }}
       className={[
         "relative will-change-transform",

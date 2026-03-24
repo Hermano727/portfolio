@@ -24,6 +24,7 @@ export interface Experience {
     videos?: { youtubeId?: string; title?: string }[];
   }>;
   workExamples?: string[]; // up to 2 image URLs
+  workExampleTypes?: ("portrait" | "landscape")[]; // optional per-image orientation override
   showYoutube?: boolean;
   youtubeId?: string; // optional if showYoutube is true
 }
@@ -40,7 +41,7 @@ export const experiences: Experience[] = [
     longDescription: "Led development of a comprehensive rover system for the University Rover Challenge, placing 5th nationally out of 100+ teams. Built an integrated ROS ecosystem, Pure Pursuit GPS navigation, unified camera control, and rover arm visualization. Established team onboarding that accelerated member integration by 50%.",
     image: "/assets/yonder.png",
     categories: ["Robotics", "ROS", "Computer Vision", "Navigation"],
-    tools: ["ROS", "Python", "Flask", "Leaflet", "GPS", "Computer Vision"],
+    tools: ["Python", "Flask", "Leaflet", "Computer Vision", "GPS", "ROS"],
     achievements: [
       "Implemented Pure Pursuit GPS algorithm with live Leaflet path overlays and real-time rover pose updates for low-latency field operation.",
       "Unified distributed rover cameras (Flask, Janus) into ROS with fullscreen HUD, auto-fade UI, and photo controls for autonomous missions.",
@@ -63,7 +64,7 @@ export const experiences: Experience[] = [
     longDescription: "Engineered a robust RFID-based check-in system for the UCSD Makerspace serving over 8,000 students. Local-first architecture with async JSON caching, queue-based background threads, and automated failover. Integrates with Google Sheets and Fabman.io for data sync and machine access control.",
     image: "/assets/makerspace.jpg",
     categories: ["Backend", "IoT", "Database", "API Integration"],
-    tools: ["Python", "Google Sheets API", "Fabman.io API", "JSON", "Threading"],
+    tools: ["Python", "Threading", "Google Sheets API", "Fabman.io API", "JSON"],
     achievements: [
       "Refactored legacy codebase into thread-safe modular services; redesigned check-in for local-first execution, cutting average check-in time by 92%.",
       "Built async queue-based background threads with write-delay invariants, eliminating race conditions and duplicate Google Sheets writes.",
@@ -72,6 +73,7 @@ export const experiences: Experience[] = [
     githubUrl: "https://github.com/UCSD-Makerspace/Check-In",
     liveUrl: "https://youtube.com/shorts/w_4UTGWlqxE?feature=share",
     workExamples: ["/assets/experience/makerspace-home.jpg", "/assets/experience/makerspace-barcode.jpg"],
+    workExampleTypes: ["portrait", "portrait"],
     showYoutube: true,
     youtubeId: "w_4UTGWlqxE",
   },
@@ -86,14 +88,15 @@ export const experiences: Experience[] = [
     longDescription: "Designed and implemented a state machine-driven IoT system for behavioral research in progressive overload training paradigms. Integrates SENT linear induction sensors and beam-break detection to quantify behavioral responses. Features fault-tolerant SQLite buffering, automated rsync from distributed Pi nodes, and automated hardware control for pellet dispensing and sensor calibration.",
     image: "/assets/mice-squat.jpg",
     categories: ["IoT", "Research", "Hardware", "Data Analysis"],
-    tools: ["Python", "SQLite", "Raspberry Pi", "SENT Sensors", "rsync", "State Machines"],
+    tools: ["Python", "SQLite", "State Machines", "Raspberry Pi", "rsync", "SENT Sensors"],
     achievements: [
       "Designed state machine integrating SENT linear induction sensors and beam-break detection to quantify behavioral responses with reproducible precision.",
       "Achieved 100% data fidelity with SQLite buffering and automated rsync synchronization across distributed Raspberry Pi research nodes.",
       "Automated pellet dispensing, sensor calibration, and chamber operations via Python event handling, reducing manual intervention by 75%.",
     ],
     githubUrl: "https://github.com/UCSD-Makerspace/squat-press",
-    workExamples: ["/assets/mice-squat.jpg", "/assets/mice-squat.jpg"],
+    workExamples: ["/assets/mice-squat.jpg"],
+    workExampleTypes: ["landscape"],
     showYoutube: false,
   },
 ];
