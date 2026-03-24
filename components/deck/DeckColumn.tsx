@@ -31,6 +31,8 @@ export interface DeckColumnProps {
   isActive?: boolean
   phase?: ScenePhase
   onPointerInteraction?: () => void
+  /** Pass false to suppress the title + active-bar header (e.g. when an external switcher owns the heading). */
+  showHeader?: boolean
 }
 
 /** @deprecated — use DeckColumnHandle instead */
@@ -50,6 +52,7 @@ const DeckColumn = forwardRef<DeckColumnHandle, DeckColumnProps>(
       isActive = true,
       phase = "space",
       onPointerInteraction,
+      showHeader = true,
     },
     ref
   ) {
@@ -236,64 +239,66 @@ const DeckColumn = forwardRef<DeckColumnHandle, DeckColumnProps>(
           padding:        "0 clamp(1.5rem, 4vw, 3.5rem)",
         }}
       >
-        {/* ── Column header ── */}
-        <div
-          style={{
-            position:       "relative",
-            paddingTop:     "2.5rem",
-            paddingBottom:  "1.25rem",
-            flexShrink:     0,
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "baseline", gap: "1rem" }}>
-            <h2
-              style={{
-                fontSize:      "0.62rem",
-                fontFamily:    "var(--font-space-grotesk), var(--font-geist-sans), sans-serif",
-                fontWeight:    600,
-                letterSpacing: "0.28em",
-                textTransform: "uppercase",
-                color:         isActive ? "rgba(244,237,248,0.75)" : "rgba(208,194,213,0.38)",
-                transition:    "color 0.3s ease",
-                whiteSpace:    "nowrap",
-              }}
-            >
-              {title}
-            </h2>
-            <div
-              aria-hidden="true"
-              style={{
-                flex:       1,
-                height:     "1px",
-                background: "linear-gradient(to right, rgba(74,66,73,0.3), transparent)",
-              }}
-            />
-          </div>
-
-          {/* Phase-adaptive focus indicator bar */}
-          <AnimatePresence>
-            {isActive && (
-              <motion.div
-                layoutId="col-focus-bar"
-                initial={{ opacity: 0, scaleX: 0.5 }}
-                animate={{ opacity: 1, scaleX: 1 }}
-                exit={{ opacity: 0, scaleX: 0.5 }}
-                transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+        {/* ── Column header (suppressed when showHeader={false}) ── */}
+        {showHeader && (
+          <div
+            style={{
+              position:       "relative",
+              paddingTop:     "2.5rem",
+              paddingBottom:  "1.25rem",
+              flexShrink:     0,
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "baseline", gap: "1rem" }}>
+              <h2
+                style={{
+                  fontSize:      "0.62rem",
+                  fontFamily:    "var(--font-space-grotesk), var(--font-geist-sans), sans-serif",
+                  fontWeight:    600,
+                  letterSpacing: "0.28em",
+                  textTransform: "uppercase",
+                  color:         isActive ? "rgba(244,237,248,0.75)" : "rgba(208,194,213,0.38)",
+                  transition:    "color 0.3s ease",
+                  whiteSpace:    "nowrap",
+                }}
+              >
+                {title}
+              </h2>
+              <div
                 aria-hidden="true"
                 style={{
-                  position:        "absolute",
-                  bottom:          0,
-                  left:            0,
-                  right:           0,
-                  height:          "1px",
-                  originX:         0,
-                  borderRadius:    "9999px",
-                  backgroundColor: accentColor,
+                  flex:       1,
+                  height:     "1px",
+                  background: "linear-gradient(to right, rgba(74,66,73,0.3), transparent)",
                 }}
               />
-            )}
-          </AnimatePresence>
-        </div>
+            </div>
+
+            {/* Phase-adaptive focus indicator bar */}
+            <AnimatePresence>
+              {isActive && (
+                <motion.div
+                  layoutId="col-focus-bar"
+                  initial={{ opacity: 0, scaleX: 0.5 }}
+                  animate={{ opacity: 1, scaleX: 1 }}
+                  exit={{ opacity: 0, scaleX: 0.5 }}
+                  transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+                  aria-hidden="true"
+                  style={{
+                    position:        "absolute",
+                    bottom:          0,
+                    left:            0,
+                    right:           0,
+                    height:          "1px",
+                    originX:         0,
+                    borderRadius:    "9999px",
+                    backgroundColor: accentColor,
+                  }}
+                />
+              )}
+            </AnimatePresence>
+          </div>
+        )}
 
         {/* ── Scrollable card list with cloud-bank gradient masks ── */}
         {/*                                                            */}

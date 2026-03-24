@@ -35,6 +35,13 @@ export interface ScrollOrchestratorValue {
 
   /** Smooth-scrolls the page to the very bottom (footer). */
   jumpToFooter: () => void;
+
+  /**
+   * True while a CardGrid item is expanded. SceneManager reads this to
+   * trigger the Z-Lunge camera dive into the constellation.
+   */
+  cardExpanded: boolean;
+  setCardExpanded: (expanded: boolean) => void;
 }
 
 // ---------------------------------------------------------------------------
@@ -56,6 +63,7 @@ export function ScrollOrchestratorProvider({
   const [scrollProgress, setScrollProgress] = useState(0);
   const [leftFocusedIndex, setLeftFocusedIndex] = useState(0);
   const [rightFocusedIndex, setRightFocusedIndex] = useState(0);
+  const [cardExpanded, setCardExpanded] = useState(false);
 
   // Track the latest raw scrollY without triggering re-renders on every pixel
   const latestScrollY = useRef(0);
@@ -116,6 +124,8 @@ export function ScrollOrchestratorProvider({
         setRightFocusedIndex,
         jumpToHero,
         jumpToFooter,
+        cardExpanded,
+        setCardExpanded,
       }}
     >
       {children}

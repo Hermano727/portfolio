@@ -1,40 +1,100 @@
 "use client"
 
-import { LayoutGroup } from "framer-motion"
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { AnimatePresence, motion } from "framer-motion"
+import { useCallback, useEffect, useMemo, useRef } from "react"
 import { useScrollOrchestrator } from "@/context/ScrollOrchestratorContext"
 import { getPhaseFromScroll } from "@/components/scene/SceneManager"
 import { experiences } from "@/lib/experience"
 import { projects } from "@/lib/data"
 import DeckColumn, { type DeckColumnHandle } from "./DeckColumn"
 import type { DeckCardModel } from "./DeckCard"
+import { useDeckState } from "./DeckStateController"
+
+// Slide variants — custom value is the direction integer (+1 or -1).
+const SLIDE_VARIANTS = {
+  enter: (dir: number) => ({ x: dir * 64, opacity: 0 }),
+  center: { x: 0, opacity: 1 },
+  exit:  (dir: number) => ({ x: -dir * 64, opacity: 0 }),
+}
+
+// ── Switcher button ────────────────────────────────────────────────────────────
+
+interface SwitcherBtnProps {
+  label: string
+  side: "left" | "right"
+  disabled: boolean
+  onClick: () => void
+}
+
+function SwitcherBtn({ label, side, disabled, onClick }: SwitcherBtnProps) {
+  const isLeft = side === "left"
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={`Switch to ${label}`}
+      style={{
+        background:    "transparent",
+        border:        "none",
+        cursor:        disabled ? "default" : "pointer",
+        padding:       "0.35rem 0.7rem",
+        borderRadius:  "0.375rem",
+        color:         disabled ? "rgba(208,194,213,0.22)" : "rgba(208,194,213,0.62)",
+        display:       "flex",
+        alignItems:    "center",
+        gap:           "0.4rem",
+        transition:    "color 0.2s ease",
+        outline:       "none",
+        flexShrink:    0,
+      }}
+      onMouseEnter={(e) => {
+        if (!disabled) (e.currentTarget as HTMLButtonElement).style.color = "rgba(224,182,255,0.85)"
+      }}
+      onMouseLeave={(e) => {
+        if (!disabled) (e.currentTarget as HTMLButtonElement).style.color = "rgba(208,194,213,0.62)"
+      }}
+    >
+      {isLeft && (
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+          <path d="M8 2L4 6L8 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      )}
+      <span
+        style={{
+          fontFamily:    "var(--font-space-grotesk), var(--font-geist-sans), sans-serif",
+          fontWeight:    600,
+          letterSpacing: "0.22em",
+          textTransform: "uppercase",
+          fontSize:      "0.56rem",
+        }}
+      >
+        {label}
+      </span>
+      {!isLeft && (
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+          <path d="M4 2L8 6L4 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      )}
+    </button>
+  )
+}
+
+// ── Main component ─────────────────────────────────────────────────────────────
 
 export default function CardDeck() {
   const {
     scrollProgress,
     leftFocusedIndex,
-    rightFocusedIndex,
     setLeftFocusedIndex,
-    setRightFocusedIndex,
   } = useScrollOrchestrator()
 
-  // ── Active column — which column arrow keys currently target ───────────────
-  const [activeColumn, setActiveColumn] = useState<"left" | "right">("left")
+  const { mode, direction, switchTo } = useDeckState()
 
-  // Stale-closure-safe refs for use inside the keyboard handler.
-  const activeColumnRef = useRef<"left" | "right">("left")
-  const leftFocusedIndexRef = useRef(leftFocusedIndex)
-  const rightFocusedIndexRef = useRef(rightFocusedIndex)
+  const colRef          = useRef<DeckColumnHandle>(null)
+  const focusedIndexRef = useRef(leftFocusedIndex)
+  useEffect(() => { focusedIndexRef.current = leftFocusedIndex }, [leftFocusedIndex])
 
-  useEffect(() => { activeColumnRef.current = activeColumn }, [activeColumn])
-  useEffect(() => { leftFocusedIndexRef.current = leftFocusedIndex }, [leftFocusedIndex])
-  useEffect(() => { rightFocusedIndexRef.current = rightFocusedIndex }, [rightFocusedIndex])
-
-  // ── Imperative handles to the two column instances ─────────────────────────
-  const leftColRef = useRef<DeckColumnHandle>(null)
-  const rightColRef = useRef<DeckColumnHandle>(null)
-
-  // ── Card data (source of truth — order must match lib/ array order) ────────
+  // ── Card data ──────────────────────────────────────────────────────────────
   const experience = useMemo<DeckCardModel[]>(
     () =>
       experiences.map((exp) => {
@@ -42,13 +102,13 @@ export default function CardDeck() {
           url.includes("/assets/experience/")
         )
         return {
-          id: `exp-${exp.id}`,
-          title: exp.company,
-          meta: exp.title,
-          hook: exp.description,
+          id:      `exp-${exp.id}`,
+          title:   exp.company,
+          meta:    exp.title,
+          hook:    exp.description,
           bullets: exp.achievements,
-          image: experienceImage,
-          tags: exp.tools,
+          image:   experienceImage,
+          tags:    exp.tools,
         }
       }),
     []
@@ -57,80 +117,55 @@ export default function CardDeck() {
   const projectCards = useMemo<DeckCardModel[]>(
     () =>
       projects.map((p) => ({
-        id: `proj-${p.id}`,
-        title: p.title,
-        meta: p.categories.slice(0, 2).join(" · "),
-        hook: p.description,
+        id:      `proj-${p.id}`,
+        title:   p.title,
+        meta:    p.categories.slice(0, 2).join(" · "),
+        hook:    p.description,
         bullets: p.takeaways,
-        image: p.image,
-        tags: p.tools,
+        image:   p.image,
+        tags:    p.tools,
         liveUrl: p.liveUrl,
-        variant: p.id === "echoes-of-pharloom" ? "pharloom" : undefined,
+        variant: p.id === "echoes-of-pharloom" ? "featured" : undefined,
       })),
     []
   )
 
-  // Stable card-count refs — used inside the keyboard handler.
-  const expCountRef = useRef(experience.length)
-  const projCountRef = useRef(projectCards.length)
-  useEffect(() => { expCountRef.current = experience.length }, [experience.length])
-  useEffect(() => { projCountRef.current = projectCards.length }, [projectCards.length])
+  const activeCards    = mode === "experience" ? experience : projectCards
+  const cardCountRef   = useRef(activeCards.length)
+  useEffect(() => { cardCountRef.current = activeCards.length }, [activeCards.length])
 
-  // ── Derive current scene phase from scroll progress ────────────────────────
   const phase = getPhaseFromScroll(scrollProgress)
 
-  // ── Global keyboard controller ─────────────────────────────────────────────
+  // ── Keyboard controller (Up/Down card nav, Enter/Space expand, Esc collapse) ─
+  // A/D and ArrowLeft/Right are owned by useDeckState.
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    // Never intercept keys when the user is typing in a form field.
     const tag = (e.target as HTMLElement)?.tagName
     if (
       tag === "INPUT" ||
       tag === "TEXTAREA" ||
       tag === "SELECT" ||
       (e.target as HTMLElement)?.isContentEditable
-    ) {
-      return
-    }
-
-    const col = activeColumnRef.current
-    const colRef = col === "left" ? leftColRef : rightColRef
-    const focusedIdx =
-      col === "left" ? leftFocusedIndexRef.current : rightFocusedIndexRef.current
-    const cardCount = col === "left" ? expCountRef.current : projCountRef.current
+    ) return
 
     switch (e.key) {
-      case "ArrowLeft":
-        e.preventDefault()
-        setActiveColumn("left")
-        break
-
-      case "ArrowRight":
-        e.preventDefault()
-        setActiveColumn("right")
-        break
-
       case "ArrowUp":
         e.preventDefault()
-        colRef.current?.scrollToCard(Math.max(0, focusedIdx - 1))
+        colRef.current?.scrollToCard(Math.max(0, focusedIndexRef.current - 1))
         break
 
       case "ArrowDown":
         e.preventDefault()
-        colRef.current?.scrollToCard(Math.min(cardCount - 1, focusedIdx + 1))
+        colRef.current?.scrollToCard(Math.min(cardCountRef.current - 1, focusedIndexRef.current + 1))
         break
 
       case "Enter":
       case " ":
-        // Space: only intercept when a column card is the logical target,
-        // so the contact form submit button still works.
         if (tag === "BUTTON" || tag === "A") break
         e.preventDefault()
-        colRef.current?.expandCardAtIndex(focusedIdx)
+        colRef.current?.expandCardAtIndex(focusedIndexRef.current)
         break
 
       case "Escape":
-        // collapseExpanded is also called by DeckColumn's own Escape handler
-        // (scoped to isActive), so this is redundant-but-harmless.
         colRef.current?.collapseExpanded()
         break
     }
@@ -141,53 +176,117 @@ export default function CardDeck() {
     return () => document.removeEventListener("keydown", handleKeyDown)
   }, [handleKeyDown])
 
-  return (
-    // Full-bleed layout: columns span the entire viewport, no outer padding/max-width.
-    <div className="relative w-full" style={{ height: "100vh" }}>
-      <LayoutGroup>
-        <div
-          style={{
-            display:             "grid",
-            gridTemplateColumns: "1fr 1fr",
-            height:              "100%",
-          }}
-        >
-          <DeckColumn
-            ref={leftColRef}
-            title="Experience"
-            cards={experience}
-            onFocusedIndexChange={setLeftFocusedIndex}
-            isActive={activeColumn === "left"}
-            phase={phase}
-            onPointerInteraction={() => setActiveColumn("left")}
-          />
+  const isExperience = mode === "experience"
 
-          {/* Thin vertical divider between columns */}
-          <div
-            aria-hidden="true"
+  return (
+    <div
+      className="relative w-full"
+      style={{ height: "100vh", display: "flex", flexDirection: "column" }}
+    >
+
+      {/* ── Deck Switcher ────────────────────────────────────────────────────── */}
+      <div
+        style={{
+          display:        "flex",
+          justifyContent: "center",
+          alignItems:     "center",
+          gap:            "1rem",
+          paddingTop:     "2rem",
+          paddingBottom:  "0.25rem",
+          flexShrink:     0,
+          zIndex:         20,
+          position:       "relative",
+        }}
+      >
+        <SwitcherBtn
+          label="Experience"
+          side="left"
+          disabled={isExperience}
+          onClick={() => switchTo("experience")}
+        />
+
+        {/* Active mode label — fades between states */}
+        <AnimatePresence mode="wait">
+          <motion.span
+            key={mode}
+            initial={{ opacity: 0, y: -5 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 5 }}
+            transition={{ duration: 0.18 }}
             style={{
-              position: "absolute",
-              top:       "8%",
-              bottom:    "8%",
-              left:      "50%",
-              width:     "1px",
-              background: "linear-gradient(to bottom, transparent, rgba(74,66,73,0.25) 20%, rgba(74,66,73,0.25) 80%, transparent)",
-              transform: "translateX(-50%)",
+              fontFamily:    "var(--font-space-grotesk), var(--font-geist-sans), sans-serif",
+              fontWeight:    600,
+              fontSize:      "0.56rem",
+              letterSpacing: "0.3em",
+              textTransform: "uppercase",
+              color:         "rgba(244,237,248,0.75)",
+              minWidth:      "6rem",
+              textAlign:     "center",
               pointerEvents: "none",
             }}
-          />
+          >
+            {mode}
+          </motion.span>
+        </AnimatePresence>
 
-          <DeckColumn
-            ref={rightColRef}
-            title="Projects"
-            cards={projectCards}
-            onFocusedIndexChange={setRightFocusedIndex}
-            isActive={activeColumn === "right"}
-            phase={phase}
-            onPointerInteraction={() => setActiveColumn("right")}
-          />
-        </div>
-      </LayoutGroup>
+        <SwitcherBtn
+          label="Projects"
+          side="right"
+          disabled={!isExperience}
+          onClick={() => switchTo("projects")}
+        />
+      </div>
+
+      {/* Keyboard hint */}
+      <div
+        aria-hidden="true"
+        style={{
+          textAlign:     "center",
+          fontSize:      "0.52rem",
+          letterSpacing: "0.16em",
+          color:         "rgba(208,194,213,0.25)",
+          fontFamily:    "var(--font-manrope), var(--font-geist-sans), sans-serif",
+          paddingBottom: "0.15rem",
+          flexShrink:    0,
+        }}
+      >
+        [A] ← → [D]
+      </div>
+
+      {/* ── Single Ladder Column ─────────────────────────────────────────────── */}
+      <div style={{ flex: "1 1 0", minHeight: 0, position: "relative", overflow: "hidden" }}>
+        <AnimatePresence mode="wait" custom={direction}>
+          <motion.div
+            key={mode}
+            custom={direction}
+            variants={SLIDE_VARIANTS}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
+            style={{
+              position:       "absolute",
+              inset:          0,
+              display:        "flex",
+              justifyContent: "center",
+            }}
+          >
+            {/* max-width centering wrapper — cards get a comfortable reading lane */}
+            <div style={{ width: "100%", maxWidth: "680px", height: "100%" }}>
+              <DeckColumn
+                ref={colRef}
+                title={mode === "experience" ? "Experience" : "Projects"}
+                cards={activeCards}
+                onFocusedIndexChange={setLeftFocusedIndex}
+                isActive
+                phase={phase}
+                showHeader={false}
+              />
+            </div>
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
     </div>
   )
 }

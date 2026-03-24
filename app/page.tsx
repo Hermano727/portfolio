@@ -8,7 +8,7 @@ import ContactFooter from "@/components/contact-footer"
 
 // ─── Integration wiring slots (uncomment as each issue lands) ─────────────────
 import HeroSection from "@/components/hero/HeroSection"
-import CardDeck from "@/components/deck/CardDeck"
+import CardGrid from "@/components/grid/CardGrid"
 import QuickNav from "@/components/nav/QuickNav"
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -53,10 +53,13 @@ function HomeContent() {
    * deckVisible: false  → hero is mounted, deck is hidden, scroll is locked
    * deckVisible: true   → hero has exited the DOM, deck is visible, scroll enabled
    *
-   * The HeroSection component locks overflow:hidden itself while mounted,
-   * so window scroll cannot fire before the transition completes.
+   * scenePhase: "hero"  → constellation / exosphere camera
+   * scenePhase: "deck"  → fired at hero-exit t=0, drives the atmosphere dive while
+   *                        the card is still animating out (820 ms window)
    */
   const [deckVisible, setDeckVisible] = useState(false)
+  const [scenePhase, setScenePhase] = useState<"hero" | "deck">("hero")
+  const [dealSeed, setDealSeed] = useState(0)
 
   // Scroll to top when deck becomes visible so scrollProgress starts at 0
   useEffect(() => {
@@ -68,18 +71,24 @@ function HomeContent() {
   return (
     <div className="flex flex-col min-h-screen text-white" style={{ background: "#151314" }}>
 
-      {/* ── SceneManager — WebGL background, hero phase only ── */}
-      {!deckVisible && (
-        <SceneManager
-          scrollProgress={scrollProgress}
-          mousePosition={mousePosition}
-        />
-      )}
+      {/* ── SceneManager — always mounted; scenePhase drives the exosphere→atmosphere dive ── */}
+      <SceneManager
+        scrollProgress={scrollProgress}
+        mousePosition={mousePosition}
+        scenePhase={scenePhase}
+      />
 
       {/* ── Hero — exits DOM after "Start" click (ISSUE-005) ── */}
       <AnimatePresence mode="wait">
         {!deckVisible && (
-          <HeroSection key="hero" onStart={() => setDeckVisible(true)} />
+          <HeroSection
+            key="hero"
+            onExitStart={() => setScenePhase("deck")}
+            onStart={() => {
+              setDealSeed(Date.now())
+              setDeckVisible(true)
+            }}
+          />
         )}
       </AnimatePresence>
 
@@ -94,14 +103,14 @@ function HomeContent() {
             className="flex flex-col"
             style={{ minHeight: "100vh" }}
           >
-            {/* ── Card Deck (ISSUE-006) ── */}
+            {/* ── Dynamic Shuffle Grid ── */}
             <section
               id="deck"
               className="relative w-full"
               style={{ minHeight: "100vh", zIndex: 10 }}
             >
               <div className="py-10 md:py-14">
-                <CardDeck />
+                <CardGrid dealSeed={dealSeed} />
               </div>
             </section>
 

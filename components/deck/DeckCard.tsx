@@ -116,7 +116,6 @@ export default function DeckCard({
             onExpand?.()
           }
         }}
-        style={{ opacity }}
         animate={
           isExpanded
             ? { backgroundColor: `rgba(${T.outlineVariant},0.18)` }
@@ -135,6 +134,7 @@ export default function DeckCard({
             : "border border-transparent",
         ].join(" ")}
         style={{
+          opacity,
           // Left-side accent glow for the featured variant
           ...(isFeatured && isExpanded
             ? { borderLeft: `2px solid rgba(${T.primaryContainer},0.5)` }

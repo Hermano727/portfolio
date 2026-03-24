@@ -45,8 +45,6 @@ function CloudBank({ visible }: { visible: boolean }) {
               rgba(21,19,20,0.18)    76%,
               transparent            100%
             )`,
-            backdropFilter:      "blur(14px) saturate(1.1)",
-            WebkitBackdropFilter: "blur(14px) saturate(1.1)",
           }}
           aria-hidden="true"
         >
@@ -211,11 +209,12 @@ function ChevronDown() {
 
 interface HeroSectionProps {
   onStart: () => void
+  /** Fired at t=0 of the exit sequence — lets SceneManager start the dive immediately. */
+  onExitStart?: () => void
 }
 
-export default function HeroSection({ onStart }: HeroSectionProps) {
-  const [exiting,   setExiting]   = useState(false)
-  const [showCloud, setShowCloud] = useState(false)
+export default function HeroSection({ onStart, onExitStart }: HeroSectionProps) {
+  const [exiting, setExiting] = useState(false)
   const buttonRef    = useRef<HTMLButtonElement>(null)
   const tiltWrapRef  = useRef<HTMLDivElement>(null)
   const cardRef      = useRef<HTMLDivElement>(null)
@@ -270,10 +269,11 @@ export default function HeroSection({ onStart }: HeroSectionProps) {
   const handleStart = useCallback(() => {
     if (exiting) return
     setExiting(true)
-    setShowCloud(true)
-    // Cloud bank appears (0.28 s); card drops behind it (0.72 s) + 50 ms headroom
-    setTimeout(onStart, 820)
-  }, [exiting, onStart])
+    // Fire dive and unmount in the same React 18 batch — card is gone instantly,
+    // leaving the Three.js background lerp as the sole transition visual.
+    onExitStart?.()
+    onStart()
+  }, [exiting, onStart, onExitStart])
 
   // Wheel scroll fires the transition
   useEffect(() => {
@@ -293,9 +293,6 @@ export default function HeroSection({ onStart }: HeroSectionProps) {
 
   return (
     <>
-      {/* Cloud bank — visible only while card is exiting */}
-      <CloudBank visible={showCloud} />
-
       <AnimatePresence>
         {!exiting && (
           <motion.section

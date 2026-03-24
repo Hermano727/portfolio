@@ -21,6 +21,7 @@ import { useEffect, useRef, useMemo, useState } from "react"
 import * as THREE from "three"
 import { Canvas, useFrame, useThree } from "@react-three/fiber"
 import { EffectComposer, Bloom } from "@react-three/postprocessing"
+import { useScrollOrchestrator } from "@/context/ScrollOrchestratorContext"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -32,6 +33,13 @@ export interface SceneManagerProps {
   mousePosition?: { x: number; y: number }
   /** Called when the computed phase changes */
   onPhaseChange?: (phase: ScenePhase) => void
+  /**
+   * "hero" → normal exosphere state.
+   * "deck" → fired at hero-exit t=0; clamps effectiveProgress to ≥0.32 so the
+   *           camera/background lerp toward atmosphere during the 820 ms dive window,
+   *           even before the user has scrolled at all.
+   */
+  scenePhase?: "hero" | "deck"
 }
 
 // ─── Pure helpers (exportable for unit tests) ─────────────────────────────────
@@ -85,10 +93,14 @@ function BackgroundColor({ scrollProgress }: { scrollProgress: number }) {
 interface CameraRigProps {
   scrollProgress: number
   mouseRef: React.MutableRefObject<{ x: number; y: number }>
+  /** When true, lunges the camera forward +500 units into the constellation. */
+  cardExpanded: boolean
 }
 
-function CameraRig({ scrollProgress, mouseRef }: CameraRigProps) {
+function CameraRig({ scrollProgress, mouseRef, cardExpanded }: CameraRigProps) {
   const { camera } = useThree()
+  // Tracks the live lunge offset so it springs smoothly in/out.
+  const zLungeRef = useRef(0)
 
   useFrame(() => {
     const cam = camera as THREE.PerspectiveCamera
@@ -99,9 +111,16 @@ function CameraRig({ scrollProgress, mouseRef }: CameraRigProps) {
     const t = Math.min(1, Math.max(0, scrollProgress / 0.7))
 
     // Wide Exosphere → Vertical Ladder camera motion
-    const targetZ   = THREE.MathUtils.lerp(10, 8,    t)
+    const baseZ     = THREE.MathUtils.lerp(10, 8,    t)
     const targetY   = THREE.MathUtils.lerp(0,  -1.8, t)
     const targetFov = THREE.MathUtils.lerp(60, 46,   t)
+
+    // Z-Lunge: on card expand, spring the camera forward by 5 units (≈ 500
+    // world-unit dive feel scaled to the scene's compact coordinate space).
+    // Uses a fast lerp factor (0.08) for a punchy Power4-ish deceleration.
+    const lungeTarget = cardExpanded ? -5 : 0
+    zLungeRef.current += (lungeTarget - zLungeRef.current) * 0.08
+    const targetZ = baseZ + zLungeRef.current
 
     // Mouse parallax tilt — fades out as we leave the space phase
     const tiltFactor = Math.max(0, 1 - scrollProgress / 0.25)
@@ -655,21 +674,30 @@ export default function SceneManager({
   scrollProgress = 0,
   mousePosition  = { x: 0, y: 0 },
   onPhaseChange,
+  scenePhase = "hero",
 }: SceneManagerProps) {
   const [webGL, setWebGL] = useState<boolean | null>(null)
+  const { cardExpanded } = useScrollOrchestrator()
 
   const mouseRef = useRef(mousePosition)
   mouseRef.current = mousePosition
 
+  // When scenePhase is "deck" the hero exit is in-flight. Push effectiveProgress
+  // to ≥0.32 so the lerp-based camera and background start moving toward the
+  // Upper Atmosphere immediately, completing the dive over the ~820 ms window.
+  const effectiveProgress = scenePhase === "deck"
+    ? Math.max(scrollProgress, 0.32)
+    : scrollProgress
+
   useEffect(() => { setWebGL(hasWebGL()) }, [])
   useEffect(() => {
-    onPhaseChange?.(getPhaseFromScroll(scrollProgress))
-  }, [scrollProgress, onPhaseChange])
+    onPhaseChange?.(getPhaseFromScroll(effectiveProgress))
+  }, [effectiveProgress, onPhaseChange])
 
   if (webGL === null) return null
 
   if (!webGL) {
-    const phase = getPhaseFromScroll(scrollProgress)
+    const phase = getPhaseFromScroll(effectiveProgress)
     return (
       <div
         aria-hidden="true"
@@ -697,16 +725,24 @@ export default function SceneManager({
         onCreated={({ gl }) => gl.setClearColor(BG_SPACE, 1)}
       >
         {/* Scene setup */}
-        <BackgroundColor scrollProgress={scrollProgress} />
-        <CameraRig scrollProgress={scrollProgress} mouseRef={mouseRef} />
+        <BackgroundColor scrollProgress={effectiveProgress} />
+        <CameraRig
+          scrollProgress={effectiveProgress}
+          mouseRef={mouseRef}
+          cardExpanded={cardExpanded}
+        />
 
-        {/* Space phase: filament constellation + starfield */}
-        <FilamentConstellation scrollProgress={scrollProgress} mouseRef={mouseRef} />
-        <SpacePhase scrollProgress={scrollProgress} />
+        {/* Space phase: constellation + starfield — hero-exclusive, unmount on dive start */}
+        {scenePhase === "hero" && (
+          <>
+            <FilamentConstellation scrollProgress={effectiveProgress} mouseRef={mouseRef} />
+            <SpacePhase scrollProgress={effectiveProgress} />
+          </>
+        )}
 
         {/* Transition phases */}
-        <AtmospherePhase scrollProgress={scrollProgress} />
-        <EarthPhase      scrollProgress={scrollProgress} />
+        <AtmospherePhase scrollProgress={effectiveProgress} />
+        <EarthPhase      scrollProgress={effectiveProgress} />
 
         {/* Post-processing: Bloom makes the filaments and bright stars glow */}
         <EffectComposer multisampling={0}>
