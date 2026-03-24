@@ -1,6 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
+import { Github } from "lucide-react"
 import { Fragment, useEffect, useRef, useState, type CSSProperties, type SyntheticEvent } from "react"
 import { useScrollOrchestrator } from "@/context/ScrollOrchestratorContext"
 import { useApertureFilter, type ApertureCard, type ApertureFilter } from "./useApertureFilter"
@@ -40,6 +41,73 @@ const IND = {
 
 const FONT_DISPLAY = "var(--font-archivo), 'Arial Black', sans-serif"
 const FONT_MONO    = "var(--font-geist-mono), monospace"
+
+/** Preview row: experience vs project label colors */
+const TYPE_LABEL_PROJECT    = "rgba(236, 195, 255, 0.96)"
+const TYPE_LABEL_EXPERIENCE = "rgba(158, 218, 255, 0.92)"
+const TYPE_LABEL_FONT_PX    = 11
+const TIMELINE_PREVIEW_PX   = 10
+
+function typeLabelColor(card: { type: "experience" | "project" }) {
+  return card.type === "project" ? TYPE_LABEL_PROJECT : TYPE_LABEL_EXPERIENCE
+}
+
+/** Compact + expanded header: "PROJECT" / "EXPERIENCE" left, timeline right */
+function TypeTimelinePreview({
+  card,
+  variant = "compact",
+  /** Expanded header shows timeline next to title instead */
+  showTimeline = true,
+}: {
+  card: ApertureCard
+  variant?: "compact" | "expanded"
+  showTimeline?: boolean
+}) {
+  const typePx = variant === "expanded" ? 12 : TYPE_LABEL_FONT_PX
+  const timePx = variant === "expanded" ? 11 : TIMELINE_PREVIEW_PX
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "baseline",
+        justifyContent: "space-between",
+        gap: 8,
+        width: "100%",
+        minWidth: 0,
+      }}
+    >
+      <span
+        style={{
+          fontFamily: FONT_MONO,
+          fontSize: typePx,
+          letterSpacing: variant === "expanded" ? "0.16em" : "0.14em",
+          textTransform: "uppercase",
+          color: typeLabelColor(card),
+          flexShrink: 0,
+        }}
+      >
+        {card.type}
+      </span>
+      {showTimeline && card.timeline && (
+        <span
+          style={{
+            fontFamily: FONT_MONO,
+            fontSize: timePx,
+            letterSpacing: "0.03em",
+            color: "rgba(255, 255, 255, 0.38)",
+            textAlign: "right",
+            minWidth: 0,
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {card.timeline}
+        </span>
+      )}
+    </div>
+  )
+}
 
 // Safely applies an alpha to any rgba() or #rrggbb color string.
 function withAlpha(color: string, alpha: number): string {
@@ -198,6 +266,7 @@ function CardCompact({ card }: { card: ApertureCard }) {
   const [isPortrait, setIsPortrait] = useState(card.imageType === "portrait")
   const accent   = card.type === "project" ? IND.accentProj : IND.accentExp
   const hasImage = Boolean(card.image)
+  const thumbPos = card.thumbnailObjectPosition ?? "top"
 
   function handleImageLoad(e: SyntheticEvent<HTMLImageElement>) {
     const { naturalWidth, naturalHeight } = e.currentTarget
@@ -227,7 +296,7 @@ function CardCompact({ card }: { card: ApertureCard }) {
               width: "100%",
               height: "100%",
               objectFit: "cover",
-              objectPosition: "top",
+              objectPosition: thumbPos,
               display: "block",
               filter: "sepia(0.15) brightness(0.85)",
             }}
@@ -245,17 +314,7 @@ function CardCompact({ card }: { card: ApertureCard }) {
             overflow: "hidden",
           }}
         >
-          <span
-            style={{
-              fontFamily: FONT_MONO,
-              fontSize: 9,
-              letterSpacing: "0.18em",
-              textTransform: "uppercase",
-              color: accent,
-            }}
-          >
-            {card.type}
-          </span>
+          <TypeTimelinePreview card={card} />
 
           <h3
             style={{
@@ -350,19 +409,11 @@ function CardCompact({ card }: { card: ApertureCard }) {
           alignItems: "center",
           gap: 5,
           overflow: "hidden",
+          minWidth: 0,
+          width: "100%",
         }}
       >
-        <span
-          style={{
-            fontFamily: FONT_MONO,
-            fontSize: 9,
-            letterSpacing: "0.18em",
-            textTransform: "uppercase",
-            color: accent,
-          }}
-        >
-          {card.type}
-        </span>
+        <TypeTimelinePreview card={card} />
       </div>
 
       {/* Title */}
@@ -399,7 +450,7 @@ function CardCompact({ card }: { card: ApertureCard }) {
                 width: "100%",
                 height: "100%",
                 objectFit: "cover",
-                objectPosition: "center",
+                objectPosition: thumbPos,
                 display: "block",
                 filter: "sepia(0.2) brightness(0.8)",
               }}
@@ -474,39 +525,154 @@ function ExpandedHeader({
   accent: string
   style?: CSSProperties
 }) {
+  const hasLinks = Boolean(card.githubUrl || card.liveUrl)
   return (
     <div
       style={{
-        padding: "0.8rem 3.2rem 0.7rem 0.95rem",
+        padding: "0.8rem 0.95rem 0.85rem 0.95rem",
         borderBottom: "1px solid rgba(255,255,255,0.06)",
         flexShrink: 0,
+        display: "flex",
+        alignItems: "flex-start",
+        gap: "0.75rem",
         ...xs,
       }}
     >
-      <p
-        style={{
-          fontFamily: FONT_MONO,
-          fontSize: 9,
-          letterSpacing: "0.2em",
-          textTransform: "uppercase",
-          color: accent,
-        }}
-      >
-        {card.type}
-      </p>
-      <h2
-        style={{
-          fontFamily: FONT_DISPLAY,
-          fontWeight: 800,
-          letterSpacing: "-0.02em",
-          marginTop: "0.22rem",
-          fontSize: "clamp(1.5rem, 3vw, 1.85rem)",
-          lineHeight: 1.1,
-          color: IND.textPrimary,
-        }}
-      >
-        {card.title}
-      </h2>
+      {/* Left: type label + title + tags */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <TypeTimelinePreview card={card} variant="expanded" showTimeline={false} />
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "baseline",
+            gap: "0.15rem 0.5rem",
+            marginTop: "0.22rem",
+          }}
+        >
+          <h2
+            style={{
+              fontFamily: FONT_DISPLAY,
+              fontWeight: 800,
+              letterSpacing: "-0.02em",
+              margin: 0,
+              fontSize: "clamp(1.5rem, 3vw, 1.85rem)",
+              lineHeight: 1.1,
+              color: IND.textPrimary,
+            }}
+          >
+            {card.title}
+          </h2>
+          {card.timeline && (
+            <span
+              style={{
+                fontFamily: FONT_DISPLAY,
+                fontWeight: 700,
+                fontSize: "clamp(0.95rem, 2.2vw, 1.15rem)",
+                letterSpacing: "-0.01em",
+                color: "rgba(200, 178, 245, 0.78)",
+                whiteSpace: "nowrap",
+              }}
+            >
+              : {card.timeline}
+            </span>
+          )}
+        </div>
+        {card.tags.length > 0 && (
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.3rem", marginTop: "0.55rem" }}>
+            {card.tags.slice(0, 12).map((tag) => (
+              <span
+                key={tag}
+                style={{
+                  fontFamily: FONT_MONO,
+                  fontSize: 9,
+                  letterSpacing: "0.06em",
+                  textTransform: "uppercase",
+                  color: "rgba(224, 182, 255, 0.72)",
+                  background: "transparent",
+                  border: "1px solid rgba(224, 182, 255, 0.22)",
+                  padding: "2px 8px",
+                  borderRadius: 12,
+                }}
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Right: action buttons */}
+      {hasLinks && (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "0.45rem",
+            flexShrink: 0,
+            paddingTop: "0.1rem",
+          }}
+        >
+          {card.githubUrl && (
+            <a
+              href={card.githubUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              aria-label="GitHub"
+              title="GitHub"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 44,
+                height: 44,
+                borderRadius: 4,
+                borderTop: "1px solid rgba(255,255,255,0.22)",
+                borderRight: "1px solid rgba(255,255,255,0.09)",
+                borderBottom: "1px solid rgba(255,255,255,0.05)",
+                borderLeft: "1px solid rgba(255,255,255,0.09)",
+                background: "rgba(255,255,255,0.06)",
+                color: IND.textBody,
+                textDecoration: "none",
+                transition: "all 0.15s ease",
+              }}
+            >
+              <Github size={20} strokeWidth={1.5} />
+            </a>
+          )}
+          {card.liveUrl && (
+            <a
+              href={card.liveUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.45rem",
+                height: 44,
+                padding: "0 1.1rem",
+                borderRadius: 4,
+                borderTop: `1px solid ${withAlpha(accent, 0.45)}`,
+                borderRight: `1px solid ${withAlpha(accent, 0.16)}`,
+                borderBottom: `1px solid ${withAlpha(accent, 0.08)}`,
+                borderLeft: `1px solid ${withAlpha(accent, 0.16)}`,
+                background: withAlpha(accent, 0.10),
+                color: accent,
+                fontFamily: FONT_MONO,
+                fontSize: "0.75rem",
+                letterSpacing: "0.1em",
+                textTransform: "uppercase",
+                textDecoration: "none",
+                transition: "all 0.15s ease",
+              }}
+            >
+              ▶ {card.type === "experience" ? "Watch" : "Live"}
+            </a>
+          )}
+        </div>
+      )}
     </div>
   )
 }
@@ -525,12 +691,14 @@ const PORTRAIT_FRAME_HEIGHT  = 200   // px (inline fallback, not used in panel m
 function WorkExamplesSection({
   images,
   overrideTypes,
+  captions,
   accent,
   isVisible,
   mode,
 }: {
   images: string[]
   overrideTypes?: ("portrait" | "landscape")[]
+  captions?: string[]
   accent: string
   isVisible: boolean
   /** "panel" = stacked full-width inside a column; "inline" = current grid row */
@@ -605,11 +773,11 @@ function WorkExamplesSection({
       <p
         style={{
           fontFamily: FONT_MONO,
-          fontSize: 9,
-          letterSpacing: "0.18em",
+          fontSize: 20,
+          letterSpacing: "0.12em",
           textTransform: "uppercase",
-          color: withAlpha(accent, 0.5),
-          marginBottom: "0.5rem",
+          color: "rgba(224, 182, 255, 0.88)",
+          marginBottom: "0.65rem",
         }}
       >
         Work Examples
@@ -621,42 +789,55 @@ function WorkExamplesSection({
           gap: "0.45rem",
         }}
       >
-        {images.map((src, i) =>
-          resolvedPortrait[i] ? (
-            // Portrait: fixed height, cover crop
-            <MonitorFrame key={i} style={{ height: PORTRAIT_FRAME_HEIGHT }}>
-              <img
-                src={src}
-                alt={`example ${i + 1}`}
-                draggable={false}
-                loading="lazy"
-                onLoad={(e) => handleLoad(e, i)}
-                style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-              />
-            </MonitorFrame>
-          ) : (
-            // Landscape: natural proportions — no fixed height, full image visible
-            <div
-              key={i}
-              style={{
-                width: "100%",
-                overflow: "hidden",
-                borderRadius: 4,
-                border: "1px solid rgba(255,255,255,0.10)",
-                background: "#000",
-              }}
-            >
-              <img
-                src={src}
-                alt={`example ${i + 1}`}
-                draggable={false}
-                loading="lazy"
-                onLoad={(e) => handleLoad(e, i)}
-                style={{ width: "100%", height: "auto", display: "block" }}
-              />
-            </div>
-          )
-        )}
+        {images.map((src, i) => (
+          <div key={i} style={{ display: "flex", flexDirection: "column", gap: "0.3rem" }}>
+            {resolvedPortrait[i] ? (
+              <MonitorFrame style={{ height: PORTRAIT_FRAME_HEIGHT }}>
+                <img
+                  src={src}
+                  alt={captions?.[i] ?? `example ${i + 1}`}
+                  draggable={false}
+                  loading="lazy"
+                  onLoad={(e) => handleLoad(e, i)}
+                  style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                />
+              </MonitorFrame>
+            ) : (
+              <div
+                style={{
+                  width: "100%",
+                  overflow: "hidden",
+                  borderRadius: 4,
+                  border: "1px solid rgba(255,255,255,0.10)",
+                  background: "#000",
+                }}
+              >
+                <img
+                  src={src}
+                  alt={captions?.[i] ?? `example ${i + 1}`}
+                  draggable={false}
+                  loading="lazy"
+                  onLoad={(e) => handleLoad(e, i)}
+                  style={{ width: "100%", height: "auto", display: "block" }}
+                />
+              </div>
+            )}
+            {captions?.[i] && (
+              <p
+                style={{
+                  fontFamily: FONT_MONO,
+                  fontSize: 15,
+                  letterSpacing: "0.03em",
+                  color: "rgba(200, 178, 245, 0.82)",
+                  margin: 0,
+                  lineHeight: 1.4,
+                }}
+              >
+                {captions[i]}
+              </p>
+            )}
+          </div>
+        ))}
       </div>
     </motion.div>
   )
@@ -699,6 +880,9 @@ function ExpandedBody({
   const allWorkPortrait =
     workImages.length > 0 && workPortrait.every(Boolean)
 
+  /** SWEMaxx work screenshots live in the right side panel (full visibility) */
+  const workExamplesInSidePanel = card.id === "proj-swemaxx"
+
   // ── Shared sub-renders ───────────────────────────────────────────────────
 
   const highlightsBlock = card.highlights.length > 0 && (
@@ -709,11 +893,11 @@ function ExpandedBody({
       <p
         style={{
           fontFamily: FONT_MONO,
-          fontSize: 9,
-          letterSpacing: "0.18em",
+          fontSize: 25,
+          letterSpacing: "0.12em",
           textTransform: "uppercase",
-          color: withAlpha(accent, 0.5),
-          marginBottom: "0.5rem",
+          color: "rgba(224, 182, 255, 0.88)",
+          marginBottom: "0.55rem",
         }}
       >
         Highlights
@@ -758,77 +942,6 @@ function ExpandedBody({
     </motion.div>
   )
 
-  const demoBlock = card.youtubeId && (
-    <motion.div
-      animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 10 }}
-      transition={{ delay: isVisible ? 0.55 : 0, duration: 0.3, ease: EASE_OUT }}
-      style={{ marginTop: "1.1rem" }}
-    >
-      <p
-        style={{
-          fontFamily: FONT_MONO,
-          fontSize: 9,
-          letterSpacing: "0.18em",
-          textTransform: "uppercase",
-          color: withAlpha(accent, 0.5),
-          marginBottom: "0.5rem",
-        }}
-      >
-        Demo
-      </p>
-      <a
-        href={`https://youtube.com/watch?v=${card.youtubeId}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        onClick={(e) => e.stopPropagation()}
-        style={{ display: "block", textDecoration: "none" }}
-      >
-        <MonitorFrame style={{ height: 120 }}>
-          <img
-            src={`https://img.youtube.com/vi/${card.youtubeId}/hqdefault.jpg`}
-            alt="YouTube demo"
-            draggable={false}
-            loading="lazy"
-            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-          />
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              background: "rgba(0,0,0,0.22)",
-              zIndex: 5,
-            }}
-          >
-            <div
-              style={{
-                width: 38,
-                height: 38,
-                borderRadius: 2,
-                borderTop: "1px solid rgba(255,255,255,0.28)",
-                borderRight: "1px solid rgba(255,255,255,0.10)",
-                borderBottom: "1px solid rgba(255,255,255,0.06)",
-                borderLeft: "1px solid rgba(255,255,255,0.10)",
-                background: "rgba(255,255,255,0.10)",
-                backdropFilter: "blur(4px)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "0.85rem",
-                color: "#fff",
-                fontFamily: FONT_MONO,
-              }}
-            >
-              ▶
-            </div>
-          </div>
-        </MonitorFrame>
-      </a>
-    </motion.div>
-  )
-
   const descBlock = (
     <p
       style={{
@@ -842,109 +955,6 @@ function ExpandedBody({
     </p>
   )
 
-  const tagsBlock = card.tags.length > 0 && (
-    <div style={{ marginTop: "0.9rem" }}>
-      <p
-        style={{
-          fontFamily: FONT_MONO,
-          fontSize: 9,
-          letterSpacing: "0.18em",
-          textTransform: "uppercase",
-          color: "rgba(224, 182, 255, 0.45)",
-          marginBottom: "0.45rem",
-        }}
-      >
-        Tech Stack
-      </p>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "0.35rem" }}>
-        {card.tags.slice(0, 12).map((tag) => (
-          <span
-            key={tag}
-            style={{
-              fontFamily: FONT_MONO,
-              fontSize: 10,
-              letterSpacing: "0.06em",
-              textTransform: "uppercase",
-              color: "rgba(224, 182, 255, 0.72)",
-              background: "transparent",
-              border: "1px solid rgba(224, 182, 255, 0.25)",
-              padding: "3px 9px",
-              borderRadius: 12,
-            }}
-          >
-            {tag}
-          </span>
-        ))}
-      </div>
-    </div>
-  )
-
-  const linksBlock = (card.githubUrl || card.liveUrl) && (
-    <motion.div
-      animate={{ opacity: isVisible ? 1 : 0 }}
-      transition={{ delay: isVisible ? 0.6 : 0, duration: 0.25, ease: EASE_OUT }}
-      style={{ marginTop: "1rem", display: "flex", gap: "0.5rem", flexWrap: "wrap" }}
-    >
-      {card.githubUrl && (
-        <a
-          href={card.githubUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={(e) => e.stopPropagation()}
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "0.4rem",
-            padding: "0.3rem 0.9rem",
-            borderRadius: 2,
-            borderTop: "1px solid rgba(255,255,255,0.18)",
-            borderRight: "1px solid rgba(255,255,255,0.07)",
-            borderBottom: "1px solid rgba(255,255,255,0.04)",
-            borderLeft: "1px solid rgba(255,255,255,0.07)",
-            background: "rgba(255,255,255,0.04)",
-            color: IND.textBody,
-            fontFamily: FONT_MONO,
-            fontSize: "0.65rem",
-            letterSpacing: "0.1em",
-            textTransform: "uppercase",
-            textDecoration: "none",
-            transition: "all 0.15s ease",
-          }}
-        >
-          ⌥ GitHub
-        </a>
-      )}
-      {card.liveUrl && (
-        <a
-          href={card.liveUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={(e) => e.stopPropagation()}
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "0.4rem",
-            padding: "0.3rem 0.9rem",
-            borderRadius: 2,
-            borderTop: `1px solid ${withAlpha(accent, 0.40)}`,
-                borderRight: `1px solid ${withAlpha(accent, 0.14)}`,
-                borderBottom: `1px solid ${withAlpha(accent, 0.07)}`,
-                borderLeft: `1px solid ${withAlpha(accent, 0.14)}`,
-                background: withAlpha(accent, 0.08),
-            color: accent,
-            fontFamily: FONT_MONO,
-            fontSize: "0.65rem",
-            letterSpacing: "0.1em",
-            textTransform: "uppercase",
-            textDecoration: "none",
-            transition: "all 0.15s ease",
-          }}
-        >
-          ▶ {card.type === "experience" ? "Watch" : "Live Demo"}
-        </a>
-      )}
-    </motion.div>
-  )
 
   // ── Portrait panel layout: images on left, text on right ─────────────────
   // Triggered when all work examples resolve as portrait orientation.
@@ -954,6 +964,7 @@ function ExpandedBody({
 
         {/* Left: portrait images stacked, scrollable */}
         <div
+          className="card-scroll"
           style={{
             width: PORTRAIT_PANEL_WIDTH,
             flexShrink: 0,
@@ -966,42 +977,53 @@ function ExpandedBody({
           }}
         >
           {workImages.map((src, i) => (
-            <div
-              key={i}
-              style={{
-                width: "100%",
-                aspectRatio: PORTRAIT_IMG_RATIO,
-                overflow: "hidden",
-                borderRadius: 8,
-                background: "#000",
-                flexShrink: 0,
-              }}
-            >
-              <img
-                src={src}
-                alt={`${card.title} example ${i + 1}`}
-                draggable={false}
-                loading="lazy"
-                onLoad={(e) => handleWorkExLoad(e, i)}
+            <div key={i} style={{ flexShrink: 0, display: "flex", flexDirection: "column", gap: "0.3rem" }}>
+              <div
                 style={{
                   width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                  objectPosition: "center",
-                  display: "block",
+                  aspectRatio: PORTRAIT_IMG_RATIO,
+                  overflow: "hidden",
+                  borderRadius: 8,
+                  background: "#000",
                 }}
-              />
+              >
+                <img
+                  src={src}
+                  alt={card.workExampleCaptions?.[i] ?? `${card.title} example ${i + 1}`}
+                  draggable={false}
+                  loading="lazy"
+                  onLoad={(e) => handleWorkExLoad(e, i)}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    objectPosition: "center",
+                    display: "block",
+                  }}
+                />
+              </div>
+              {card.workExampleCaptions?.[i] && (
+                <p
+                  style={{
+                    fontFamily: FONT_MONO,
+                    fontSize: 15,
+                    letterSpacing: "0.03em",
+                    color: "rgba(200, 178, 245, 0.82)",
+                    margin: 0,
+                    lineHeight: 1.4,
+                  }}
+                >
+                  {card.workExampleCaptions[i]}
+                </p>
+              )}
             </div>
           ))}
         </div>
 
         {/* Right: all text content, scrollable */}
-        <div style={{ flex: 1, overflowY: "auto", padding: pad }}>
+        <div className="card-scroll" style={{ flex: 1, overflowY: "auto", padding: pad }}>
           {highlightsBlock}
-          {demoBlock}
           {descBlock}
-          {tagsBlock}
-          {linksBlock}
         </div>
       </div>
     )
@@ -1009,24 +1031,22 @@ function ExpandedBody({
 
   // ── Default stacked layout ────────────────────────────────────────────────
   return (
-    <div style={{ flex: 1, overflowY: "auto", padding: pad }}>
+    <div className="card-scroll" style={{ flex: 1, overflowY: "auto", padding: pad }}>
       {highlightsBlock}
 
-      {/* Work examples inline */}
-      {workImages.length > 0 && (
+      {/* Work examples inline (SWEMaxx uses side WorkExamplesPanel instead) */}
+      {workImages.length > 0 && !workExamplesInSidePanel && (
         <WorkExamplesSection
           images={workImages}
           overrideTypes={card.workExampleTypes}
+          captions={card.workExampleCaptions}
           accent={accent}
           isVisible={isVisible}
           mode="inline"
         />
       )}
 
-      {demoBlock}
       {descBlock}
-      {tagsBlock}
-      {linksBlock}
     </div>
   )
 }
@@ -1047,6 +1067,7 @@ function CardExpanded({
   const [isPortrait, setIsPortrait] = useState(card.imageType === "portrait")
   const accent  = card.type === "experience" ? IND.accentExp : IND.accentProj
   const hasHero = Boolean(card.image)
+  const heroFocalPos = card.thumbnailObjectPosition
 
   function handleImageLoad(e: SyntheticEvent<HTMLImageElement>) {
     const { naturalWidth, naturalHeight } = e.currentTarget
@@ -1173,17 +1194,33 @@ function CardExpanded({
               borderBottom: "1px solid rgba(255,255,255,0.10)",
             }}
           >
-            <div style={{ position: "relative", maxHeight: 220, overflow: "hidden" }}>
+            <div
+              style={
+                heroFocalPos
+                  ? { position: "relative", height: 220, overflow: "hidden" }
+                  : { position: "relative", maxHeight: 220, overflow: "hidden" }
+              }
+            >
               <img
                 src={card.image}
                 alt={card.title}
                 draggable={false}
                 loading="lazy"
-                style={{
-                  width: "100%",
-                  height: "auto",
-                  display: "block",
-                }}
+                style={
+                  heroFocalPos
+                    ? {
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                        objectPosition: heroFocalPos,
+                        display: "block",
+                      }
+                    : {
+                        width: "100%",
+                        height: "auto",
+                        display: "block",
+                      }
+                }
                 onLoad={handleImageLoad}
               />
               <div
@@ -1209,7 +1246,239 @@ function CardExpanded({
         />
       )}
 
-      <ExpandedBody card={card} isVisible={isVisible} accent={accent} />
+      <ExpandedBody
+        card={card}
+        isVisible={isVisible}
+        accent={accent}
+      />
+    </div>
+  )
+}
+
+// ─── Demo Side Panel ─────────────────────────────────────────────────────────
+// Appears to the right of the expanded card when the active card has youtubeIds.
+
+function DemoPanel({
+  card,
+  isVisible,
+}: {
+  card: ApertureCard
+  isVisible: boolean
+}) {
+  const accent = card.type === "experience" ? IND.accentExp : IND.accentProj
+  const [playingIdx, setPlayingIdx] = useState<number | null>(null)
+
+  return (
+    <div
+      className="card-scroll"
+      style={{
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        padding: "1.1rem 1rem",
+        overflowY: "auto",
+        background: IND.surfaceExpanded,
+        borderRadius: 16,
+        border: "1px solid rgba(224, 182, 255, 0.12)",
+        backdropFilter: "blur(8px)",
+        WebkitBackdropFilter: "blur(8px)",
+      }}
+    >
+      <p
+        style={{
+          fontFamily: FONT_MONO,
+          fontSize: 28,
+          letterSpacing: "0.12em",
+          textTransform: "uppercase",
+          color: "rgba(224, 182, 255, 0.88)",
+          marginBottom: "0.75rem",
+          flexShrink: 0,
+        }}
+      >
+        Demo
+      </p>
+      <div style={{ display: "flex", flexDirection: "column", gap: "1rem", flex: 1 }}>
+        {card.youtubeIds!.map((id, idx) => (
+          <motion.div
+            key={id}
+            animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 12 }}
+            transition={{ delay: isVisible ? 0.3 + idx * 0.08 : 0, duration: 0.3, ease: EASE_OUT }}
+            style={{ flexShrink: 0, display: "flex", flexDirection: "column", gap: "0.4rem" }}
+          >
+            {/* Caption / note above the video */}
+            {card.youtubeNote && (
+              <p
+                style={{
+                  fontFamily: FONT_MONO,
+                  fontSize: 33,
+                  letterSpacing: "0.02em",
+                  color: "rgba(200, 178, 245, 0.85)",
+                  margin: 0,
+                  lineHeight: 1.35,
+                }}
+              >
+                {card.youtubeNote}
+              </p>
+            )}
+            <MonitorFrame style={{ aspectRatio: "4 / 3", height: "auto" }}>
+              {playingIdx === idx ? (
+                <iframe
+                  src={`https://www.youtube.com/embed/${id}?autoplay=1&rel=0`}
+                  allow="autoplay; encrypted-media; fullscreen"
+                  allowFullScreen
+                  style={{ width: "100%", height: "100%", border: "none", display: "block" }}
+                  title={`Demo ${idx + 1}`}
+                />
+              ) : (
+                <>
+                  <img
+                    src={`https://img.youtube.com/vi/${id}/hqdefault.jpg`}
+                    alt={`Demo ${idx + 1}`}
+                    draggable={false}
+                    loading="lazy"
+                    style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                  />
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setPlayingIdx(idx) }}
+                    aria-label="Play video"
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      background: "rgba(0,0,0,0.28)",
+                      border: "none",
+                      cursor: "pointer",
+                      zIndex: 5,
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: 52,
+                        height: 52,
+                        borderRadius: 2,
+                        borderTop: "1px solid rgba(255,255,255,0.32)",
+                        borderRight: "1px solid rgba(255,255,255,0.12)",
+                        borderBottom: "1px solid rgba(255,255,255,0.06)",
+                        borderLeft: "1px solid rgba(255,255,255,0.12)",
+                        background: "rgba(224,182,255,0.14)",
+                        backdropFilter: "blur(4px)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: "1.1rem",
+                        color: "#fff",
+                        fontFamily: FONT_MONO,
+                        transition: "background 0.15s ease",
+                      }}
+                    >
+                      ▶
+                    </div>
+                  </button>
+                </>
+              )}
+            </MonitorFrame>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ─── Work examples side panel (SWEMaxx) ─────────────────────────────────────
+// Same geometry as DemoPanel: wide readable screenshots with object-fit contain.
+
+function WorkExamplesSidePanel({
+  card,
+  isVisible,
+}: {
+  card: ApertureCard
+  isVisible: boolean
+}) {
+  const images = card.images ?? []
+  return (
+    <div
+      className="card-scroll"
+      style={{
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        padding: "1.1rem 1rem",
+        overflowY: "auto",
+        background: IND.surfaceExpanded,
+        borderRadius: 16,
+        border: "1px solid rgba(224, 182, 255, 0.12)",
+        backdropFilter: "blur(8px)",
+        WebkitBackdropFilter: "blur(8px)",
+      }}
+    >
+      <p
+        style={{
+          fontFamily: FONT_MONO,
+          fontSize: 28,
+          letterSpacing: "0.12em",
+          textTransform: "uppercase",
+          color: "rgba(224, 182, 255, 0.88)",
+          marginBottom: "0.75rem",
+          flexShrink: 0,
+        }}
+      >
+        Work examples
+      </p>
+      <div style={{ display: "flex", flexDirection: "column", gap: "1rem", flex: 1 }}>
+        {images.map((src, idx) => (
+          <motion.div
+            key={src}
+            animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 12 }}
+            transition={{ delay: isVisible ? 0.25 + idx * 0.08 : 0, duration: 0.3, ease: EASE_OUT }}
+            style={{ flexShrink: 0, display: "flex", flexDirection: "column", gap: "0.45rem" }}
+          >
+            {card.workExampleCaptions?.[idx] && (
+              <p
+                style={{
+                  fontFamily: FONT_MONO,
+                  fontSize: 13,
+                  letterSpacing: "0.03em",
+                  lineHeight: 1.45,
+                  color: "rgba(200, 178, 245, 0.82)",
+                  margin: 0,
+                }}
+              >
+                {card.workExampleCaptions[idx]}
+              </p>
+            )}
+            <MonitorFrame style={{ width: "100%", height: "auto", minHeight: 140 }}>
+              <div
+                style={{
+                  position: "relative",
+                  width: "100%",
+                  aspectRatio: "16 / 10",
+                  minHeight: 140,
+                  background: "#07060a",
+                  overflow: "hidden",
+                }}
+              >
+                <img
+                  src={src}
+                  alt={card.workExampleCaptions?.[idx] ?? `${card.title} example ${idx + 1}`}
+                  draggable={false}
+                  loading="lazy"
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "contain",
+                    objectPosition: "center",
+                    display: "block",
+                  }}
+                />
+              </div>
+            </MonitorFrame>
+          </motion.div>
+        ))}
+      </div>
     </div>
   )
 }
@@ -1253,14 +1522,33 @@ export default function CardGrid({ dealSeed }: CardGridProps) {
   }, [isExpanded, setCardExpanded])
 
   useEffect(() => {
+    document.body.style.overflow = isExpanded ? "hidden" : ""
+    return () => { document.body.style.overflow = "" }
+  }, [isExpanded])
+
+  useEffect(() => {
     setLeftFocusedIndex(0)
   }, [setLeftFocusedIndex])
 
   const { w: cW, h: cH } = containerSize
-  const expandedW = Math.round(cW * 0.75)
-  const expandedH = Math.round(cH * 0.75)
-  const expandedX = Math.round((cW - expandedW) / 2)
-  const expandedY = Math.round((cH - expandedH) / 2)
+  const activeCard = orderedCards.find(c => c.id === activeId)
+  const hasDemo =
+    isExpanded && (activeCard?.youtubeIds?.length ?? 0) > 0
+  const hasWorkExamplesSidePanel =
+    isExpanded &&
+    activeCard?.id === "proj-swemaxx" &&
+    (activeCard?.images?.length ?? 0) > 0
+  const hasSidePanel = hasDemo || hasWorkExamplesSidePanel
+
+  // Side panel layout: main card ~60% left, panel ~33% right (demo video or SWEMaxx screenshots)
+  const expandedW = hasSidePanel ? Math.round(cW * 0.60) : Math.round(cW * 0.75)
+  const expandedH = Math.round(cH * 0.90) - 10
+  const expandedX = hasSidePanel ? Math.round(cW * 0.03) : Math.round((cW - expandedW) / 2)
+  const expandedY = Math.round((cH - expandedH) / 2) + 10
+
+  const sidePanelW = Math.round(cW * 0.33)
+  const sidePanelX = expandedX + expandedW + Math.round(cW * 0.015)
+  const sidePanelY = expandedY
 
   return (
     <div
@@ -1446,6 +1734,54 @@ export default function CardGrid({ dealSeed }: CardGridProps) {
           </Fragment>
         )
       })}
+
+      {/* ── Demo side panel — YouTube embeds ── */}
+      {hasDemo && activeCard && (
+        <motion.div
+          key="demo-panel"
+          initial={{ opacity: 0, x: 24 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: 24 }}
+          transition={{ duration: 0.35, ease: EASE_OUT }}
+          style={{
+            position:             "absolute",
+            left:                 sidePanelX,
+            top:                  sidePanelY,
+            width:                sidePanelW,
+            height:               expandedH,
+            borderRadius:         16,
+            overflow:             "hidden",
+            zIndex:               50,
+            pointerEvents:        "auto",
+          }}
+        >
+          <DemoPanel card={activeCard} isVisible={isExpanded} />
+        </motion.div>
+      )}
+
+      {/* ── Work examples side panel — SWEMaxx full screenshots ── */}
+      {hasWorkExamplesSidePanel && activeCard && (
+        <motion.div
+          key="work-examples-panel"
+          initial={{ opacity: 0, x: 24 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: 24 }}
+          transition={{ duration: 0.35, ease: EASE_OUT }}
+          style={{
+            position:             "absolute",
+            left:                 sidePanelX,
+            top:                  sidePanelY,
+            width:                sidePanelW,
+            height:               expandedH,
+            borderRadius:         16,
+            overflow:             "hidden",
+            zIndex:               50,
+            pointerEvents:        "auto",
+          }}
+        >
+          <WorkExamplesSidePanel card={activeCard} isVisible={isExpanded} />
+        </motion.div>
+      )}
 
       {/* ── Click-away when a card is expanded ── */}
       {isExpanded && (

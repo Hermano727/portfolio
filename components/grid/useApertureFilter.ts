@@ -25,16 +25,24 @@ export interface ApertureCard {
   ghosted: boolean
   /** Primary thumbnail / hero image */
   image?: string
-  /** Secondary work-example images (up to 2) */
+  /** Secondary work-example images */
   images?: string[]
+  /** Optional captions per work example image */
+  workExampleCaptions?: string[]
   githubUrl?: string
   liveUrl?: string
-  /** YouTube video ID — if set, a thumbnail preview appears in expanded view */
-  youtubeId?: string
+  /** YouTube video IDs — thumbnails appear in expanded view */
+  youtubeIds?: string[]
+  /** Note shown under the demo thumbnails (e.g. version disclaimers) */
+  youtubeNote?: string
   /** Drives layout branching: portrait stacks image to the side, landscape stacks it on top */
   imageType?: "portrait" | "landscape"
   /** Optional per-image orientation override for work examples */
   workExampleTypes?: ("portrait" | "landscape")[]
+  /** CSS object-position for grid thumbnail / landscape hero focal point */
+  thumbnailObjectPosition?: string
+  /** Human-readable date range for previews + expanded header */
+  timeline?: string
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -65,12 +73,17 @@ function buildChronologicalPool(): ApertureCard[] {
       tags: e.tools,
       highlights: e.achievements,
       ghosted: false,
-      image:            e.image,
-      images:           e.workExamples,
-      workExampleTypes: e.workExampleTypes,
-      githubUrl:        e.githubUrl,
-      liveUrl:          e.liveUrl,
-      youtubeId:        e.showYoutube ? e.youtubeId : undefined,
+      image:               e.image,
+      images:              e.workExamples,
+      workExampleTypes:    e.workExampleTypes,
+      workExampleCaptions: e.workExampleCaptions,
+      githubUrl:           e.githubUrl,
+      liveUrl:             e.liveUrl,
+      youtubeIds: e.showYoutube
+        ? (e.youtubeIds ?? (e.youtubeId ? [e.youtubeId] : undefined))
+        : undefined,
+      youtubeNote: e.youtubeNote,
+      timeline: e.timeline,
     }))
 
   const projCards: ApertureCard[] = projects
@@ -86,10 +99,15 @@ function buildChronologicalPool(): ApertureCard[] {
       tags: p.tools,
       highlights: p.takeaways,
       ghosted: false,
-      image:     p.image,
-      githubUrl: p.githubUrl,
-      liveUrl:   p.liveUrl,
-      imageType: p.imageType,
+      image:               p.image,
+      images:              p.workExamples,
+      workExampleTypes:    p.workExampleTypes,
+      workExampleCaptions: p.workExampleCaptions,
+      githubUrl:           p.githubUrl,
+      liveUrl:             p.liveUrl,
+      imageType:           p.imageType,
+      thumbnailObjectPosition: p.thumbnailObjectPosition,
+      timeline: p.timeline,
     }))
 
   // Chronological merge: two-pointer greedy, newest-first

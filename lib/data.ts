@@ -14,65 +14,90 @@ export interface Project {
   liveUrl?: string;
   takeaways: string[];
   imageType?: "portrait" | "landscape";
+  workExamples?: string[];
+  workExampleTypes?: ("portrait" | "landscape")[];
+  workExampleCaptions?: string[];
+  /** CSS object-position for compact thumbnail + landscape hero (e.g. "center" to crop to the focal area) */
+  thumbnailObjectPosition?: string;
+  /** Display range on cards (e.g. "Jan 2026 – Present") */
+  timeline?: string;
 }
 
-// Ordered by display priority: Tier 1 first (Yonder, Echoes of Pharloom), then Tier 2 (Splitr)
 export const projects: Project[] = [
-  {
-    id: "yonder",
-    title: "Yonder",
-    description: "University Rover Challenge software — Pure Pursuit GPS navigation, unified camera control, and arm visualization for a rover that placed 5th nationally.",
-    longDescription: "Yonder is the rover software and operator tooling developed for the University Rover Challenge. The project includes Pure Pursuit navigation, unified ROS camera integration, arm URDF modeling and joint-state visualization, and mission-critical operator tooling for autonomous workflows.",
-    image: "/assets/yonder.png",
-    status: "In Progress",
-    progress: 70,
-    startDate: "2024-10-01",
-    categories: ["Robotics", "ROS", "Navigation"],
-    tools: ["Python", "Flask", "Leaflet", "RViz", "ROS"],
-    takeaways: [
-      "Implemented Pure Pursuit path tracking with live Leaflet overlays; optimized map rendering for low-latency operator feedback during missions.",
-      "Unified distributed rover cameras (Flask API, Janus) into a ROS front-end with start/stop/photo controls and an auto-fade autonomous HUD.",
-      "Authored rover arm URDF and live joint-state publishing; built operator interface for pose commands and pre-execution arm visualization.",
-    ],
-  },
   {
     id: "echoes-of-pharloom",
     title: "Echoes of Pharloom",
-    description: "Silksong-inspired study app with automatic break scheduling, focus-loss detection, and cloud-synced streaks — built to learn AWS serverless architecture from scratch.",
-    longDescription: "Echoes of Pharloom is a customizable study app with automatic break scheduling, focus-loss detection, and session history. Built as a vehicle for learning AWS serverless infrastructure: API Gateway, Lambda, DynamoDB, and Cognito, all provisioned via AWS CDK. Delivers sub-10ms UI refresh with client-side state and cloud persistence.",
+    description: "A Silksong-themed study app with a built-in Pomodoro timer, automatic break scheduling, focus-loss detection, and cloud-synced streaks. Built with a full AWS serverless backend from scratch.",
+    longDescription: "Echoes of Pharloom is a Silksong-themed study app with automatic break scheduling, focus-loss detection, streak tracking, and session history. Built infrastructure-as-code from scratch: API Gateway, Lambda, DynamoDB, and Cognito all provisioned with AWS CDK. Local-first React/TypeScript state delivers sub-10ms UI refresh while syncing to DynamoDB for cross-device persistence.",
     image: "/assets/projects/eop-home.png",
     status: "In Progress",
     progress: 80,
     startDate: "2025-09-01",
-    categories: ["Web Development", "Productivity"],
-    tools: ["TypeScript", "React", "Lambda", "DynamoDB", "Cognito", "AWS CDK"],
+    categories: ["Full-Stack", "AWS Serverless"],
+    tools: ["TypeScript", "React", "AWS CDK", "API Gateway", "Lambda", "DynamoDB", "Cognito", "MSW"],
     githubUrl: "https://github.com/Hermano727/echoes-of-pharloom",
     liveUrl: "https://echoesofpharloom.com/",
+    timeline: "Aug 2025 – Dec 2025",
     takeaways: [
-      "Built real-time timer engine in React/TypeScript with sub-10ms refresh, automatic break scheduling, and client-side state management.",
-      "Architected serverless stack with API Gateway, Lambda, DynamoDB, and Cognito using AWS CDK for repeatable infrastructure-as-code deployment.",
-      "Implemented secure Cognito auth with custom domain and cloud session persistence; used MSW mocks for rapid frontend-first development.",
+      "Architected a full serverless backend with API Gateway, Lambda, DynamoDB, and Cognito using AWS CDK for repeatable infrastructure-as-code deployment; configured custom domain OAuth and IAM roles for secure cross-service access.",
+      "Built a sub-10ms React/TypeScript timer engine with automatic break scheduling, focus-loss tab detection, and local-first state synced to DynamoDB for cross-device session persistence and streak history.",
+      "Used MSW (Mock Service Worker) to decouple frontend development from backend iterations; shipped and demoed a live app at echoesofpharloom.com.",
+    ],
+    workExamples: ["/assets/projects/eop-home.png", "/assets/projects/eop-study.png"],
+    workExampleTypes: ["landscape", "landscape"],
+    workExampleCaptions: [
+      "Home — session config, streak history, and soundtrack area selection",
+      "Study — active timer with Silksong soundtrack, break scheduling, and focus-loss detection",
+    ],
+  },
+  {
+    id: "swemaxx",
+    title: "SWEMaxx",
+    description: "Full-stack AI mock-interview platform for company-style technical rounds. Candidates work through a timed session with a real code editor and notes; the product captures what they said and wrote to produce an interviewer-style scorecard at the end.",
+    longDescription: "SWEMaxx helps software engineering candidates practice realistic, company-style technical interviews — not generic LeetCode drills. Candidates work through a timed session with notes and a real code editor, while the product captures what they said and wrote to produce an interviewer-style scorecard. Optional modes add live guidance so practice feels closer to a real loop without giving away full solutions.",
+    image: "/assets/projects/swemaxx-setup.png",
+    thumbnailObjectPosition: "center",
+    status: "In Progress",
+    progress: 70,
+    startDate: "2026-01-01",
+    categories: ["Full-Stack", "AI Integration"],
+    tools: ["Next.js", "TypeScript", "Firebase", "Firestore", "PostgreSQL", "OpenAI", "Monaco Editor", "WebSockets", "Deepgram", "Web Speech API"],
+    githubUrl: "https://github.com/Hermano727/SWEmaxx",
+    liveUrl: "https://swe-maxx-git-featur-ac1d2b-hermanhundsberger-gmailcoms-projects.vercel.app/",
+    timeline: "Jan 2026 – Present",
+    workExamples: ["/assets/projects/swemaxx-interview.png", "/assets/projects/swemaxx-feedback.png"],
+    workExampleTypes: ["landscape", "landscape"],
+    workExampleCaptions: [
+      "Interview workspace — Monaco editor, timers, and phased rubric for company-style rounds",
+      "End-of-session AI scorecard — structured feedback tied to what you said and wrote",
+    ],
+    takeaways: [
+      "Built authenticated REST API routes using Firebase ID token verification and Admin SDK with per-resource ownership checks — ensuring users can only read/write their own sessions and transcripts.",
+      "Integrated OpenAI chat completions with JSON-only structured outputs, server-side schema validation, and prompt rules that treat all user-supplied content as untrusted — producing injection-safe end-of-session scorecards with hire-style ratings, strengths, and concrete feedback.",
+      "Designed a hybrid data layer: Firestore for low-latency session metadata and history; PostgreSQL for ordered transcript chunks and interviewer messages — each store chosen for its access pattern, with APIs to append, merge, and replay content for grading.",
+      "Implemented live speech capture (Web Speech API with buffered chunking + POST persistence) and extended with a Node.js WebSocket gateway using Deepgram streaming STT for low-latency transcription aligned to active interview sessions.",
     ],
   },
   {
     id: "splitr",
     title: "Splitr",
-    description: "Hackathon receipt-splitting app — photo to parsed bill in seconds using a Google Vision → MistralAI pipeline with 92% OCR accuracy.",
-    longDescription: "Splitr lets you photograph a receipt, automatically extracts items and prices via OCR, then splits the bill proportionally across people including tax and tip. Built in 48 hours at DiamondHacks 2025 using React Native, Google Vision, MistralAI, FastAPI, and Firebase Auth.",
+    description: "Built in 48 hours at DiamondHacks. Photograph a receipt and Splitr splits the bill automatically across your group, including tax and tip, at roughly 90% OCR accuracy.",
+    longDescription: "Splitr lets you photograph a receipt, automatically extracts items and prices via OCR, then splits the bill proportionally across people including tax and tip. Built in 48 hours at DiamondHacks 2025. Owned system design and UI: Google Vision OCR → MistralAI JSON parsing → FastAPI validation → React Native assignment view, with typed contracts between every layer.",
     image: "/assets/splitr.png",
     status: "Completed",
     progress: 100,
     startDate: "2025-04-01",
     endDate: "2025-04-30",
-    categories: ["Mobile Development", "Finance"],
-    tools: ["TypeScript", "React Native", "FastAPI", "Google Vision", "MistralAI", "Firebase"],
+    categories: ["Mobile Dev", "ML Pipeline"],
+    tools: ["TypeScript", "React Native", "FastAPI", "Google Vision", "MistralAI", "Firebase", "Expo"],
     githubUrl: "https://github.com/Hermano727/diamondhacks25",
     liveUrl: "https://devpost.com/software/splitr-wa2frd",
+    timeline: "March 2025 – April 2025",
     imageType: "portrait",
     takeaways: [
-      "Designed multi-stage OCR pipeline: Google Vision extracts text → MistralAI converts to structured JSON → FastAPI validates → React Native renders assignments.",
-      "Benchmarked Llama3, OpenAI, and Mistral to find the optimal balance of cost, latency, and JSON reliability for real-world receipt parsing.",
-      "Implemented Firebase Auth phone sign-in with proportional tax/tip splitting; shipped a functional, demoed MVP in under 48 hours.",
+      "Designed a multi-stage ML pipeline: Google Vision OCR → MistralAI JSON parsing → FastAPI validation → React Native render; benchmarked Llama3, OpenAI, and Mistral to optimize cost, latency, and schema reliability — Mistral won.",
+      "Owned system design and UI: authored typed JSON contracts between frontend and backend, built resilient loading/error states, and maintained a consistent design system across the app.",
+      "Identified a scope trade-off mid-hackathon — led the team to prioritize Profile, History, and polish over marginal OCR gains; shipped a polished, demoed MVP in under 48 hours.",
     ],
   },
 ];
