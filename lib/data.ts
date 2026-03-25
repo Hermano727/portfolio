@@ -27,6 +27,10 @@ export interface Project {
   workExamples?: string[];
   workExampleTypes?: ("portrait" | "landscape")[];
   workExampleCaptions?: string[];
+  /** Compact grid subtitle under title (defaults to first two categories) */
+  gridMeta?: string;
+  /** Compact grid bullets only; expanded view still uses takeaways */
+  gridPreviewBullets?: string[];
 }
 
 export const projects: Project[] = [
@@ -44,6 +48,11 @@ export const projects: Project[] = [
     tools: ["TypeScript", "React", "AWS CDK", "API Gateway", "Lambda", "DynamoDB", "Cognito", "MSW"],
     githubUrl: "https://github.com/Hermano727/echoes-of-pharloom",
     liveUrl: "https://echoesofpharloom.com/",
+    gridPreviewBullets: [
+      "Silksong study app: Pomodoro, smart breaks, focus detection, synced streaks.",
+      "AWS CDK serverless: API Gateway, Lambda, DynamoDB, Cognito.",
+      "Local-first React UI with fast DynamoDB cross-device sync.",
+    ],
     takeaways: [
       "Architected a full serverless backend with API Gateway, Lambda, DynamoDB, and Cognito using AWS CDK for repeatable infrastructure-as-code deployment; configured custom domain OAuth and IAM roles for secure cross-service access.",
       "Built a sub-10ms React/TypeScript timer engine with automatic break scheduling, focus-loss tab detection, and local-first state synced to DynamoDB for cross-device session persistence and streak history.",
@@ -74,6 +83,11 @@ export const projects: Project[] = [
     tools: ["Next.js", "React", "TypeScript", "Vitest", "Redis", "Jira", "Agile"],
     githubUrl: "https://github.com/RamonsArchive/TypeQuest",
     liveUrl: "https://typequest-legends.vercel.app/",
+    gridPreviewBullets: [
+      "K–6 typing and grammar mini-games—Best Project (CSE110, Fall 2025).",
+      "Next.js, Redis, FSM gameplay, Vitest-hardened scoring.",
+      "Scrum Master: Jira backlog and steady sprint delivery.",
+    ],
     takeaways: [
       "Architected immutable state with a finite state machine so UI rendering stays decoupled from core game and lesson logic.",
       "Served as Scrum Master: owned the Jira backlog, facilitated sprints, and kept delivery predictable for a course-based engineering team.",
@@ -102,6 +116,11 @@ export const projects: Project[] = [
     tools: ["Next.js", "TypeScript", "Firebase", "Firestore", "PostgreSQL", "OpenAI", "Monaco Editor", "WebSockets", "Deepgram", "Web Speech API"],
     githubUrl: "https://github.com/Hermano727/SWEmaxx",
     liveUrl: "https://swe-maxx-git-featur-ac1d2b-hermanhundsberger-gmailcoms-projects.vercel.app/",
+    gridPreviewBullets: [
+      "Company-style mock interviews: timed rounds, editor, AI scorecards, optional live hints.",
+      "OpenAI grades sessions; Postgres stores transcript chunks.",
+      "Firebase-gated REST APIs—users only touch their own data.",
+    ],
     takeaways: [
       "Built authenticated REST API routes using Firebase ID token verification and Admin SDK with per-resource ownership checks — ensuring users can only read/write their own sessions and transcripts.",
       "Integrated OpenAI chat completions with JSON-only structured outputs, server-side schema validation, and prompt rules that treat all user-supplied content as untrusted — producing injection-safe end-of-session scorecards with hire-style ratings, strengths, and concrete feedback.",
@@ -140,6 +159,12 @@ export const projects: Project[] = [
       "Mixin",
       "Finite state machines",
     ],
+    githubUrl: "https://github.com/Hermano727/MoreThanEnoughUtils",
+    gridPreviewBullets: [
+      "SkyBlock Fabric QoL: farming macros, pest routes, one-click dailies.",
+      "FSM farming; pests via particles, entities, and scoreboard signals.",
+      "YACL + Gson settings on Java 21 / Gradle Kotlin DSL.",
+    ],
     takeaways: [
       "Quality-of-life Fabric mod for Hypixel SkyBlock—farming, pests, dailies, and shortcuts players actually use every session.",
       "Farming macros: finite-state-machine control loop that reacts to collisions, player velocity, and aim/angle calculations so movement and attacks stay coordinated.",
@@ -151,8 +176,11 @@ export const projects: Project[] = [
   {
     id: "splitr",
     title: "Splitr",
-    description: "Built in 48 hours at DiamondHacks. Photograph a receipt and Splitr splits the bill automatically across your group, including tax and tip, at roughly 90% OCR accuracy.",
-    longDescription: "Splitr lets you photograph a receipt, automatically extracts items and prices via OCR, then splits the bill proportionally across people including tax and tip. Built in 48 hours at DiamondHacks 2025. Owned system design and UI: Google Vision OCR → MistralAI JSON parsing → FastAPI validation → React Native assignment view, with typed contracts between every layer.",
+    gridMeta: "Hackathon · DiamondHacks 2025",
+    description:
+      "Receipt photo to split check: line items, tax, and tip across your group, with strong OCR in live demos. Built start to finish in 48 hours at DiamondHacks 2025.",
+    longDescription:
+      "Splitr is a mobile app that reads a receipt photo, extracts items and prices with OCR, and helps a group split the bill fairly—including tax and tip. We shipped it in 48 hours at DiamondHacks 2025. Pipeline: Google Vision for text, Mistral for structured JSON, FastAPI to validate and serve data, and React Native for assignment and balances. Every layer used explicit typed contracts so the UI never had to guess the shape of the payload.",
     image: "/assets/splitr.png",
     imageType: "portrait",
     status: "Completed",
@@ -164,10 +192,15 @@ export const projects: Project[] = [
     tools: ["TypeScript", "React Native", "FastAPI", "Google Vision", "MistralAI", "Firebase", "Expo"],
     githubUrl: "https://github.com/Hermano727/diamondhacks25",
     liveUrl: "https://devpost.com/software/splitr-wa2frd",
+    gridPreviewBullets: [
+      "OCR receipt splitter: assign items, split tax and tip—48h hackathon ship.",
+      "Google Vision to Mistral JSON; Mistral beat Llama 3 and GPT on our tests.",
+      "Owned stack + UI: shared types across FastAPI and React Native.",
+    ],
     takeaways: [
-      "Designed a multi-stage ML pipeline: Google Vision OCR → MistralAI JSON parsing → FastAPI validation → React Native render; benchmarked Llama3, OpenAI, and Mistral to optimize cost, latency, and schema reliability — Mistral won.",
-      "Owned system design and UI: authored typed JSON contracts between frontend and backend, built resilient loading/error states, and maintained a consistent design system across the app.",
-      "Identified a scope trade-off mid-hackathon — led the team to prioritize Profile, History, and polish over marginal OCR gains; shipped a polished, demoed MVP in under 48 hours.",
+      "Built an OCR-to-JSON pipeline (Google Vision, then Mistral) with FastAPI validation and a React Native client; benchmarked Llama 3, OpenAI, and Mistral and chose Mistral for the best balance of speed, cost, and reliable structured output.",
+      "Defined typed contracts end to end so parsing, API responses, and the assignment screen stayed in sync; invested in loading, errors, and a consistent visual system under time pressure.",
+      "Mid-hackathon scope call: prioritized profile, history, and polish over chasing marginal OCR gains so we shipped something judges could use in the room.",
     ],
   },
 ];

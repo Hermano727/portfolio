@@ -32,12 +32,14 @@ export interface Experience {
   youtubeNote?: string;
   /** Display range on cards (e.g. "Feb 2025 – Present") */
   timeline?: string;
+  /** Compact grid bullets only; expanded view still uses achievements */
+  gridPreviewBullets?: string[];
 }
 
 export const experiences: Experience[] = [
   {
     id: "mathworks-intern-2026",
-    title: "Software Engineering Intern",
+    title: "EDG Software Intern",
     company: "MathWorks [INCOMING]",
     location: "Natick, MA",
     startDate: "2026-06-01",
@@ -50,10 +52,15 @@ export const experiences: Experience[] = [
     image: "/assets/experience/mathworks.png",
     categories: ["Simulink", "Desktop / UI", "C++"],
     tools: ["JavaScript", "C++", "MATLAB", "Simulink"],
+    gridPreviewBullets: [
+      "Summer 2026 Simulink Core intern: clearer In/Out and Bus Element port dialogs.",
+      "JavaScript, C++, MATLAB on shipping Simulink desktop UI.",
+      "Less friction in block dialogs modelers use every day.",
+    ],
     achievements: [
-      "Offer accepted for Jun–Sep 2026 on Simulink Component Interfaces (Simulink Core Group), working on block dialog UX for In/Out and In/Out Bus Element ports.",
-      "Stack: JavaScript, C++, and MATLAB; Simulink product context supported by the team during ramp-up.",
-      "Preparing with Simulink fundamentals and Bus Element Ports documentation so onboarding can move quickly into implementation details.",
+      "Summer 2026 internship on Simulink Component Interfaces (Simulink Core Group): improving block dialog UX for In/Out and In/Out Bus Element ports—among the most-used surfaces in Simulink.",
+      "Contributes across JavaScript, C++, and MATLAB with team support on Simulink domain depth and product standards.",
+      "Onboarding focus: Simulink fundamentals and Bus Element Ports so day-one work moves quickly into implementation.",
     ],
     websiteUrl: "https://www.mathworks.com/",
     timeline: "June 2026 – September 2026",
@@ -93,6 +100,11 @@ export const experiences: Experience[] = [
     showYoutube: true,
     youtubeId: "8XUT9da2txI",
     timeline: "September 2024 – Present",
+    gridPreviewBullets: [
+      "Lead SWE on Mars rover mission control—URC team placed 5th nationally.",
+      "Shipped Vite UI, WHEP WebRTC, Three.js arm viz, leaner Redux.",
+      "ROS pilot/spectator handshake for safe multi-operator control.",
+    ],
   },
   {
     id: "makerspace-checkin",
@@ -118,10 +130,15 @@ export const experiences: Experience[] = [
     showYoutube: true,
     youtubeId: "w_4UTGWlqxE",
     timeline: "Feb 2025 – Present",
+    gridPreviewBullets: [
+      "RFID check-in for QI Makerspace—8,000+ students, 99.9% uptime.",
+      "Pi nodes: threaded services, queued writes, no duplicate Sheets rows.",
+      "Sheets and Fabman hooks for hours and machine access.",
+    ],
   },
   {
     id: "bioengineering-research",
-    title: "Research Software Engineer",
+    title: "R&D Software Dev",
     company: "Wu Tsai Bioengineering Research",
     location: "San Diego, CA",
     startDate: "2025-02-01",
@@ -144,5 +161,10 @@ export const experiences: Experience[] = [
     youtubeIds: ["Tfy9P3L2z1Q", "x2Q3GgaJ1cM"],
     youtubeNote: "Videos show the Jun–Sep 2025 prototype. Iterated versions with PCB layout and live subjects are not yet releasable.",
     timeline: "Feb 2025 – Present",
+    gridPreviewBullets: [
+      "IoT rigs for rodent overload-training studies at Wu Tsai Alliance.",
+      "SENT and beam-break state machine; SQLite buffer; Pi rsync pipeline.",
+      "Python automation for pellets, calibration, and chamber runs.",
+    ],
   },
 ];

@@ -121,7 +121,7 @@ export default function CardDeck() {
       projects.map((p) => ({
         id:      `proj-${p.id}`,
         title:   p.title,
-        meta:    p.categories.slice(0, 2).join(" · "),
+        meta:    p.gridMeta ?? p.categories.slice(0, 2).join(" · "),
         hook:    p.description,
         bullets: p.takeaways,
         image:   p.image,

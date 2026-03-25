@@ -43,12 +43,45 @@ export interface ApertureCard {
   thumbnailObjectPosition?: string
   /** Human-readable date range for previews + expanded header */
   timeline?: string
+  /**
+   * Compact grid bullets — from `gridPreviewBullets` in data when set,
+   * otherwise first sentence of description plus takeaways/achievements.
+   */
+  previewBullets: string[]
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function toMs(dateStr: string): number {
   return new Date(dateStr).getTime()
+}
+
+/** First sentence (or line) of description — card context on the grid. */
+function firstSentenceContext(description: string): string {
+  const t = description.trim()
+  if (!t) return ""
+  const line = t.split(/\n/)[0].trim()
+  const m = line.match(/^[\s\S]{1,400}?([.!?](?:\s|$)|$)/)
+  return (m ? m[0] : line).trim()
+}
+
+function normalizeBulletText(s: string | undefined): string {
+  if (!s?.trim()) return ""
+  return s.trim().replace(/\s+/g, " ")
+}
+
+/** Full copy for compact cards: no char/word caps — layout wraps in the panel. */
+function buildPreviewBullets(description: string, highlights: string[]): string[] {
+  const h = highlights.map(normalizeBulletText).filter(Boolean)
+  const b1 = normalizeBulletText(firstSentenceContext(description))
+  const out: string[] = []
+  if (b1) out.push(b1)
+  for (const line of h) {
+    if (out.length >= 3) break
+    if (line && !out.includes(line)) out.push(line)
+  }
+  if (out.length === 0 && h[0]) return [h[0]]
+  return out.slice(0, 3)
 }
 
 /**
@@ -84,6 +117,10 @@ function buildChronologicalPool(): ApertureCard[] {
         : undefined,
       youtubeNote: e.youtubeNote,
       timeline: e.timeline,
+      previewBullets:
+        e.gridPreviewBullets?.length
+          ? e.gridPreviewBullets.slice(0, 3)
+          : buildPreviewBullets(e.description, e.achievements),
     }))
 
   const projCards: ApertureCard[] = projects
@@ -108,6 +145,10 @@ function buildChronologicalPool(): ApertureCard[] {
       imageType:           p.imageType,
       thumbnailObjectPosition: p.thumbnailObjectPosition,
       timeline: p.timeline,
+      previewBullets:
+        p.gridPreviewBullets?.length
+          ? p.gridPreviewBullets.slice(0, 3)
+          : buildPreviewBullets(p.description, p.takeaways),
     }))
 
   // Chronological merge: two-pointer greedy, newest-first
