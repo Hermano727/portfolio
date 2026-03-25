@@ -4,17 +4,23 @@ import React, { useEffect, useRef } from "react"
 
 interface ConstellationProps {
   className?: string
-  density?: number // particles per 10,000 px^2
-  maxDistance?: number // px to draw connecting lines
-  speed?: number // base velocity scalar
+  density?: number       // particles per 10,000 px^2
+  maxDistance?: number   // px to draw connecting lines
+  speed?: number         // base velocity scalar
+  nodeColor?: string     // CSS rgba for particle dots
+  lineColor?: string     // RGB only (e.g. "157,78,221") — alpha is set per-distance
+  mouseColor?: string    // RGB only — for mouse connection lines
 }
 
-// Lightweight, dependency-free canvas constellation
+// Lightweight, dependency-free canvas constellation with mouse-proximity line drawing.
 export default function Constellation({
   className,
   density = 0.9,
   maxDistance = 140,
   speed = 0.3,
+  nodeColor = "rgba(224,182,255,0.55)",
+  lineColor = "157,78,221",
+  mouseColor = "224,182,255",
 }: ConstellationProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const mouse = useRef<{ x: number; y: number } | null>(null)
@@ -35,50 +41,49 @@ export default function Constellation({
       canvas.style.width = `${clientWidth}px`
       canvas.style.height = `${clientHeight}px`
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-      // Rebuild particles based on area
       const area = clientWidth * clientHeight
       const target = Math.max(40, Math.floor((area / 10000) * density))
       particles = Array.from({ length: target }, () => ({
-        x: Math.random() * clientWidth,
-        y: Math.random() * clientHeight,
+        x:  Math.random() * clientWidth,
+        y:  Math.random() * clientHeight,
         vx: (Math.random() - 0.5) * speed,
         vy: (Math.random() - 0.5) * speed,
       }))
     }
 
     function draw() {
-      // Clear using identity transform in device pixels to avoid 1px artifacts on edges
       ctx.save()
       ctx.setTransform(1, 0, 0, 1, 0, 0)
       ctx.clearRect(0, 0, canvas.width, canvas.height)
       ctx.restore()
 
-      // Background star specks (very subtle)
       const cssW = canvas.clientWidth
       const cssH = canvas.clientHeight
-      ctx.fillStyle = "rgba(255,255,255,0.03)"
-      for (let i = 0; i < 30; i++) {
-        const x = Math.random() * cssW
-        const y = Math.random() * cssH
-        ctx.fillRect(x, y, 1, 1)
+
+      // Subtle background star specks
+      ctx.fillStyle = "rgba(255,255,255,0.025)"
+      for (let i = 0; i < 28; i++) {
+        ctx.fillRect(Math.random() * cssW, Math.random() * cssH, 1, 1)
       }
 
-      // Update and draw particles
       ctx.lineWidth = 1
+
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i]
+
+        // Standard drift — bounce off walls
         p.x += p.vx
         p.y += p.vy
-        if (p.x <= 0 || p.x >= canvas.clientWidth) p.vx *= -1
-        if (p.y <= 0 || p.y >= canvas.clientHeight) p.vy *= -1
+        if (p.x <= 0 || p.x >= cssW) p.vx *= -1
+        if (p.y <= 0 || p.y >= cssH) p.vy *= -1
 
-        // Node
+        // Node dot
         ctx.beginPath()
         ctx.arc(p.x, p.y, 1.2, 0, Math.PI * 2)
-        ctx.fillStyle = "rgba(96,165,250,0.7)" // tailwind blue-400
+        ctx.fillStyle = nodeColor
         ctx.fill()
 
-        // Connections
+        // Connections between nearby particles
         for (let j = i + 1; j < particles.length; j++) {
           const q = particles[j]
           const dx = p.x - q.x
@@ -86,8 +91,7 @@ export default function Constellation({
           const dist = Math.hypot(dx, dy)
           if (dist < maxDistance) {
             const alpha = 1 - dist / maxDistance
-            // purple/blue mix
-            ctx.strokeStyle = `rgba(139,92,246,${alpha * 0.6})` // purple-500
+            ctx.strokeStyle = `rgba(${lineColor},${alpha * 0.5})`
             ctx.beginPath()
             ctx.moveTo(p.x, p.y)
             ctx.lineTo(q.x, q.y)
@@ -95,14 +99,14 @@ export default function Constellation({
           }
         }
 
-        // Mouse connection
+        // Lines drawn toward the mouse cursor — original connecting behavior
         if (mouse.current) {
           const dxm = p.x - mouse.current.x
           const dym = p.y - mouse.current.y
           const dm = Math.hypot(dxm, dym)
           if (dm < maxDistance * 1.2) {
             const alpha = 1 - dm / (maxDistance * 1.2)
-            ctx.strokeStyle = `rgba(96,165,250,${alpha})` // blue-400
+            ctx.strokeStyle = `rgba(${mouseColor},${alpha * 0.75})`
             ctx.beginPath()
             ctx.moveTo(p.x, p.y)
             ctx.lineTo(mouse.current.x, mouse.current.y)
@@ -114,7 +118,6 @@ export default function Constellation({
       raf = requestAnimationFrame(draw)
     }
 
-    // Track mouse relative to the canvas even if the canvas does not receive events
     function onWindowMouseMove(e: MouseEvent) {
       const rect = canvas.getBoundingClientRect()
       const x = e.clientX - rect.left
@@ -127,11 +130,8 @@ export default function Constellation({
     }
 
     function onWindowMouseOut(e: MouseEvent) {
-      // If the pointer leaves the window, clear the mouse
-      const toElement = (e.relatedTarget || (e as any).toElement) as Node | null
-      if (!toElement) {
-        mouse.current = null
-      }
+      const toElement = (e.relatedTarget || (e as unknown as { toElement: Node | null }).toElement) as Node | null
+      if (!toElement) mouse.current = null
     }
 
     resize()
@@ -147,7 +147,7 @@ export default function Constellation({
       window.removeEventListener("mousemove", onWindowMouseMove)
       window.removeEventListener("mouseout", onWindowMouseOut)
     }
-  }, [density, maxDistance, speed])
+  }, [density, maxDistance, speed, nodeColor, lineColor, mouseColor])
 
   return (
     <canvas
