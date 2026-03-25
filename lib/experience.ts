@@ -8,7 +8,7 @@ export interface Experience {
   description: string;
   longDescription: string;
   image?: string;
-  status: "Current" | "Completed";
+  status: "Current" | "Completed" | "Upcoming";
   categories: string[];
   tools: string[];
   achievements: string[];
@@ -35,6 +35,29 @@ export interface Experience {
 }
 
 export const experiences: Experience[] = [
+  {
+    id: "mathworks-intern-2026",
+    title: "Software Engineering Intern",
+    company: "MathWorks [INCOMING]",
+    location: "Natick, MA",
+    startDate: "2026-06-01",
+    endDate: "2026-09-30",
+    status: "Upcoming",
+    description:
+      "Incoming summer internship on the Simulink Component Interfaces team (Simulink Core): unifying block dialog UX for In/Out ports and In/Out Bus Element ports—one of the most-used surfaces in Simulink.",
+    longDescription:
+      "Joining MathWorks for summer 2026 on Simulink Component Interfaces within the Simulink Core Group. The project targets a consistent user experience across block dialogs for In/Out ports and In/Out Bus Element ports, which modelers interact with constantly. Work will span JavaScript, C++, and MATLAB; the team provides Simulink product ramp-up. Ahead of day one, the focus is on core Simulink familiarity and MathWorks documentation on Bus Element Ports, with deeper project context to follow during onboarding.",
+    image: "/assets/experience/mathworks.png",
+    categories: ["Simulink", "Desktop / UI", "C++"],
+    tools: ["JavaScript", "C++", "MATLAB", "Simulink"],
+    achievements: [
+      "Offer accepted for Jun–Sep 2026 on Simulink Component Interfaces (Simulink Core Group), working on block dialog UX for In/Out and In/Out Bus Element ports.",
+      "Stack: JavaScript, C++, and MATLAB; Simulink product context supported by the team during ramp-up.",
+      "Preparing with Simulink fundamentals and Bus Element Ports documentation so onboarding can move quickly into implementation details.",
+    ],
+    websiteUrl: "https://www.mathworks.com/",
+    timeline: "June 2026 – September 2026",
+  },
   {
     id: "yonder-dynamics",
     title: "Lead Software Engineer",

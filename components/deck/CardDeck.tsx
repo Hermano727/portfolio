@@ -109,7 +109,7 @@ export default function CardDeck() {
           meta:    exp.title,
           hook:    exp.description,
           bullets: exp.achievements,
-          image:   experienceImage,
+          image:   experienceImage ?? exp.image,
           tags:    exp.tools,
         }
       }),
@@ -156,7 +156,10 @@ export default function CardDeck() {
 
       case "Enter":
       case " ":
-        if (tag === "BUTTON" || tag === "A") break
+        {
+          const t = e.target
+          if (t instanceof Element && (t.tagName === "BUTTON" || t.tagName === "A")) break
+        }
         e.preventDefault()
         colRef.current?.expandCardAtIndex(focusedIndexRef.current)
         break
