@@ -31,6 +31,11 @@ export interface Project {
   gridMeta?: string;
   /** Compact grid bullets only; expanded view still uses takeaways */
   gridPreviewBullets?: string[];
+  /** Expanded context block — shown above Highlights */
+  contextProblem?: string;
+  contextWhen?: string;
+  contextWhere?: string;
+  contextStack?: string;
 }
 
 export const projects: Project[] = [
@@ -49,10 +54,16 @@ export const projects: Project[] = [
     githubUrl: "https://github.com/Hermano727/echoes-of-pharloom",
     liveUrl: "https://echoesofpharloom.com/",
     gridPreviewBullets: [
-      "Silksong study app: Pomodoro, smart breaks, focus detection, synced streaks.",
-      "AWS CDK serverless: API Gateway, Lambda, DynamoDB, Cognito.",
-      "Local-first React UI with fast DynamoDB cross-device sync.",
+      "Study app designed for Silksong fans, featuring Pomodoro, smart breaks, focus detection, synced streaks.",
+      "AWS Stack: CDK serverless, API Gateway, Lambda.",
+      "Features fast DynamoDB cross-device sync and Cognito auth.",
     ],
+    contextProblem:
+      "Built to make deep-work sessions feel less repetitive by combining timed focus, breaks, and streak accountability in one themed flow.",
+    contextWhen: "Sep 2025 – Present",
+    contextWhere: "Personal project, shipped publicly on Vercel.",
+    contextStack:
+      "React + TypeScript frontend with AWS CDK serverless backend (API Gateway, Lambda, DynamoDB, Cognito).",
     takeaways: [
       "Architected a full serverless backend with API Gateway, Lambda, DynamoDB, and Cognito using AWS CDK for repeatable infrastructure-as-code deployment; configured custom domain OAuth and IAM roles for secure cross-service access.",
       "Built a sub-10ms React/TypeScript timer engine with automatic break scheduling, focus-loss tab detection, and local-first state synced to DynamoDB for cross-device session persistence and streak history.",
@@ -67,7 +78,7 @@ export const projects: Project[] = [
   },
   {
     id: "type-quest",
-    title: "Type Quest — Adaptive Learning Platform",
+    title: "Type Quest: Adaptive Learning Platform",
     description:
       "K–6 typing and grammar mini-games (timed main game, maze treasure hunt, unscramble puzzles) built for UCSD CSE110 with Next.js and Redis—won Best Project for the Fall 2025 cohort.",
     longDescription:
@@ -84,10 +95,16 @@ export const projects: Project[] = [
     githubUrl: "https://github.com/RamonsArchive/TypeQuest",
     liveUrl: "https://typequest-legends.vercel.app/",
     gridPreviewBullets: [
-      "K–6 typing and grammar mini-games—Best Project (CSE110, Fall 2025).",
-      "Next.js, Redis, FSM gameplay, Vitest-hardened scoring.",
-      "Scrum Master: Jira backlog and steady sprint delivery.",
+      "Won best project for CSE110: Software Engineering, Fall 2025 Cohort @ UCSD",
+      "K-6 typing and grammar mini-games with iterative learning",
+      "Served as SCRUM Master, managing Jira backlog and sprints",
     ],
+    contextProblem:
+      "Designed to make foundational typing and grammar practice more engaging for K-6 learners through short, replayable games.",
+    contextWhen: "Sep 2025 – Dec 2025",
+    contextWhere: "UCSD CSE110 team project (Fall 2025).",
+    contextStack:
+      "Next.js + TypeScript app with Redis persistence, FSM-driven game logic, and Vitest coverage.",
     takeaways: [
       "Architected immutable state with a finite state machine so UI rendering stays decoupled from core game and lesson logic.",
       "Served as Scrum Master: owned the Jira backlog, facilitated sprints, and kept delivery predictable for a course-based engineering team.",
@@ -121,6 +138,12 @@ export const projects: Project[] = [
       "OpenAI grades sessions; Postgres stores transcript chunks.",
       "Firebase-gated REST APIs—users only touch their own data.",
     ],
+    contextProblem:
+      "Built for SWE candidates who need realistic interview practice with actionable feedback, not just coding drills.",
+    contextWhen: "Jan 2026 – Present",
+    contextWhere: "Personal full-stack build, developed and deployed on Vercel.",
+    contextStack:
+      "Next.js + TypeScript app with Firebase auth, Firestore/PostgreSQL data split, OpenAI grading, and live speech pipelines.",
     takeaways: [
       "Built authenticated REST API routes using Firebase ID token verification and Admin SDK with per-resource ownership checks — ensuring users can only read/write their own sessions and transcripts.",
       "Integrated OpenAI chat completions with JSON-only structured outputs, server-side schema validation, and prompt rules that treat all user-supplied content as untrusted — producing injection-safe end-of-session scorecards with hire-style ratings, strengths, and concrete feedback.",
@@ -136,7 +159,7 @@ export const projects: Project[] = [
   },
   {
     id: "more-than-enough-utils",
-    title: "MoreThanEnoughUtils — Hypixel SkyBlock QoL (Fabric, Java 21)",
+    title: "MoreThanEnoughUtils: Hypixel SkyBlock QoL Modifications",
     description:
       "Fabric client mod for Hypixel SkyBlock: farming macros, pest cleanup, one-click experimentation-table dailies, and bindable shortcut macros—tunable in a YACL GUI with Gson-backed config. Ported and modernized on Java 21 and Gradle (Kotlin DSL).",
     longDescription:
@@ -161,10 +184,16 @@ export const projects: Project[] = [
     ],
     githubUrl: "https://github.com/Hermano727/MoreThanEnoughUtils",
     gridPreviewBullets: [
-      "SkyBlock Fabric QoL: farming macros, pest routes, one-click dailies.",
-      "FSM farming; pests via particles, entities, and scoreboard signals.",
+      "SkyBlock Fabric QoL: farming macros, pest routes, one-click dailies. Utilizes custom GUI and algorithms for automation.",
+      "Pathfinding algorithms, entity detection state machines, etc",
       "YACL + Gson settings on Java 21 / Gradle Kotlin DSL.",
     ],
+    contextProblem:
+      "Built to remove repetitive grind in Hypixel SkyBlock by automating high-frequency tasks players repeat every session.",
+    contextWhen: "Jan 2026 – Present",
+    contextWhere: "Personal open-source Fabric mod project.",
+    contextStack:
+      "Java 21 Fabric mod with FSM automation, Mixin hooks, YACL config UI, and Gson-backed persistence.",
     takeaways: [
       "Quality-of-life Fabric mod for Hypixel SkyBlock—farming, pests, dailies, and shortcuts players actually use every session.",
       "Farming macros: finite-state-machine control loop that reacts to collisions, player velocity, and aim/angle calculations so movement and attacks stay coordinated.",
@@ -193,10 +222,16 @@ export const projects: Project[] = [
     githubUrl: "https://github.com/Hermano727/diamondhacks25",
     liveUrl: "https://devpost.com/software/splitr-wa2frd",
     gridPreviewBullets: [
-      "OCR receipt splitter: assign items, split tax and tip—48h hackathon ship.",
-      "Google Vision to Mistral JSON; Mistral beat Llama 3 and GPT on our tests.",
-      "Owned stack + UI: shared types across FastAPI and React Native.",
+      "48hr hackathon project @ UCSD DiamondHacks 2025",
+      "Built a OCR receipt splitter: assign items, split tax and tip",
+      "Google Vision to Mistral JSON for FastAPI validation",
     ],
+    contextProblem:
+      "Built to eliminate manual bill-splitting friction by converting receipt photos into clean itemized group balances.",
+    contextWhen: "Apr 2025 (48-hour sprint)",
+    contextWhere: "DiamondHacks 2025 at UC San Diego.",
+    contextStack:
+      "React Native + Expo client, FastAPI backend, Google Vision OCR, Mistral JSON parsing, Firebase auth.",
     takeaways: [
       "Built an OCR-to-JSON pipeline (Google Vision, then Mistral) with FastAPI validation and a React Native client; benchmarked Llama 3, OpenAI, and Mistral and chose Mistral for the best balance of speed, cost, and reliable structured output.",
       "Defined typed contracts end to end so parsing, API responses, and the assignment screen stayed in sync; invested in loading, errors, and a consistent visual system under time pressure.",

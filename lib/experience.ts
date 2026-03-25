@@ -34,6 +34,11 @@ export interface Experience {
   timeline?: string;
   /** Compact grid bullets only; expanded view still uses achievements */
   gridPreviewBullets?: string[];
+  /** Expanded context block — shown above Highlights */
+  contextProblem?: string;
+  contextWhen?: string;
+  contextWhere?: string;
+  contextStack?: string;
 }
 
 export const experiences: Experience[] = [
@@ -57,6 +62,11 @@ export const experiences: Experience[] = [
       "JavaScript, C++, MATLAB on shipping Simulink desktop UI.",
       "Less friction in block dialogs modelers use every day.",
     ],
+    contextProblem:
+      "Focused on reducing friction in high-traffic Simulink block dialogs used constantly by modelers.",
+    contextWhen: "June 2026 – September 2026",
+    contextWhere: "MathWorks, Simulink Core (Natick, MA).",
+    contextStack: "Desktop product work across JavaScript, C++, MATLAB, and Simulink internals.",
     achievements: [
       "Summer 2026 internship on Simulink Component Interfaces (Simulink Core Group): improving block dialog UX for In/Out and In/Out Bus Element ports—among the most-used surfaces in Simulink.",
       "Contributes across JavaScript, C++, and MATLAB with team support on Simulink domain depth and product standards.",
@@ -101,10 +111,16 @@ export const experiences: Experience[] = [
     youtubeId: "8XUT9da2txI",
     timeline: "September 2024 – Present",
     gridPreviewBullets: [
-      "Lead SWE on Mars rover mission control—URC team placed 5th nationally.",
-      "Shipped Vite UI, WHEP WebRTC, Three.js arm viz, leaner Redux.",
-      "ROS pilot/spectator handshake for safe multi-operator control.",
+      "Lead SWE on Mars rover team @ UCSD: developed mission control software for University Rover Challenge",
+      "Shipped UI overhaul, WHEP WebRTC, package trackers.",
+      "Pilot/spectator handshake for multi-operator control.",
     ],
+    contextProblem:
+      "Built mission-control software that keeps rover operators synchronized under field-test and competition constraints.",
+    contextWhen: "September 2024 – Present",
+    contextWhere: "Yonder Dynamics, UCSD-based rover team.",
+    contextStack:
+      "TypeScript + React frontend, ROS integration, WHEP WebRTC streams, Three.js URDF visualization, localized state architecture.",
   },
   {
     id: "makerspace-checkin",
@@ -113,7 +129,7 @@ export const experiences: Experience[] = [
     location: "San Diego, CA",
     startDate: "2025-02-01",
     status: "Current",
-    description: "RFID check-in platform for 8,000+ UCSD students at the Qualcomm Institute Makerspace. Local-first Raspberry Pi architecture, 99.9% uptime.",
+    description: "Built an RFID check-in platform for 8,000+ UCSD students at the Qualcomm Institute Makerspace. Local-first Raspberry Pi architecture, 99.9% uptime.",
     longDescription: "Engineered a robust RFID-based check-in system for the UCSD Makerspace serving over 8,000 students. Local-first architecture with async JSON caching, queue-based background threads, and automated failover. Integrates with Google Sheets and Fabman.io for data sync and machine access control.",
     image: "/assets/makerspace.jpg",
     categories: ["Backend", "IoT", "Database", "API Integration"],
@@ -131,10 +147,16 @@ export const experiences: Experience[] = [
     youtubeId: "w_4UTGWlqxE",
     timeline: "Feb 2025 – Present",
     gridPreviewBullets: [
-      "RFID check-in for QI Makerspace—8,000+ students, 99.9% uptime.",
-      "Pi nodes: threaded services, queued writes, no duplicate Sheets rows.",
-      "Sheets and Fabman hooks for hours and machine access.",
+      "Built an RFID check-in platform for 8,000+ UCSD students at the Qualcomm Institute Makerspace, with 99.9% uptime.",
+      "Raspberry Pi architecture with async JSON caching.",
+      "Integrates with Google Sheets and Fabman.io for data sync.",
     ],
+    contextProblem:
+      "Built to remove check-in bottlenecks and data inconsistency for high-volume makerspace operations.",
+    contextWhen: "Feb 2025 – Present",
+    contextWhere: "Qualcomm Institute Makerspace, UC San Diego.",
+    contextStack:
+      "Python services on Raspberry Pi nodes with queued threading, local-first caching, and Google Sheets/Fabman integrations.",
   },
   {
     id: "bioengineering-research",
@@ -162,9 +184,15 @@ export const experiences: Experience[] = [
     youtubeNote: "Videos show the Jun–Sep 2025 prototype. Iterated versions with PCB layout and live subjects are not yet releasable.",
     timeline: "Feb 2025 – Present",
     gridPreviewBullets: [
-      "IoT rigs for rodent overload-training studies at Wu Tsai Alliance.",
-      "SENT and beam-break state machine; SQLite buffer; Pi rsync pipeline.",
+      "Mice squat cages embedded with IoT sensors for behavioral and neurological studies at UCSD.",
+      "SENT and beam-break state machine; SQLite buffer sync",
       "Python automation for pellets, calibration, and chamber runs.",
     ],
+    contextProblem:
+      "Built to automate reliable behavioral data capture so researchers can scale progressive-overload experiments with less manual handling.",
+    contextWhen: "Feb 2025 – Present",
+    contextWhere: "Wu Tsai Human Performance Alliance, UC San Diego.",
+    contextStack:
+      "Python IoT stack with SENT/beam-break sensing, event state machines, SQLite buffering, rsync sync, and ESP32 hardware control.",
   },
 ];

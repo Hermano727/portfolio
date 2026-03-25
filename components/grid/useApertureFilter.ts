@@ -48,6 +48,11 @@ export interface ApertureCard {
    * otherwise first sentence of description plus takeaways/achievements.
    */
   previewBullets: string[]
+  /** Expanded context rows shown above highlights. */
+  contextProblem: string
+  contextWhen: string
+  contextWhere: string
+  contextStack: string
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -117,6 +122,10 @@ function buildChronologicalPool(): ApertureCard[] {
         : undefined,
       youtubeNote: e.youtubeNote,
       timeline: e.timeline,
+      contextProblem: e.contextProblem ?? e.description,
+      contextWhen: e.contextWhen ?? e.timeline ?? "",
+      contextWhere: e.contextWhere ?? e.location,
+      contextStack: e.contextStack ?? e.tools.slice(0, 4).join(" · "),
       previewBullets:
         e.gridPreviewBullets?.length
           ? e.gridPreviewBullets.slice(0, 3)
@@ -145,6 +154,10 @@ function buildChronologicalPool(): ApertureCard[] {
       imageType:           p.imageType,
       thumbnailObjectPosition: p.thumbnailObjectPosition,
       timeline: p.timeline,
+      contextProblem: p.contextProblem ?? p.description,
+      contextWhen: p.contextWhen ?? p.timeline ?? "",
+      contextWhere: p.contextWhere ?? "",
+      contextStack: p.contextStack ?? p.tools.slice(0, 4).join(" · "),
       previewBullets:
         p.gridPreviewBullets?.length
           ? p.gridPreviewBullets.slice(0, 3)
@@ -173,37 +186,11 @@ function buildChronologicalPool(): ApertureCard[] {
 // ─── Hook ─────────────────────────────────────────────────────────────────────
 
 /**
- * Active Filtering + Priority Sort — the aperture's "logical reordering" layer.
- *
- * - "all"        → chronological merge, nothing ghosted.
- * - "experience" → matching cards fill Row 1, Row 2 … in chronological order;
- *                  non-matching cards are demoted to the end with ghosted=true.
- * - "project"    → same, but for projects.
- *
- * Framer Motion's `layout` prop on each grid item handles the seamless
- * position swap animation when `filter` changes.
+ * Stores filter intent and the chronological merged card pool.
+ * CardGrid handles staged exit/reflow behavior for filter transitions.
  */
 export function useApertureFilter() {
   const [filter, setFilter] = useState<ApertureFilter>("all")
-  const basePool = useMemo(() => buildChronologicalPool(), [])
-
-  const orderedCards = useMemo((): ApertureCard[] => {
-    if (filter === "all") {
-      return basePool.map((c) => ({ ...c, ghosted: false }))
-    }
-
-    // Matching cards keep their relative chronological order (basePool is
-    // already sorted so .filter() preserves that invariant).
-    const matching = basePool
-      .filter((c) => c.type === filter)
-      .map((c) => ({ ...c, ghosted: false }))
-
-    const ghosted = basePool
-      .filter((c) => c.type !== filter)
-      .map((c) => ({ ...c, ghosted: true }))
-
-    return [...matching, ...ghosted]
-  }, [basePool, filter])
-
-  return { filter, setFilter, orderedCards }
+  const baseCards = useMemo(() => buildChronologicalPool(), [])
+  return { filter, setFilter, baseCards }
 }

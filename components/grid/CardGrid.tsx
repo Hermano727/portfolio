@@ -197,6 +197,8 @@ const FILTER_OPTIONS: { value: ApertureFilter; label: string }[] = [
   { value: "experience", label: "Experience" },
   { value: "project",    label: "Projects" },
 ]
+const FILTER_EXIT_MS = 190
+const FILTER_CLOSE_MS = 360
 
 function FilterBar({
   active,
@@ -955,6 +957,74 @@ function ExpandedBody({
   const workExamplesInSidePanel = card.id === "proj-swemaxx"
 
   // ── Shared sub-renders ───────────────────────────────────────────────────
+  const contextRows = [
+    { label: "Problem", value: card.contextProblem || card.description },
+    { label: "When", value: card.contextWhen || card.timeline || "" },
+    { label: "Where", value: card.contextWhere || "" },
+    { label: "Stack", value: card.contextStack || card.tags.slice(0, 4).join(" · ") },
+  ].filter((row) => row.value.trim().length > 0)
+
+  const contextBlock = contextRows.length > 0 && (
+    <motion.div
+      animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 8 }}
+      transition={{ delay: isVisible ? 0.32 : 0, duration: 0.28, ease: EASE_OUT }}
+      style={{ marginBottom: "1.05rem" }}
+    >
+      <p
+        style={{
+          fontFamily: FONT_MONO,
+          fontSize: 25,
+          letterSpacing: "0.12em",
+          textTransform: "uppercase",
+          color: "rgba(224, 182, 255, 0.88)",
+          marginBottom: "0.55rem",
+        }}
+      >
+        Context
+      </p>
+      <ul
+        style={{
+          listStyle: "none",
+          padding: 0,
+          margin: 0,
+          display: "flex",
+          flexDirection: "column",
+          gap: "0.45rem",
+        }}
+      >
+        {contextRows.map((row, i) => (
+          <motion.li
+            key={row.label}
+            animate={{ opacity: isVisible ? 1 : 0, x: isVisible ? 0 : -6 }}
+            transition={{ delay: isVisible ? 0.34 + i * 0.05 : 0, duration: 0.24, ease: EASE_OUT }}
+            style={{
+              display: "flex",
+              gap: "0.5rem",
+              fontSize: "0.865rem",
+              lineHeight: 1.65,
+              color: IND.textBody,
+            }}
+          >
+            <span
+              style={{
+                fontFamily: FONT_MONO,
+                fontSize: 12,
+                letterSpacing: "0.07em",
+                textTransform: "uppercase",
+                color: "rgba(224, 182, 255, 0.74)",
+                minWidth: 66,
+                flexShrink: 0,
+                marginTop: "0.1rem",
+              }}
+            >
+              {row.label}
+            </span>
+            <span>{row.value}</span>
+          </motion.li>
+        ))}
+      </ul>
+    </motion.div>
+  )
 
   const highlightsBlock = card.highlights.length > 0 && (
     <motion.div
@@ -1093,6 +1163,7 @@ function ExpandedBody({
 
         {/* Right: all text content, scrollable */}
         <div className="card-scroll" style={{ flex: 1, overflowY: "auto", padding: pad }}>
+          {contextBlock}
           {highlightsBlock}
           {descBlock}
         </div>
@@ -1103,6 +1174,7 @@ function ExpandedBody({
   // ── Default stacked layout ────────────────────────────────────────────────
   return (
     <div className="card-scroll" style={{ flex: 1, overflowY: "auto", padding: pad }}>
+      {contextBlock}
       {highlightsBlock}
 
       {/* Work examples inline (SWEMaxx uses side WorkExamplesPanel instead) */}
@@ -1561,6 +1633,7 @@ export default function CardGrid({ dealSeed }: CardGridProps) {
     setLeftFocusedIndex,
     setCardExpanded,
     jumpToHero,
+    jumpToFooter,
     contactModalOpen,
   } = useScrollOrchestrator()
   const containerRef = useRef<HTMLDivElement | null>(null)
@@ -1578,9 +1651,64 @@ export default function CardGrid({ dealSeed }: CardGridProps) {
     return () => ro.disconnect()
   }, [])
 
-  const { filter, setFilter, orderedCards } = useApertureFilter()
+  const { filter, setFilter, baseCards } = useApertureFilter()
+  const [renderCards, setRenderCards] = useState<ApertureCard[]>(baseCards)
+  const [exitingIds, setExitingIds] = useState<string[]>([])
+  const filterTimeoutRef = useRef<number | null>(null)
+  const closeTimeoutRef = useRef<number | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (filterTimeoutRef.current != null) window.clearTimeout(filterTimeoutRef.current)
+      if (closeTimeoutRef.current != null) window.clearTimeout(closeTimeoutRef.current)
+    }
+  }, [])
+
   const { cardStates, activeId, isExpanded, activateCard, closeActive } =
-    usePuzzleEngine(orderedCards, containerRef)
+    usePuzzleEngine(renderCards, containerRef)
+
+  function selectByFilter(nextFilter: ApertureFilter): ApertureCard[] {
+    if (nextFilter === "all") return baseCards.map((c) => ({ ...c, ghosted: false }))
+    return baseCards
+      .filter((c) => c.type === nextFilter)
+      .map((c) => ({ ...c, ghosted: false }))
+  }
+
+  function handleFilterChange(nextFilter: ApertureFilter) {
+    if (nextFilter === filter) return
+    if (filterTimeoutRef.current != null) window.clearTimeout(filterTimeoutRef.current)
+    if (closeTimeoutRef.current != null) window.clearTimeout(closeTimeoutRef.current)
+
+    const runTransition = () => {
+      setFilter(nextFilter)
+      const nextCards = selectByFilter(nextFilter)
+      if (nextFilter === "all") {
+        setExitingIds([])
+        setRenderCards(nextCards)
+        return
+      }
+      const leaving = renderCards
+        .filter((c) => c.type !== nextFilter)
+        .map((c) => c.id)
+
+      if (leaving.length === 0) {
+        setRenderCards(nextCards)
+        return
+      }
+      setExitingIds(leaving)
+      filterTimeoutRef.current = window.setTimeout(() => {
+        setRenderCards(nextCards)
+        setExitingIds([])
+      }, FILTER_EXIT_MS)
+    }
+
+    if (isExpanded) {
+      closeActive()
+      closeTimeoutRef.current = window.setTimeout(runTransition, FILTER_CLOSE_MS)
+      return
+    }
+    runTransition()
+  }
 
   const [hasDealt, setHasDealt] = useState(false)
   const prevDealSeedRef = useRef(dealSeed)
@@ -1606,21 +1734,36 @@ export default function CardGrid({ dealSeed }: CardGridProps) {
     setLeftFocusedIndex(0)
   }, [setLeftFocusedIndex])
 
-  // Wheel up with pointer in top band + page at top → return to intro hero (mirrors hero’s wheel-down to enter)
+  // Wheel gestures in screen edge bands:
+  // - Top band + wheel up at page top -> return to intro hero
+  // - Bottom band + wheel down -> open contact modal
   useEffect(() => {
     function onWheel(e: WheelEvent) {
       if (isExpanded) return
       if (isTypingTarget(e.target)) return
-      if (window.scrollY > 12) return
-      if (e.clientY > window.innerHeight * TOP_PAD_RATIO) return
-      if (e.deltaY < -22) jumpToHero()
+      if (contactModalOpen) return
+
+      const topBand = window.innerHeight * TOP_PAD_RATIO
+      const bottomBand = window.innerHeight * (1 - TOP_PAD_RATIO)
+
+      if (e.deltaY < -22) {
+        if (window.scrollY > 12) return
+        if (e.clientY > topBand) return
+        jumpToHero()
+        return
+      }
+
+      if (e.deltaY > 22) {
+        if (e.clientY < bottomBand) return
+        jumpToFooter()
+      }
     }
     window.addEventListener("wheel", onWheel, { passive: true })
     return () => window.removeEventListener("wheel", onWheel)
-  }, [isExpanded, jumpToHero])
+  }, [isExpanded, jumpToHero, jumpToFooter, contactModalOpen])
 
   const { w: cW, h: cH } = containerSize
-  const activeCard = orderedCards.find(c => c.id === activeId)
+  const activeCard = renderCards.find(c => c.id === activeId)
   const hasDemo =
     isExpanded && (activeCard?.youtubeIds?.length ?? 0) > 0
   const hasWorkExamplesSidePanel =
@@ -1733,17 +1876,18 @@ export default function CardGrid({ dealSeed }: CardGridProps) {
             transition: "opacity 0.25s ease",
           }}
         >
-          <FilterBar active={filter} onChange={setFilter} />
+          <FilterBar active={filter} onChange={handleFilterChange} />
         </div>
       </div>
 
       {/* ── Puzzle Cards ──────────────────────────────────────────────────── */}
-      {orderedCards.map((card, idx) => {
+      {renderCards.map((card, idx) => {
         const state = cardStates[card.id] as PuzzleCardState | undefined
         if (!state) return null
 
         const isActive     = card.id === activeId
         const showExpanded = isActive && isExpanded
+        const isExiting = exitingIds.includes(card.id) && !showExpanded
 
         const targetX = showExpanded ? expandedX : state.x
         const targetY = showExpanded ? expandedY : state.y
@@ -1771,8 +1915,8 @@ export default function CardGrid({ dealSeed }: CardGridProps) {
                 y:          targetY,
                 width:      targetW,
                 height:     targetH,
-                opacity:    state.opacity,
-                scale:      1,
+                opacity:    isExiting ? 0 : state.opacity,
+                scale:      isExiting ? 0.97 : 1,
                 background: showExpanded ? IND.surfaceExpanded : IND.surface,
               }}
               transition={{
@@ -1796,7 +1940,7 @@ export default function CardGrid({ dealSeed }: CardGridProps) {
                     : { duration: 0.44, ease: EASE_OUT },
                 scale:      !hasDealt
                   ? { delay: dealDelay, duration: 0.32 }
-                  : { duration: 0.32 },
+                  : { duration: isExiting ? FILTER_EXIT_MS / 1000 : 0.32 },
               }}
               style={{
                 position:             state.phase === "gutter" ? "fixed" : "absolute",
@@ -1808,7 +1952,7 @@ export default function CardGrid({ dealSeed }: CardGridProps) {
                 overflow:             "hidden",
                 zIndex:               state.zIndex,
                 filter:               state.filter,
-                pointerEvents:        state.phase === "gutter" ? "none" : "auto",
+                pointerEvents:        state.phase === "gutter" || isExiting ? "none" : "auto",
               }}
             >
               {/* ── Compact layer — fades out when card expands ── */}
@@ -1876,7 +2020,7 @@ export default function CardGrid({ dealSeed }: CardGridProps) {
                   zIndex:        state.zIndex + 1,
                   pointerEvents: "none",
                   filter:
-                    "drop-shadow(0 10px 5px rgba(0, 0, 0, 0.55)) drop-shadow(0 2px 1px rgba(0, 0, 0, 0.75))",
+                    "drop-shadow(0 10px 5px rgba(250, 242, 242, 0.25)) drop-shadow(0 2px 1px rgba(0, 0, 0, 0.25))",
                 }}
               />
             )}
