@@ -103,3 +103,24 @@ body {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* ── Aperture grid cards — purple aura + reactive glass ──────────────────── */
+.aperture-card-shell {
+  border: 1px solid rgba(224, 182, 255, 0.12);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 0 20px rgba(224, 182, 255, 0.03);
+  transition:
+    backdrop-filter 0.28s ease,
+    -webkit-backdrop-filter 0.28s ease,
+    box-shadow 0.28s ease,
+    border-color 0.28s ease;
+}
+.aperture-card-shell[data-expanded="false"]:hover {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-color: rgba(224, 182, 255, 0.26);
+  box-shadow:
+    0 0 28px rgba(224, 182, 255, 0.08),
+    0 0 40px rgba(224, 182, 255, 0.04);
+}

@@ -38,10 +38,11 @@ type AnimFrame = Record<string, { x: number; y: number }>
 // ─── Layout Constants ─────────────────────────────────────────────────────────
 
 export const COLS        = 3
-export const CARD_HEIGHT = 200
+export const CARD_HEIGHT = 232
 export const CARD_GAP    = 12
 export const SIDE_PAD    = 16
-export const TOP_PAD_RATIO = 0.22     // 22vh top padding (mirrors the old scroll padding)
+/** Vertical offset before row 0 — keep below filter bar + breathing room */
+export const TOP_PAD_RATIO = 0.14
 
 // ─── Animation Constants ──────────────────────────────────────────────────────
 

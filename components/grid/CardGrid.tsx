@@ -13,6 +13,7 @@ import {
   SPRING,
   EASE_OUT,
   CARD_HEIGHT,
+  TOP_PAD_RATIO,
   cardWidth,
   type CardPhase,
   type PuzzleCardState,
@@ -166,11 +167,11 @@ function CloudBank({ side }: { side: "top" | "bottom" }) {
       className="pointer-events-none absolute left-0 right-0"
       style={{
         [isTop ? "top" : "bottom"]: 0,
-        height: "20vh",
+        height: "15vh",
         zIndex: 30,
         background: isTop
-          ? "linear-gradient(to bottom, rgba(21,19,20,0.95), rgba(21,19,20,0.72) 48%, rgba(21,19,20,0.35) 82%, transparent)"
-          : "linear-gradient(to top, rgba(21,19,20,0.95), rgba(21,19,20,0.72) 48%, rgba(21,19,20,0.35) 82%, transparent)",
+          ? "linear-gradient(to bottom, rgba(21,19,20,0.62), rgba(21,19,20,0.42) 52%, rgba(21,19,20,0.08) 88%, transparent)"
+          : "linear-gradient(to top, rgba(21,19,20,0.52), rgba(21,19,20,0.22) 52%, rgba(21,19,20,0.08) 88%, transparent)",
       }}
     >
       <div
@@ -213,8 +214,8 @@ function FilterBar({
         border: "1px solid rgba(224, 182, 255, 0.14)",
         backdropFilter: "blur(16px)",
         WebkitBackdropFilter: "blur(16px)",
-        borderRadius: 24,
-        padding: "4px",
+        borderRadius: 20,
+        padding: "3px",
       }}
     >
       {FILTER_OPTIONS.map(({ value, label }) => {
@@ -224,8 +225,8 @@ function FilterBar({
             key={value}
             onClick={() => onChange(value)}
             style={{
-              padding: "6px 20px",
-              borderRadius: 20,
+              padding: "5px 16px",
+              borderRadius: 18,
               border: "none",
               background: isActive ? "rgba(224, 182, 255, 0.12)" : "transparent",
               color: isActive ? "rgba(224, 182, 255, 0.95)" : "rgba(255, 255, 255, 0.38)",
@@ -262,19 +263,110 @@ function getTransition(phase: CardPhase) {
 }
 
 // ─── Compact Card Content ─────────────────────────────────────────────────────
-// Portrait (imageType="portrait"): image fills left 42%, text fills right 58%.
+// Portrait (imageType="portrait"): image fills left ~38%, text fills right ~62%.
 // Landscape / no-image: CSS Grid with small right-side thumbnail.
+// Headline = employer or project name; secondary = role or categories; then type + timeline.
+
+function cardImageAlt(card: ApertureCard): string {
+  return card.meta ? `${card.title} — ${card.meta}` : card.title
+}
+
+/** Muted stack / tool tags — calmer than high-contrast lavender pills */
+const TAG_PILL_COMPACT: CSSProperties = {
+  fontFamily: FONT_MONO,
+  fontSize: 10,
+  fontWeight: 450,
+  letterSpacing: "0.05em",
+  textTransform: "uppercase",
+  color: "rgba(255, 255, 255, 0.45)",
+  background: "transparent",
+  border: "1px solid rgba(255, 255, 255, 0.14)",
+  padding: "3px 9px",
+  borderRadius: 12,
+  whiteSpace: "nowrap",
+  flexShrink: 0,
+}
+
+const TAG_PILL_HEADER: CSSProperties = {
+  fontFamily: FONT_MONO,
+  fontSize: 9,
+  fontWeight: 450,
+  letterSpacing: "0.05em",
+  textTransform: "uppercase",
+  color: "rgba(255, 255, 255, 0.45)",
+  background: "transparent",
+  border: "1px solid rgba(255, 255, 255, 0.14)",
+  padding: "2px 8px",
+  borderRadius: 12,
+}
+
+/** Compact grid preview — first bullet max 2 lines, rest 1 line (matches card chrome height) */
+function PreviewBullets({ bullets }: { bullets: string[] }) {
+  if (bullets.length === 0) return null
+  return (
+    <ul
+      style={{
+        listStyle: "none",
+        padding: 0,
+        margin: 0,
+        display: "flex",
+        flexDirection: "column",
+        gap: 5,
+        alignSelf: "stretch",
+        minWidth: 0,
+        flexShrink: 1,
+        minHeight: 0,
+        overflow: "hidden",
+      }}
+    >
+      {bullets.map((text, i) => (
+        <li
+          key={i}
+          style={{
+            display: "flex",
+            gap: 6,
+            alignItems: "flex-start",
+            fontSize: "0.78rem",
+            lineHeight: 1.45,
+            color: IND.textBody,
+            minWidth: 0,
+            flexShrink: 0,
+          }}
+        >
+          <span
+            aria-hidden
+            style={{
+              flexShrink: 0,
+              width: 3,
+              height: 3,
+              marginTop: "0.38rem",
+              background: "rgba(224, 182, 255, 0.38)",
+              borderRadius: 1,
+            }}
+          />
+          <span
+            style={{
+              flex: 1,
+              minWidth: 0,
+              overflow: "hidden",
+              overflowWrap: "anywhere",
+              wordBreak: "break-word",
+              display: "-webkit-box",
+              WebkitBoxOrient: "vertical",
+              WebkitLineClamp: i === 0 ? 2 : 1,
+            }}
+          >
+            {text}
+          </span>
+        </li>
+      ))}
+    </ul>
+  )
+}
 
 function CardCompact({ card }: { card: ApertureCard }) {
-  const [isPortrait, setIsPortrait] = useState(card.imageType === "portrait")
-  const accent   = card.type === "project" ? IND.accentProj : IND.accentExp
   const hasImage = Boolean(card.image)
   const thumbPos = card.thumbnailObjectPosition ?? "top"
-
-  function handleImageLoad(e: SyntheticEvent<HTMLImageElement>) {
-    const { naturalWidth, naturalHeight } = e.currentTarget
-    setIsPortrait(naturalHeight > naturalWidth)
-  }
 
   // ── Image layout: always show image as left column when image exists ─────────
   if (hasImage) {
@@ -283,7 +375,7 @@ function CardCompact({ card }: { card: ApertureCard }) {
         {/* Left: full-height image strip */}
         <div
           style={{
-            width: "42%",
+            width: "38%",
             flexShrink: 0,
             position: "relative",
             overflow: "hidden",
@@ -292,7 +384,7 @@ function CardCompact({ card }: { card: ApertureCard }) {
         >
           <img
             src={card.image}
-            alt={card.title}
+            alt={cardImageAlt(card)}
             draggable={false}
             loading="lazy"
             style={{
@@ -303,11 +395,10 @@ function CardCompact({ card }: { card: ApertureCard }) {
               display: "block",
               filter: "sepia(0.15) brightness(0.85)",
             }}
-            onLoad={handleImageLoad}
           />
         </div>
 
-        {/* Right: label / title / meta / desc / tags */}
+        {/* Right: employer/project → role/categories → type · timeline → desc → tags */}
         <div
           style={{
             flex: 1,
@@ -317,17 +408,15 @@ function CardCompact({ card }: { card: ApertureCard }) {
             overflow: "hidden",
           }}
         >
-          <TypeTimelinePreview card={card} />
-
           <h3
             style={{
               fontFamily: FONT_DISPLAY,
-              fontWeight: 700,
-              fontSize: "1rem",
+              fontWeight: 800,
+              fontSize: "1.06rem",
               letterSpacing: "-0.02em",
-              lineHeight: 1.2,
+              lineHeight: 1.15,
               color: IND.textPrimary,
-              margin: "4px 0 0",
+              margin: 0,
               overflow: "hidden",
               display: "-webkit-box",
               WebkitLineClamp: 2,
@@ -337,21 +426,41 @@ function CardCompact({ card }: { card: ApertureCard }) {
             {card.title}
           </h3>
 
-          <p
+          {card.meta ? (
+            <p
+              style={{
+                fontSize: "0.78rem",
+                fontWeight: 600,
+                lineHeight: 1.35,
+                letterSpacing: "-0.01em",
+                color: "rgba(200, 196, 232, 0.86)",
+                margin: "4px 0 0",
+                overflow: "hidden",
+                display: "-webkit-box",
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: "vertical",
+              }}
+            >
+              {card.meta}
+            </p>
+          ) : null}
+
+          <div style={{ marginTop: 8, flexShrink: 0 }}>
+            <TypeTimelinePreview card={card} />
+          </div>
+
+          <div
             style={{
-              fontSize: "0.8rem",
-              lineHeight: 1.55,
-              color: IND.textBody,
-              overflow: "hidden",
-              display: "-webkit-box",
-              WebkitLineClamp: 4,
-              WebkitBoxOrient: "vertical",
-              margin: "5px 0 0",
+              marginTop: 6,
               flex: 1,
+              minHeight: 0,
+              display: "flex",
+              flexDirection: "column",
+              overflow: "hidden",
             }}
           >
-            {card.description}
-          </p>
+            <PreviewBullets bullets={card.previewBullets} />
+          </div>
 
           <div
             style={{
@@ -360,25 +469,11 @@ function CardCompact({ card }: { card: ApertureCard }) {
               gap: 4,
               overflow: "hidden",
               paddingTop: 6,
+              flexShrink: 0,
             }}
           >
             {card.tags.slice(0, 3).map((tag) => (
-              <span
-                key={tag}
-                style={{
-                  fontFamily: FONT_MONO,
-                  fontSize: 10,
-                  letterSpacing: "0.06em",
-                  textTransform: "uppercase",
-                  color: "rgba(224, 182, 255, 0.72)",
-                  background: "transparent",
-                  border: "1px solid rgba(224, 182, 255, 0.25)",
-                  padding: "3px 9px",
-                  borderRadius: 12,
-                  whiteSpace: "nowrap",
-                  flexShrink: 0,
-                }}
-              >
+              <span key={tag} style={TAG_PILL_COMPACT}>
                 {tag}
               </span>
             ))}
@@ -395,50 +490,63 @@ function CardCompact({ card }: { card: ApertureCard }) {
         height: "100%",
         display: "grid",
         gridTemplateColumns: hasImage ? "1fr 64px" : "1fr",
-        gridTemplateRows: "18px minmax(52px, auto) 1fr 22px",
+        gridTemplateRows: "minmax(56px, auto) 1fr 22px",
         gridTemplateAreas: hasImage
-          ? `"label label" "title image" "desc image" "tags tags"`
-          : `"label" "title" "desc" "tags"`,
+          ? `"stack image" "desc image" "tags tags"`
+          : `"stack" "desc" "tags"`,
         columnGap: 8,
         padding: "12px 12px 10px",
         overflow: "hidden",
       }}
     >
-      {/* Label + meta */}
       <div
         style={{
-          gridArea: "label",
-          display: "flex",
-          alignItems: "center",
-          gap: 5,
-          overflow: "hidden",
+          gridArea: "stack",
           minWidth: 0,
-          width: "100%",
-        }}
-      >
-        <TypeTimelinePreview card={card} />
-      </div>
-
-      {/* Title */}
-      <h3
-        style={{
-          gridArea: "title",
-          fontFamily: FONT_DISPLAY,
-          fontWeight: 700,
-          fontSize: "1rem",
-          letterSpacing: "-0.02em",
-          lineHeight: 1.2,
-          color: IND.textPrimary,
-          margin: "4px 0 0",
           alignSelf: "start",
-          overflow: "hidden",
-          display: "-webkit-box",
-          WebkitLineClamp: 2,
-          WebkitBoxOrient: "vertical",
+          display: "flex",
+          flexDirection: "column",
         }}
       >
-        {card.title}
-      </h3>
+        <h3
+          style={{
+            fontFamily: FONT_DISPLAY,
+            fontWeight: 800,
+            fontSize: "1.06rem",
+            letterSpacing: "-0.02em",
+            lineHeight: 1.15,
+            color: IND.textPrimary,
+            margin: 0,
+            overflow: "hidden",
+            display: "-webkit-box",
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: "vertical",
+          }}
+        >
+          {card.title}
+        </h3>
+        {card.meta ? (
+          <p
+            style={{
+              fontSize: "0.78rem",
+              fontWeight: 600,
+              lineHeight: 1.35,
+              letterSpacing: "-0.01em",
+              color: "rgba(200, 196, 232, 0.86)",
+              margin: "4px 0 0",
+              overflow: "hidden",
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical",
+            }}
+          >
+            {card.meta}
+          </p>
+        ) : null}
+        <div style={{ marginTop: 8, width: "100%" }}>
+          <TypeTimelinePreview card={card} />
+        </div>
+      </div>
 
       {/* Landscape image thumbnail in Monitor frame */}
       {hasImage && (
@@ -446,7 +554,7 @@ function CardCompact({ card }: { card: ApertureCard }) {
           <MonitorFrame style={{ width: 56, height: "100%" }}>
             <img
               src={card.image}
-              alt={card.title}
+              alt={cardImageAlt(card)}
               draggable={false}
               loading="lazy"
               style={{
@@ -457,29 +565,25 @@ function CardCompact({ card }: { card: ApertureCard }) {
                 display: "block",
                 filter: "sepia(0.2) brightness(0.8)",
               }}
-              onLoad={handleImageLoad}
             />
           </MonitorFrame>
         </div>
       )}
 
-      {/* Description */}
-      <p
+      {/* Preview bullets */}
+      <div
         style={{
           gridArea: "desc",
-          fontSize: "0.8rem",
-          lineHeight: 1.6,
-          color: IND.textBody,
+          margin: "8px 0 0",
+          alignSelf: "stretch",
+          minHeight: 0,
           overflow: "hidden",
-          display: "-webkit-box",
-          WebkitLineClamp: 3,
-          WebkitBoxOrient: "vertical",
-          margin: "5px 0 0",
-          alignSelf: "start",
+          display: "flex",
+          flexDirection: "column",
         }}
       >
-        {card.description}
-      </p>
+        <PreviewBullets bullets={card.previewBullets} />
+      </div>
 
       {/* Tags */}
       <div
@@ -493,22 +597,7 @@ function CardCompact({ card }: { card: ApertureCard }) {
         }}
       >
         {card.tags.slice(0, 4).map((tag) => (
-          <span
-            key={tag}
-            style={{
-              fontFamily: FONT_MONO,
-              fontSize: 10,
-              letterSpacing: "0.06em",
-              textTransform: "uppercase",
-              color: "rgba(224, 182, 255, 0.72)",
-              background: "transparent",
-              border: "1px solid rgba(224, 182, 255, 0.25)",
-              padding: "3px 9px",
-              borderRadius: 12,
-              whiteSpace: "nowrap",
-              flexShrink: 0,
-            }}
-          >
+          <span key={tag} style={TAG_PILL_COMPACT}>
             {tag}
           </span>
         ))}
@@ -541,63 +630,42 @@ function ExpandedHeader({
         ...xs,
       }}
     >
-      {/* Left: type label + title + tags */}
+      {/* Left: employer/project → role/categories → type · timeline → tags */}
       <div style={{ flex: 1, minWidth: 0 }}>
-        <TypeTimelinePreview card={card} variant="expanded" showTimeline={false} />
-        <div
+        <h2
           style={{
-            display: "flex",
-            flexWrap: "wrap",
-            alignItems: "baseline",
-            gap: "0.15rem 0.5rem",
-            marginTop: "0.22rem",
+            fontFamily: FONT_DISPLAY,
+            fontWeight: 800,
+            letterSpacing: "-0.02em",
+            margin: 0,
+            fontSize: "clamp(1.5rem, 3vw, 1.85rem)",
+            lineHeight: 1.1,
+            color: IND.textPrimary,
           }}
         >
-          <h2
+          {card.title}
+        </h2>
+        {card.meta ? (
+          <p
             style={{
-              fontFamily: FONT_DISPLAY,
-              fontWeight: 800,
-              letterSpacing: "-0.02em",
-              margin: 0,
-              fontSize: "clamp(1.5rem, 3vw, 1.85rem)",
-              lineHeight: 1.1,
-              color: IND.textPrimary,
+              margin: "6px 0 0",
+              fontSize: "clamp(0.92rem, 2vw, 1.02rem)",
+              fontWeight: 600,
+              letterSpacing: "-0.015em",
+              lineHeight: 1.35,
+              color: "rgba(200, 196, 232, 0.88)",
             }}
           >
-            {card.title}
-          </h2>
-          {card.timeline && (
-            <span
-              style={{
-                fontFamily: FONT_DISPLAY,
-                fontWeight: 700,
-                fontSize: "clamp(0.95rem, 2.2vw, 1.15rem)",
-                letterSpacing: "-0.01em",
-                color: "rgba(200, 178, 245, 0.78)",
-                whiteSpace: "nowrap",
-              }}
-            >
-              : {card.timeline}
-            </span>
-          )}
+            {card.meta}
+          </p>
+        ) : null}
+        <div style={{ marginTop: 12 }}>
+          <TypeTimelinePreview card={card} variant="expanded" showTimeline />
         </div>
         {card.tags.length > 0 && (
           <div style={{ display: "flex", flexWrap: "wrap", gap: "0.3rem", marginTop: "0.55rem" }}>
             {card.tags.slice(0, 12).map((tag) => (
-              <span
-                key={tag}
-                style={{
-                  fontFamily: FONT_MONO,
-                  fontSize: 9,
-                  letterSpacing: "0.06em",
-                  textTransform: "uppercase",
-                  color: "rgba(224, 182, 255, 0.72)",
-                  background: "transparent",
-                  border: "1px solid rgba(224, 182, 255, 0.22)",
-                  padding: "2px 8px",
-                  borderRadius: 12,
-                }}
-              >
+              <span key={tag} style={TAG_PILL_HEADER}>
                 {tag}
               </span>
             ))}
@@ -912,7 +980,7 @@ function ExpandedBody({
           margin: 0,
           display: "flex",
           flexDirection: "column",
-          gap: "0.5rem",
+          gap: "0.625rem",
         }}
       >
         {card.highlights.map((h, i) => (
@@ -924,14 +992,14 @@ function ExpandedBody({
               display: "flex",
               gap: "0.55rem",
               fontSize: "0.875rem",
-              lineHeight: 1.65,
+              lineHeight: 1.82,
               color: IND.textBody,
             }}
           >
             <span
               style={{
                 flexShrink: 0,
-                marginTop: "0.56rem",
+                marginTop: "0.62rem",
                 width: 3,
                 height: 3,
                 background: accent,
@@ -1544,7 +1612,7 @@ export default function CardGrid({ dealSeed }: CardGridProps) {
       if (isExpanded) return
       if (isTypingTarget(e.target)) return
       if (window.scrollY > 12) return
-      if (e.clientY > window.innerHeight * 0.22) return
+      if (e.clientY > window.innerHeight * TOP_PAD_RATIO) return
       if (e.deltaY < -22) jumpToHero()
     }
     window.addEventListener("wheel", onWheel, { passive: true })
@@ -1586,67 +1654,87 @@ export default function CardGrid({ dealSeed }: CardGridProps) {
           inset: 0,
           pointerEvents: "none",
           zIndex: 0,
-          background: "radial-gradient(circle at top, rgba(21, 19, 20, 0) 0%, #151314 90%)",
+          background:
+            "radial-gradient(ellipse 130% 85% at 50% 0%, rgba(21, 19, 20, 0) 0%, rgba(21, 19, 20, 0.22) 62%, rgba(21, 19, 20, 0.60) 100%)",
+        }}
+      />
+      <div
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: "20vh",
+          pointerEvents: "none",
+          zIndex: 15,
+          background: "linear-gradient(to top, rgba(21, 19, 20, 0), #151314)",
         }}
       />
       <CloudBank side="top" />
       <CloudBank side="bottom" />
 
-      {/* Return to intro — hide while contact modal is open */}
+      {/* Intro + filter — one row, shared baseline (center-aligned vertically) */}
       <div
         style={{
           position: "absolute",
-          top: "10vh",
-          left: "max(1rem, 5vw)",
-          zIndex: 55,
-          display: contactModalOpen ? "none" : "block",
-          pointerEvents: isExpanded ? "none" : "auto",
-          opacity: isExpanded ? 0 : 1,
-          transition: "opacity 0.25s ease",
-        }}
-      >
-        <motion.button
-          type="button"
-          onClick={jumpToHero}
-          aria-label="Return to intro hero"
-          className={jumpNavPillClassName}
-          initial={{ opacity: 0, y: -6 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, ease: EASE_DECK }}
-        >
-          <motion.span
-            animate={{ y: [-1, 1, -1] }}
-            transition={{
-              duration: 2.2,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-            aria-hidden="true"
-            className="text-[0.85rem] leading-none"
-            style={{ color: "#e0b6ff" }}
-          >
-            ↑
-          </motion.span>
-          <span>Intro</span>
-        </motion.button>
-      </div>
-
-      {/* Filter bar */}
-      <div
-        style={{
-          position: "absolute",
-          top: "10vh",
+          top: "max(12px, 5vh)",
           left: 0,
           right: 0,
+          zIndex: 55,
           display: "flex",
+          alignItems: "center",
           justifyContent: "center",
-          zIndex: 31,
-          pointerEvents: activeId ? "none" : "auto",
-          opacity: activeId ? 0 : 1,
-          transition: "opacity 0.25s ease",
+          minHeight: 40,
+          pointerEvents: "none",
         }}
       >
-        <FilterBar active={filter} onChange={setFilter} />
+        <div
+          style={{
+            position: "absolute",
+            left: "max(1rem, 5vw)",
+            pointerEvents:
+              contactModalOpen || isExpanded ? "none" : "auto",
+            display: contactModalOpen ? "none" : "block",
+            opacity: isExpanded ? 0 : 1,
+            transition: "opacity 0.25s ease",
+          }}
+        >
+          <motion.button
+            type="button"
+            onClick={jumpToHero}
+            aria-label="Return to intro hero"
+            className={jumpNavPillClassName}
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: EASE_DECK }}
+            style={{ pointerEvents: "auto" }}
+          >
+            <motion.span
+              animate={{ y: [-1, 1, -1] }}
+              transition={{
+                duration: 2.2,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+              aria-hidden="true"
+              className="text-[0.85rem] leading-none"
+              style={{ color: "#e0b6ff" }}
+            >
+              ↑
+            </motion.span>
+            <span>Intro</span>
+          </motion.button>
+        </div>
+        <div
+          style={{
+            pointerEvents: activeId ? "none" : "auto",
+            opacity: activeId ? 0 : 1,
+            transition: "opacity 0.25s ease",
+          }}
+        >
+          <FilterBar active={filter} onChange={setFilter} />
+        </div>
       </div>
 
       {/* ── Puzzle Cards ──────────────────────────────────────────────────── */}
@@ -1668,6 +1756,8 @@ export default function CardGrid({ dealSeed }: CardGridProps) {
         return (
           <Fragment key={card.id}>
             <motion.article
+              className="aperture-card-shell"
+              data-expanded={showExpanded ? "true" : "false"}
               onClick={() => {
                 if (!isActive && !activeId) activateCard(card.id)
               }}
@@ -1714,9 +1804,6 @@ export default function CardGrid({ dealSeed }: CardGridProps) {
                 top:                  0,
                 minHeight:            CARD_HEIGHT,
                 borderRadius:         16,
-                border:               "1px solid rgba(224, 182, 255, 0.12)",
-                backdropFilter:       "blur(8px)",
-                WebkitBackdropFilter: "blur(8px)",
                 cursor:               isActive ? "default" : "pointer",
                 overflow:             "hidden",
                 zIndex:               state.zIndex,
@@ -1788,7 +1875,8 @@ export default function CardGrid({ dealSeed }: CardGridProps) {
                   height:        "auto",
                   zIndex:        state.zIndex + 1,
                   pointerEvents: "none",
-                  filter:        "drop-shadow(0 8px 6px rgba(247, 242, 242, 0.2))",
+                  filter:
+                    "drop-shadow(0 10px 5px rgba(0, 0, 0, 0.55)) drop-shadow(0 2px 1px rgba(0, 0, 0, 0.75))",
                 }}
               />
             )}
