@@ -1,9 +1,12 @@
 "use client"
 
 import { motion } from "framer-motion"
+import { jumpNavPillClassName } from "@/components/nav/jumpNavStyles"
+import { EASE_DECK } from "@/lib/motion"
 import { Github } from "lucide-react"
 import { Fragment, useEffect, useRef, useState, type CSSProperties, type SyntheticEvent } from "react"
 import { useScrollOrchestrator } from "@/context/ScrollOrchestratorContext"
+import { isTypingTarget } from "@/lib/dom"
 import { useApertureFilter, type ApertureCard, type ApertureFilter } from "./useApertureFilter"
 import {
   usePuzzleEngine,
@@ -1486,7 +1489,12 @@ function WorkExamplesSidePanel({
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function CardGrid({ dealSeed }: CardGridProps) {
-  const { setLeftFocusedIndex, setCardExpanded } = useScrollOrchestrator()
+  const {
+    setLeftFocusedIndex,
+    setCardExpanded,
+    jumpToHero,
+    contactModalOpen,
+  } = useScrollOrchestrator()
   const containerRef = useRef<HTMLDivElement | null>(null)
 
   const [containerSize, setContainerSize] = useState({ w: 0, h: 0 })
@@ -1530,6 +1538,19 @@ export default function CardGrid({ dealSeed }: CardGridProps) {
     setLeftFocusedIndex(0)
   }, [setLeftFocusedIndex])
 
+  // Wheel up with pointer in top band + page at top → return to intro hero (mirrors hero’s wheel-down to enter)
+  useEffect(() => {
+    function onWheel(e: WheelEvent) {
+      if (isExpanded) return
+      if (isTypingTarget(e.target)) return
+      if (window.scrollY > 12) return
+      if (e.clientY > window.innerHeight * 0.22) return
+      if (e.deltaY < -22) jumpToHero()
+    }
+    window.addEventListener("wheel", onWheel, { passive: true })
+    return () => window.removeEventListener("wheel", onWheel)
+  }, [isExpanded, jumpToHero])
+
   const { w: cW, h: cH } = containerSize
   const activeCard = orderedCards.find(c => c.id === activeId)
   const hasDemo =
@@ -1552,6 +1573,7 @@ export default function CardGrid({ dealSeed }: CardGridProps) {
 
   return (
     <div
+      id="deck-cards"
       ref={containerRef}
       className="relative w-full"
       style={{ height: "100vh", overflow: "hidden", zIndex: 10, background: "transparent" }}
@@ -1569,6 +1591,45 @@ export default function CardGrid({ dealSeed }: CardGridProps) {
       />
       <CloudBank side="top" />
       <CloudBank side="bottom" />
+
+      {/* Return to intro — hide while contact modal is open */}
+      <div
+        style={{
+          position: "absolute",
+          top: "10vh",
+          left: "max(1rem, 5vw)",
+          zIndex: 55,
+          display: contactModalOpen ? "none" : "block",
+          pointerEvents: isExpanded ? "none" : "auto",
+          opacity: isExpanded ? 0 : 1,
+          transition: "opacity 0.25s ease",
+        }}
+      >
+        <motion.button
+          type="button"
+          onClick={jumpToHero}
+          aria-label="Return to intro hero"
+          className={jumpNavPillClassName}
+          initial={{ opacity: 0, y: -6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: EASE_DECK }}
+        >
+          <motion.span
+            animate={{ y: [-1, 1, -1] }}
+            transition={{
+              duration: 2.2,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+            aria-hidden="true"
+            className="text-[0.85rem] leading-none"
+            style={{ color: "#e0b6ff" }}
+          >
+            ↑
+          </motion.span>
+          <span>Intro</span>
+        </motion.button>
+      </div>
 
       {/* Filter bar */}
       <div

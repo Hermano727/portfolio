@@ -46,7 +46,8 @@ function useMouseNorm() {
 }
 
 function HomeContent() {
-  const { scrollProgress } = useScrollOrchestrator()
+  const { sceneScrollProgress, registerReturnToHero, setContactModalOpen } =
+    useScrollOrchestrator()
   const mousePosition = useMouseNorm()
 
   /**
@@ -68,12 +69,32 @@ function HomeContent() {
     }
   }, [deckVisible])
 
+  // `jumpToHero` / wheel-up-at-top remount the intro hero (not only scroll to y=0)
+  useEffect(() => {
+    registerReturnToHero(() => {
+      setDeckVisible(false)
+      setScenePhase("hero")
+      window.scrollTo({ top: 0, behavior: "instant" })
+    })
+    return () => registerReturnToHero(null)
+  }, [registerReturnToHero])
+
+  useEffect(() => {
+    function syncFromHash() {
+      if (typeof window === "undefined") return
+      if (window.location.hash === "#contact") setContactModalOpen(true)
+    }
+    syncFromHash()
+    window.addEventListener("hashchange", syncFromHash)
+    return () => window.removeEventListener("hashchange", syncFromHash)
+  }, [setContactModalOpen])
+
   return (
     <div className="flex flex-col min-h-screen text-white" style={{ background: "#151314" }}>
 
       {/* ── SceneManager — always mounted; scenePhase drives the exosphere→atmosphere dive ── */}
       <SceneManager
-        scrollProgress={scrollProgress}
+        scrollProgress={sceneScrollProgress}
         mousePosition={mousePosition}
         scenePhase={scenePhase}
       />
@@ -103,24 +124,22 @@ function HomeContent() {
             className="flex flex-col"
             style={{ minHeight: "100vh" }}
           >
-            {/* ── Dynamic Shuffle Grid ── */}
+            {/* Card grid + contact in one section so layout reads as one column */}
             <section
               id="deck"
-              className="relative w-full"
-              style={{ minHeight: "100vh", zIndex: 10 }}
+              className="relative w-full flex flex-col"
+              style={{ zIndex: 10 }}
             >
               <CardGrid dealSeed={dealSeed} />
             </section>
-
-            {/* ── Contact + Footer (ISSUE-012) ── */}
-            <div style={{ position: "relative", zIndex: 10 }}>
-              <ContactFooter />
-            </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* ── QuickNav — visible at Space + Earth phases, hidden mid-scroll (ISSUE-011) ── */}
+      {/* ── Contact — modal only (not in scroll flow) ── */}
+      <ContactFooter />
+
+      {/* ── QuickNav — Hero + Contact while deck is visible ── */}
       {deckVisible && <QuickNav />}
     </div>
   )

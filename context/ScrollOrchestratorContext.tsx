@@ -14,9 +14,21 @@ import {
 // Types
 // ---------------------------------------------------------------------------
 
+/** Deck vs contact: contact means the contact modal is open (not in-page scroll). */
+export type PageScrollZone = "deck" | "contact";
+
 export interface ScrollOrchestratorValue {
-  /** Normalized page scroll position: 0.0 (top) → 1.0 (bottom). */
+  /** Normalized page scroll position: 0.0 (top) → 1.0 (bottom of document). */
   scrollProgress: number;
+
+  /**
+   * Scroll progress mapped from page top through the bottom of `#deck-cards`,
+   * clamped at 1 while the contact modal is open. Drives SceneManager / visuals.
+   */
+  sceneScrollProgress: number;
+
+  /** `deck` on the grid; `contact` while the contact modal is open. */
+  scrollZone: PageScrollZone;
 
   /** 0-based focused card index for the left (Experience) column. */
   leftFocusedIndex: number;
@@ -30,11 +42,21 @@ export interface ScrollOrchestratorValue {
   /** Called by CardDeck (ISSUE-006) to report the active right-column card. */
   setRightFocusedIndex: (index: number) => void;
 
-  /** Smooth-scrolls the page to the very top (hero). */
+  /**
+   * Returns to the intro hero when registered (see `registerReturnToHero`);
+   * otherwise smooth-scrolls to the top of the document.
+   */
   jumpToHero: () => void;
 
-  /** Smooth-scrolls the page to the very bottom (footer). */
+  /** Set by `HomeContent` so `jumpToHero` can remount the hero instead of only scrolling. */
+  registerReturnToHero: (fn: (() => void) | null) => void;
+
+  /** Opens the contact modal (and sets `#contact` in the URL when applicable). */
   jumpToFooter: () => void;
+
+  /** Contact modal visibility — driven by `jumpToFooter` / user dismiss / hash. */
+  contactModalOpen: boolean;
+  setContactModalOpen: (open: boolean) => void;
 
   /**
    * True while a CardGrid item is expanded. SceneManager reads this to
@@ -61,69 +83,123 @@ export function ScrollOrchestratorProvider({
   children: ReactNode;
 }) {
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [sceneScrollProgress, setSceneScrollProgress] = useState(0);
+  const [scrollZone, setScrollZone] = useState<PageScrollZone>("deck");
   const [leftFocusedIndex, setLeftFocusedIndex] = useState(0);
   const [rightFocusedIndex, setRightFocusedIndex] = useState(0);
   const [cardExpanded, setCardExpanded] = useState(false);
+  const [contactModalOpen, setContactModalOpen] = useState(false);
 
-  // Track the latest raw scrollY without triggering re-renders on every pixel
   const latestScrollY = useRef(0);
   const rafPending = useRef(false);
   const rafId = useRef<number | null>(null);
+  const returnToHeroRef = useRef<(() => void) | null>(null);
+  const contactModalOpenRef = useRef(contactModalOpen);
+  contactModalOpenRef.current = contactModalOpen;
 
-  useEffect(() => {
-    function computeProgress() {
-      const maxScroll =
-        document.documentElement.scrollHeight - window.innerHeight;
+  const flushProgress = useCallback(() => {
+    const y = latestScrollY.current;
+    const vh = window.innerHeight;
+    const maxScroll = Math.max(
+      0,
+      document.documentElement.scrollHeight - vh,
+    );
 
-      setScrollProgress(
-        maxScroll <= 0
-          ? 0
-          : Math.min(1, Math.max(0, latestScrollY.current / maxScroll))
-      );
-      rafPending.current = false;
+    setScrollProgress(
+      maxScroll <= 0 ? 0 : Math.min(1, Math.max(0, y / maxScroll)),
+    );
+
+    if (contactModalOpenRef.current) {
+      setScrollZone("contact");
+      setSceneScrollProgress(1);
+      return;
     }
 
+    setScrollZone("deck");
+
+    const deckCards = document.getElementById("deck-cards");
+    if (deckCards) {
+      const rect = deckCards.getBoundingClientRect();
+      const deckBottomDoc = rect.bottom + window.scrollY;
+      const denom = Math.max(1, deckBottomDoc - vh * 0.12);
+      setSceneScrollProgress(Math.min(1, Math.max(0, y / denom)));
+    } else {
+      setSceneScrollProgress(0);
+    }
+  }, []);
+
+  useEffect(() => {
     function handleScroll() {
       latestScrollY.current = window.scrollY;
-
-      // Coalesce rapid scroll events: one rAF write per animation frame
       if (!rafPending.current) {
         rafPending.current = true;
-        rafId.current = requestAnimationFrame(computeProgress);
+        rafId.current = requestAnimationFrame(() => {
+          flushProgress();
+          rafPending.current = false;
+        });
       }
     }
 
     window.addEventListener("scroll", handleScroll, { passive: true });
-
-    // Initialise on mount (handles cases where page doesn't start at top)
-    handleScroll();
+    latestScrollY.current = window.scrollY;
+    flushProgress();
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
       if (rafId.current !== null) cancelAnimationFrame(rafId.current);
     };
+  }, [flushProgress]);
+
+  useEffect(() => {
+    latestScrollY.current = window.scrollY;
+    flushProgress();
+  }, [contactModalOpen, flushProgress]);
+
+  const registerReturnToHero = useCallback((fn: (() => void) | null) => {
+    returnToHeroRef.current = fn;
   }, []);
 
   const jumpToHero = useCallback(() => {
+    setCardExpanded(false);
+    setContactModalOpen(false);
+    if (typeof window !== "undefined" && window.location.hash === "#contact") {
+      window.history.replaceState(
+        null,
+        "",
+        `${window.location.pathname}${window.location.search}`,
+      );
+    }
+    const back = returnToHeroRef.current;
+    if (back) {
+      back();
+      return;
+    }
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
   const jumpToFooter = useCallback(() => {
-    const maxScroll =
-      document.documentElement.scrollHeight - window.innerHeight;
-    window.scrollTo({ top: maxScroll, behavior: "smooth" });
+    setContactModalOpen(true);
+    if (typeof window !== "undefined") {
+      const { pathname, search } = window.location;
+      window.history.replaceState(null, "", `${pathname}${search}#contact`);
+    }
   }, []);
 
   return (
     <ScrollOrchestratorContext.Provider
       value={{
         scrollProgress,
+        sceneScrollProgress,
+        scrollZone,
         leftFocusedIndex,
         rightFocusedIndex,
         setLeftFocusedIndex,
         setRightFocusedIndex,
         jumpToHero,
+        registerReturnToHero,
         jumpToFooter,
+        contactModalOpen,
+        setContactModalOpen,
         cardExpanded,
         setCardExpanded,
       }}
@@ -147,7 +223,7 @@ export function useScrollOrchestrator(): ScrollOrchestratorValue {
   if (!ctx) {
     throw new Error(
       "useScrollOrchestrator must be used within a <ScrollOrchestratorProvider>. " +
-        "Make sure ScrollOrchestratorProvider is in your component tree (e.g. via app/providers.tsx)."
+        "Make sure ScrollOrchestratorProvider is in your component tree (e.g. via app/providers.tsx).",
     );
   }
   return ctx;

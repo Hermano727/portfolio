@@ -2,7 +2,10 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Github, Linkedin, ArrowUp, Mail } from "lucide-react"
+import { Github, Linkedin, LayoutGrid, Mail } from "lucide-react"
+import { Modal, ModalBody, ModalContent } from "@nextui-org/react"
+import { useScrollOrchestrator } from "@/context/ScrollOrchestratorContext"
+import { jumpNavPillClassName } from "@/components/nav/jumpNavStyles"
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
 
@@ -20,8 +23,34 @@ const T = {
 type FormStatus = "idle" | "loading" | "success" | "error"
 
 export function ContactFooter() {
+  const { contactModalOpen, setContactModalOpen, jumpToHero } =
+    useScrollOrchestrator()
   const [status,   setStatus]   = useState<FormStatus>("idle")
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
+
+  function stripContactHash() {
+    if (
+      typeof window !== "undefined" &&
+      window.location.hash === "#contact"
+    ) {
+      window.history.replaceState(
+        null,
+        "",
+        `${window.location.pathname}${window.location.search}`,
+      )
+    }
+  }
+
+  function onModalOpenChange(open: boolean) {
+    setContactModalOpen(open)
+    if (!open) stripContactHash()
+  }
+
+  function returnToPortfolio() {
+    setContactModalOpen(false)
+    stripContactHash()
+    window.scrollTo({ top: 0, behavior: "smooth" })
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -73,14 +102,28 @@ export function ContactFooter() {
   }
 
   return (
-    <>
+    <Modal
+      isOpen={contactModalOpen}
+      onOpenChange={onModalOpenChange}
+      scrollBehavior="inside"
+      size="4xl"
+      placement="center"
+      backdrop="blur"
+      classNames={{
+        backdrop: "bg-black/60",
+        base: "border border-[rgba(74,66,73,0.35)] bg-[#151314] max-h-[min(84vh,680px)] my-4 w-[min(94vw,980px)]",
+        body: "p-0 overflow-y-auto",
+      }}
+    >
+      <ModalContent>
       {/* ── Contact Section ─────────────────────────────────────────────────── */}
+      <ModalBody className="gap-0 p-0">
       <section
         id="contact"
         className="relative w-full overflow-hidden"
         style={{
           background: T.surface,
-          padding:    "clamp(4rem, 8vw, 7rem) 0",
+          padding:    "clamp(2.2rem, 4.6vw, 3.6rem) 0",
         }}
       >
         {/* Nebula glow — matches hero aesthetic */}
@@ -116,15 +159,42 @@ export function ContactFooter() {
           className="relative z-10 mx-auto"
           style={{
             maxWidth: "1100px",
-            padding:  "0 clamp(1.5rem, 5vw, 5rem)",
+            padding:  "0 clamp(1.2rem, 3.8vw, 3.8rem)",
           }}
         >
+          {/* Intro / Portfolio — these must appear above the content */}
+          <div
+            className="flex w-full flex-wrap items-center justify-center gap-2"
+            style={{ paddingTop: "0.25rem", transform: "translateY(-15px)" }}
+          >
+            <button
+              type="button"
+              onClick={() => jumpToHero()}
+              aria-label="Return to intro hero"
+              className={jumpNavPillClassName}
+            >
+              <span aria-hidden="true" className="text-[0.85rem] leading-none" style={{ color: T.primary }}>
+                ↑
+              </span>
+              <span>Intro</span>
+            </button>
+            <button
+              type="button"
+              onClick={returnToPortfolio}
+              aria-label="Return to portfolio and close contact"
+              className={jumpNavPillClassName}
+            >
+              <LayoutGrid aria-hidden="true" style={{ width: "0.85rem", height: "0.85rem", color: T.primary }} />
+              <span>Portfolio</span>
+            </button>
+          </div>
+
           <div
             style={{
               display:       "flex",
               flexDirection: "row",
               alignItems:    "flex-start",
-              gap:           "clamp(2.5rem, 6vw, 6rem)",
+              gap:           "clamp(1.6rem, 3.9vw, 4.2rem)",
               flexWrap:      "wrap",
             }}
           >
@@ -136,7 +206,7 @@ export function ContactFooter() {
                 minWidth:      "240px",
                 display:       "flex",
                 flexDirection: "column",
-                gap:           "2rem",
+                gap:           "1.6rem",
               }}
             >
               <div>
@@ -230,13 +300,17 @@ export function ContactFooter() {
                   rel="noopener noreferrer"
                   aria-label="GitHub"
                   style={{
-                    color:      `rgba(${T.outlineVariant},1)`,
+                    color:      T.onSurfaceVariant,
+                    opacity:    0.95,
                     transition: "color 0.2s ease",
                   }}
                   onMouseEnter={e => (e.currentTarget.style.color = T.onSurfaceVariant)}
-                  onMouseLeave={e => (e.currentTarget.style.color = `rgba(${T.outlineVariant},1)`)}
+                  onMouseLeave={e => (e.currentTarget.style.color = T.onSurfaceVariant)}
                 >
-                  <Github style={{ height: "1.625rem", width: "1.625rem" }} />
+                  <Github
+                    style={{ height: "2.05rem", width: "2.05rem" }}
+                    strokeWidth={1.8}
+                  />
                 </Link>
                 <Link
                   href="http://linkedin.com/in/herman-hundsberger-577600295"
@@ -244,13 +318,17 @@ export function ContactFooter() {
                   rel="noopener noreferrer"
                   aria-label="LinkedIn"
                   style={{
-                    color:      `rgba(${T.outlineVariant},1)`,
+                    color:      T.onSurfaceVariant,
+                    opacity:    0.95,
                     transition: "color 0.2s ease",
                   }}
                   onMouseEnter={e => (e.currentTarget.style.color = T.onSurfaceVariant)}
-                  onMouseLeave={e => (e.currentTarget.style.color = `rgba(${T.outlineVariant},1)`)}
+                  onMouseLeave={e => (e.currentTarget.style.color = T.onSurfaceVariant)}
                 >
-                  <Linkedin style={{ height: "1.625rem", width: "1.625rem" }} />
+                  <Linkedin
+                    style={{ height: "2.05rem", width: "2.05rem" }}
+                    strokeWidth={1.8}
+                  />
                 </Link>
               </div>
             </div>
@@ -411,122 +489,34 @@ export function ContactFooter() {
                     {status === "loading" ? "Sending…" : "Send Message"}
                   </button>
                 </form>
+
+                {/* Copyright only — social links stay in the left column */}
+                <div
+                  className="flex flex-col items-center"
+                  style={{ paddingTop: "0.9rem" }}
+                >
+                  <p
+                    style={{
+                      fontSize: "0.7rem",
+                      fontFamily: "var(--font-geist-mono), monospace",
+                      color: T.onSurfaceVariant,
+                      opacity: 0.88,
+                      letterSpacing: "0.06em",
+                      margin: 0,
+                    }}
+                  >
+                    © {new Date().getFullYear()} Herman Hundsberger
+                  </p>
+                </div>
               </div>
             </div>
 
           </div>
         </div>
       </section>
-
-      {/* ── Footer bar ──────────────────────────────────────────────────────── */}
-      <footer
-        className="relative w-full overflow-hidden"
-        style={{
-          background: "#0f0e0f",
-          padding:    "2.5rem 0",
-        }}
-      >
-        {/* Hairline separator */}
-        <div
-          className="absolute top-0 left-0 right-0 h-px pointer-events-none"
-          aria-hidden="true"
-          style={{
-            background: `linear-gradient(
-              to right,
-              transparent,
-              rgba(${T.outlineVariant},0.25) 25%,
-              rgba(157,78,221,0.2) 50%,
-              rgba(${T.outlineVariant},0.25) 75%,
-              transparent
-            )`,
-          }}
-        />
-
-        <div
-          className="relative z-10 mx-auto flex flex-col items-center gap-5"
-          style={{ maxWidth: "1100px", padding: "0 clamp(1.5rem, 5vw, 5rem)" }}
-        >
-          {/* Back to top */}
-          <button
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            aria-label="Back to top"
-            style={{
-              display:      "flex",
-              alignItems:   "center",
-              justifyContent: "center",
-              width:        "2.25rem",
-              height:       "2.25rem",
-              borderRadius: "50%",
-              background:   `rgba(${T.outlineVariant},0.15)`,
-              border:       `1px solid rgba(${T.outlineVariant},0.22)`,
-              cursor:       "pointer",
-              transition:   "background 0.2s, border-color 0.2s, transform 0.2s",
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.background   = "rgba(157,78,221,0.18)"
-              e.currentTarget.style.borderColor  = "rgba(157,78,221,0.4)"
-              e.currentTarget.style.transform    = "translateY(-2px)"
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.background   = `rgba(${T.outlineVariant},0.15)`
-              e.currentTarget.style.borderColor  = `rgba(${T.outlineVariant},0.22)`
-              e.currentTarget.style.transform    = "translateY(0)"
-            }}
-          >
-            <ArrowUp
-              style={{
-                width:  "0.875rem",
-                height: "0.875rem",
-                color:  T.onSurfaceVariant,
-              }}
-            />
-          </button>
-
-          {/* Social icons */}
-          <div style={{ display: "flex", alignItems: "center", gap: "1.5rem" }}>
-            <Link
-              href="https://github.com/Hermano727"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="GitHub"
-              style={{
-                color:      `rgba(${T.outlineVariant},0.9)`,
-                transition: "color 0.2s ease",
-              }}
-              onMouseEnter={e => (e.currentTarget.style.color = T.onSurfaceVariant)}
-              onMouseLeave={e => (e.currentTarget.style.color = `rgba(${T.outlineVariant},0.9)`)}
-            >
-              <Github style={{ height: "1.75rem", width: "1.75rem" }} />
-            </Link>
-            <Link
-              href="http://linkedin.com/in/herman-hundsberger-577600295"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="LinkedIn"
-              style={{
-                color:      `rgba(${T.outlineVariant},0.9)`,
-                transition: "color 0.2s ease",
-              }}
-              onMouseEnter={e => (e.currentTarget.style.color = T.onSurfaceVariant)}
-              onMouseLeave={e => (e.currentTarget.style.color = `rgba(${T.outlineVariant},0.9)`)}
-            >
-              <Linkedin style={{ height: "1.75rem", width: "1.75rem" }} />
-            </Link>
-          </div>
-
-          <p
-            style={{
-              fontSize:      "0.68rem",
-              fontFamily:    "var(--font-geist-mono), monospace",
-              color:         `rgba(${T.outlineVariant},0.8)`,
-              letterSpacing: "0.06em",
-            }}
-          >
-            © {new Date().getFullYear()} Herman Hundsberger
-          </p>
-        </div>
-      </footer>
-    </>
+      </ModalBody>
+      </ModalContent>
+    </Modal>
   )
 }
 

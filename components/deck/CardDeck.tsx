@@ -85,7 +85,7 @@ function SwitcherBtn({ label, side, disabled, onClick }: SwitcherBtnProps) {
 
 export default function CardDeck() {
   const {
-    scrollProgress,
+    sceneScrollProgress,
     leftFocusedIndex,
     setLeftFocusedIndex,
   } = useScrollOrchestrator()
@@ -136,7 +136,7 @@ export default function CardDeck() {
   const cardCountRef   = useRef(activeCards.length)
   useEffect(() => { cardCountRef.current = activeCards.length }, [activeCards.length])
 
-  const phase = getPhaseFromScroll(scrollProgress)
+  const phase = getPhaseFromScroll(sceneScrollProgress)
 
   // ── Keyboard controller (Up/Down card nav, Enter/Space expand, Esc collapse) ─
   // A/D and ArrowLeft/Right are owned by useDeckState.
