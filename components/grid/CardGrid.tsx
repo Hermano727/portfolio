@@ -4,7 +4,7 @@ import { motion } from "framer-motion"
 import { jumpNavPillClassName } from "@/components/nav/jumpNavStyles"
 import { EASE_DECK } from "@/lib/motion"
 import { Github } from "lucide-react"
-import { Fragment, useEffect, useRef, useState, type CSSProperties, type SyntheticEvent } from "react"
+import { Fragment, useEffect, useMemo, useRef, useState, type CSSProperties, type SyntheticEvent } from "react"
 import { useScrollOrchestrator } from "@/context/ScrollOrchestratorContext"
 import { isTypingTarget } from "@/lib/dom"
 import { useApertureFilter, type ApertureCard, type ApertureFilter } from "./useApertureFilter"
@@ -13,6 +13,8 @@ import {
   SPRING,
   EASE_OUT,
   CARD_HEIGHT,
+  COLS,
+  CARD_GAP,
   TOP_PAD_RATIO,
   cardWidth,
   type CardPhase,
@@ -164,7 +166,7 @@ function CloudBank({ side }: { side: "top" | "bottom" }) {
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none absolute left-0 right-0"
+      className="pointer-events-none fixed left-0 right-0"
       style={{
         [isTop ? "top" : "bottom"]: 0,
         height: "15vh",
@@ -1635,6 +1637,7 @@ export default function CardGrid({ dealSeed }: CardGridProps) {
     jumpToHero,
     jumpToFooter,
     contactModalOpen,
+    registerDeckScrollContainer,
   } = useScrollOrchestrator()
   const containerRef = useRef<HTMLDivElement | null>(null)
 
@@ -1651,11 +1654,43 @@ export default function CardGrid({ dealSeed }: CardGridProps) {
     return () => ro.disconnect()
   }, [])
 
+  // Register the internal deck scroll container so ScrollOrchestrator can
+  // drive SceneManager from `scrollTop` (not `window.scrollY`).
+  useEffect(() => {
+    if (!containerRef.current) return
+    registerDeckScrollContainer(containerRef.current)
+    // When (re)mounting the deck, start at the top so card positions and
+    // scene phase are deterministic for the user.
+    containerRef.current.scrollTop = 0
+    return () => registerDeckScrollContainer(null)
+  }, [registerDeckScrollContainer])
+
   const { filter, setFilter, baseCards } = useApertureFilter()
   const [renderCards, setRenderCards] = useState<ApertureCard[]>(baseCards)
   const [exitingIds, setExitingIds] = useState<string[]>([])
   const filterTimeoutRef = useRef<number | null>(null)
   const closeTimeoutRef = useRef<number | null>(null)
+
+  const deckLayout = useMemo(() => {
+    const cW = containerSize.w
+    const cH = containerSize.h
+
+    let cols = 3
+    if (cW > 0) {
+      if (cW < 520) cols = 1
+      else if (cW < 900) cols = 2
+      else cols = 3
+    }
+
+    // Keep 2 rows readable on shorter viewports.
+    const maxFor2Rows =
+      cH > 0
+        ? Math.floor((cH * (1 - TOP_PAD_RATIO) - CARD_GAP) / 2)
+        : CARD_HEIGHT
+    const cardHeight = Math.max(180, Math.min(CARD_HEIGHT, maxFor2Rows))
+
+    return { cols, cardHeight }
+  }, [containerSize.w, containerSize.h])
 
   useEffect(() => {
     return () => {
@@ -1665,7 +1700,7 @@ export default function CardGrid({ dealSeed }: CardGridProps) {
   }, [])
 
   const { cardStates, activeId, isExpanded, activateCard, closeActive } =
-    usePuzzleEngine(renderCards, containerRef)
+    usePuzzleEngine(renderCards, containerRef, deckLayout)
 
   function selectByFilter(nextFilter: ApertureFilter): ApertureCard[] {
     if (nextFilter === "all") return baseCards.map((c) => ({ ...c, ghosted: false }))
@@ -1746,14 +1781,29 @@ export default function CardGrid({ dealSeed }: CardGridProps) {
       const topBand = window.innerHeight * TOP_PAD_RATIO
       const bottomBand = window.innerHeight * (1 - TOP_PAD_RATIO)
 
+      const deckEl = containerRef.current
+      const maxScroll = deckEl
+        ? Math.max(0, deckEl.scrollHeight - deckEl.clientHeight)
+        : 0
+
       if (e.deltaY < -22) {
-        if (window.scrollY > 12) return
+        // Only leave the deck when the internal scroll is already at the top.
+        if (deckEl) {
+          if (deckEl.scrollTop > 12) return
+        } else {
+          if (window.scrollY > 12) return
+        }
         if (e.clientY > topBand) return
         jumpToHero()
         return
       }
 
       if (e.deltaY > 22) {
+        // Only open contact when the internal scroll is already at the bottom.
+        if (deckEl) {
+          if (maxScroll - deckEl.scrollTop > 12) return
+        }
+
         if (e.clientY < bottomBand) return
         jumpToFooter()
       }
@@ -1763,6 +1813,23 @@ export default function CardGrid({ dealSeed }: CardGridProps) {
   }, [isExpanded, jumpToHero, jumpToFooter, contactModalOpen])
 
   const { w: cW, h: cH } = containerSize
+
+  // Cards are absolutely positioned inside the scroll container; this spacer
+  // provides scroll height so the user can reach the bottom rows.
+  const rowsForSpacer = Math.max(
+    1,
+    Math.ceil(renderCards.length / Math.max(1, deckLayout.cols)),
+  )
+  const spacerHeight =
+    cH > 0
+      ? Math.max(
+          cH,
+          cH * TOP_PAD_RATIO +
+            rowsForSpacer * (deckLayout.cardHeight + CARD_GAP) +
+            24,
+        )
+      : 0
+
   const activeCard = renderCards.find(c => c.id === activeId)
   const hasDemo =
     isExpanded && (activeCard?.youtubeIds?.length ?? 0) > 0
@@ -1787,13 +1854,20 @@ export default function CardGrid({ dealSeed }: CardGridProps) {
       id="deck-cards"
       ref={containerRef}
       className="relative w-full"
-      style={{ height: "100vh", overflow: "hidden", zIndex: 10, background: "transparent" }}
+      style={{
+        height: "100vh",
+        overflowY: "auto",
+        overflowX: "hidden",
+        overscrollBehavior: "contain",
+        zIndex: 10,
+        background: "transparent",
+      }}
     >
       {/* Darkened horizon — seamless bleed from hero starfield */}
       <div
         aria-hidden="true"
         style={{
-          position: "absolute",
+          position: "fixed",
           inset: 0,
           pointerEvents: "none",
           zIndex: 0,
@@ -1804,7 +1878,7 @@ export default function CardGrid({ dealSeed }: CardGridProps) {
       <div
         aria-hidden="true"
         style={{
-          position: "absolute",
+          position: "fixed",
           top: 0,
           left: 0,
           right: 0,
@@ -1817,10 +1891,13 @@ export default function CardGrid({ dealSeed }: CardGridProps) {
       <CloudBank side="top" />
       <CloudBank side="bottom" />
 
+      {/* Spacer creates scroll height for absolute-positioned cards */}
+      <div aria-hidden="true" style={{ width: "100%", height: spacerHeight }} />
+
       {/* Intro + filter — one row, shared baseline (center-aligned vertically) */}
       <div
         style={{
-          position: "absolute",
+          position: "fixed",
           top: "max(12px, 5vh)",
           left: 0,
           right: 0,
@@ -1946,7 +2023,7 @@ export default function CardGrid({ dealSeed }: CardGridProps) {
                 position:             state.phase === "gutter" ? "fixed" : "absolute",
                 left:                 0,
                 top:                  0,
-                minHeight:            CARD_HEIGHT,
+                minHeight:            deckLayout.cardHeight,
                 borderRadius:         16,
                 cursor:               isActive ? "default" : "pointer",
                 overflow:             "hidden",

@@ -44,6 +44,16 @@ export const SIDE_PAD    = 16
 /** Vertical offset before row 0 — keep below filter bar + breathing room */
 export const TOP_PAD_RATIO = 0.14
 
+export interface DeckLayout {
+  cols: number
+  cardHeight: number
+}
+
+export const DEFAULT_DECK_LAYOUT: DeckLayout = {
+  cols: COLS,
+  cardHeight: CARD_HEIGHT,
+}
+
 // ─── Animation Constants ──────────────────────────────────────────────────────
 
 const STEP_MS         = 580  // ms between each slot-hop frame — long enough to watch each swap land
@@ -60,10 +70,12 @@ function sk(s: SlotCoord): string {
   return `${s.col},${s.row}`
 }
 
-export function cardWidth(containerW: number): number {
+export function cardWidth(containerW: number, cols: number): number {
   return Math.max(
     160,
-    Math.floor((containerW - SIDE_PAD * 2 - CARD_GAP * (COLS - 1)) / COLS),
+    Math.floor(
+      (containerW - SIDE_PAD * 2 - CARD_GAP * (cols - 1)) / cols,
+    ),
   )
 }
 
@@ -72,11 +84,13 @@ export function slotTopLeft(
   row: number,
   containerW: number,
   containerH: number,
+  layout: DeckLayout,
 ): { x: number; y: number } {
-  const cw = cardWidth(containerW)
+  const cw = cardWidth(containerW, layout.cols)
   return {
     x: SIDE_PAD + col * (cw + CARD_GAP),
-    y: containerH * TOP_PAD_RATIO + row * (CARD_HEIGHT + CARD_GAP),
+    y:
+      containerH * TOP_PAD_RATIO + row * (layout.cardHeight + CARD_GAP),
   }
 }
 
@@ -105,18 +119,23 @@ function buildPath(from: SlotCoord, to: SlotCoord): SlotCoord[] {
 }
 
 // Grid slot whose center is closest to the viewport center.
-function findCenterSlot(cardCount: number, W: number, H: number): SlotCoord {
-  const rows = Math.ceil(cardCount / COLS)
-  const cw   = cardWidth(W)
+function findCenterSlot(
+  cardCount: number,
+  W: number,
+  H: number,
+  layout: DeckLayout,
+): SlotCoord {
+  const rows = Math.ceil(cardCount / layout.cols)
+  const cw = cardWidth(W, layout.cols)
   const cx   = W / 2
   const cy   = H / 2
-  let best   = { col: 1, row: 0 }
+  let best = { col: Math.min(1, layout.cols - 1), row: 0 }
   let minD   = Infinity
-  for (let c = 0; c < COLS; c++) {
+  for (let c = 0; c < layout.cols; c++) {
     for (let r = 0; r < rows; r++) {
-      const p  = slotTopLeft(c, r, W, H)
+      const p = slotTopLeft(c, r, W, H, layout)
       const mx = p.x + cw / 2
-      const my = p.y + CARD_HEIGHT / 2
+      const my = p.y + layout.cardHeight / 2
       const d  = Math.hypot(mx - cx, my - cy)
       if (d < minD) { minD = d; best = { col: c, row: r } }
     }
@@ -140,6 +159,7 @@ function shoveCard(
   W: number,
   H: number,
   rows: number,
+  layout: DeckLayout,
   depth = 0,
 ): AnimFrame {
   const result: AnimFrame = {}
@@ -149,20 +169,20 @@ function shoveCard(
 
   const target = { col: cur.col + dir.dc, row: cur.row + dir.dr }
   const inBounds =
-    target.col >= 0 && target.col < COLS &&
+    target.col >= 0 && target.col < layout.cols &&
     target.row >= 0 && target.row < rows
 
   if (!inBounds) {
     // Card flies off the grid — will be re-placed by gutter scatter.
-    const cw   = cardWidth(W)
+    const cw = cardWidth(W, layout.cols)
     const offX =
       dir.dc < 0 ? -(cw + CARD_GAP + 20)
       : dir.dc > 0 ? W + 20
-      : slotTopLeft(cur.col, cur.row, W, H).x
+      : slotTopLeft(cur.col, cur.row, W, H, layout).x
     const offY =
-      dir.dr < 0 ? -(CARD_HEIGHT + CARD_GAP + 20)
+      dir.dr < 0 ? -(layout.cardHeight + CARD_GAP + 20)
       : dir.dr > 0 ? H + 20
-      : slotTopLeft(cur.col, cur.row, W, H).y
+      : slotTopLeft(cur.col, cur.row, W, H, layout).y
     occupancy.delete(sk(cur))
     result[cardId] = { x: offX, y: offY }
     return result
@@ -170,7 +190,17 @@ function shoveCard(
 
   const nextResident = occupancy.get(sk(target))
   if (nextResident && nextResident !== cardId) {
-    const chain = shoveCard(nextResident, dir, cardSlots, occupancy, W, H, rows, depth + 1)
+    const chain = shoveCard(
+      nextResident,
+      dir,
+      cardSlots,
+      occupancy,
+      W,
+      H,
+      rows,
+      layout,
+      depth + 1,
+    )
     Object.assign(result, chain)
   }
 
@@ -178,7 +208,7 @@ function shoveCard(
   occupancy.set(sk(target), cardId)
   cardSlots.set(cardId, target)
 
-  const p = slotTopLeft(target.col, target.row, W, H)
+  const p = slotTopLeft(target.col, target.row, W, H, layout)
   result[cardId] = { x: p.x, y: p.y }
   return result
 }
@@ -194,10 +224,11 @@ function computeFrames(
   states: Record<string, PuzzleCardState>,
   W: number,
   H: number,
+  layout: DeckLayout,
 ): { frames: AnimFrame[]; centerSlot: SlotCoord } {
   const cardCount  = Object.keys(states).length
-  const rows       = Math.ceil(cardCount / COLS)
-  const centerSlot = findCenterSlot(cardCount, W, H)
+  const rows       = Math.ceil(cardCount / layout.cols)
+  const centerSlot = findCenterSlot(cardCount, W, H, layout)
 
   // Working copies for simulation
   const occupancy  = new Map<string, string>()
@@ -227,7 +258,10 @@ function computeFrames(
         travelDx !== 0
           ? { dc: 0, dr: h % 2 === 0 ? -1 : 1 }
           : { dc: h % 2 === 0 ? -1 : 1, dr: 0 }
-      Object.assign(frame, shoveCard(residentId, perpDir, cardSlots, occupancy, W, H, rows))
+      Object.assign(
+        frame,
+        shoveCard(residentId, perpDir, cardSlots, occupancy, W, H, rows, layout),
+      )
     }
 
     // Advance active card
@@ -236,7 +270,7 @@ function computeFrames(
     cardSlots.set(activeId, targetSlot)
     curSlot = targetSlot
 
-    const p = slotTopLeft(targetSlot.col, targetSlot.row, W, H)
+      const p = slotTopLeft(targetSlot.col, targetSlot.row, W, H, layout)
     frame[activeId] = { x: p.x, y: p.y }
     frames.push(frame)
   }
@@ -254,15 +288,16 @@ function computeGutterPositions(
   currentStates: Record<string, PuzzleCardState>,
   W: number,
   H: number,
+  layout: DeckLayout,
 ): Record<string, { x: number; y: number }> {
-  const cw = cardWidth(W)
+  const cw = cardWidth(W, layout.cols)
   type Edge = "top" | "bottom" | "left" | "right"
   const byEdge: Record<Edge, string[]> = { top: [], bottom: [], left: [], right: [] }
 
   nonActiveIds.forEach((id) => {
     const s  = currentStates[id]
     const cx = s.x + cw / 2
-    const cy = s.y + CARD_HEIGHT / 2
+    const cy = s.y + layout.cardHeight / 2
     const dTop    = cy
     const dBottom = H - cy
     const dLeft   = cx
@@ -290,7 +325,7 @@ function computeGutterPositions(
     const n = byEdge.top.length
     result[id] = {
       x: (W / (n + 1)) * (i + 1) - cw / 2,
-      y: -(CARD_HEIGHT * 0.65),
+      y: -(layout.cardHeight * 0.65),
     }
   })
 
@@ -299,7 +334,7 @@ function computeGutterPositions(
     const n = byEdge.bottom.length
     result[id] = {
       x: (W / (n + 1)) * (i + 1) - cw / 2,
-      y: H - CARD_HEIGHT * 0.35,
+      y: H - layout.cardHeight * 0.35,
     }
   })
 
@@ -308,7 +343,7 @@ function computeGutterPositions(
     const n = byEdge.left.length
     result[id] = {
       x: -(cw * 0.65),
-      y: (H / (n + 1)) * (i + 1) - CARD_HEIGHT / 2,
+      y: (H / (n + 1)) * (i + 1) - layout.cardHeight / 2,
     }
   })
 
@@ -317,7 +352,7 @@ function computeGutterPositions(
     const n = byEdge.right.length
     result[id] = {
       x: W - cw * 0.35,
-      y: (H / (n + 1)) * (i + 1) - CARD_HEIGHT / 2,
+      y: (H / (n + 1)) * (i + 1) - layout.cardHeight / 2,
     }
   })
 
@@ -329,10 +364,16 @@ function computeGutterPositions(
 export function usePuzzleEngine(
   cards: ApertureCard[],
   containerRef: React.RefObject<HTMLDivElement | null>,
+  layout: DeckLayout = DEFAULT_DECK_LAYOUT,
 ): PuzzleEngineState {
   const [cardStates, setCardStates] = useState<Record<string, PuzzleCardState>>({})
   const [activeId,   setActiveId]   = useState<string | null>(null)
   const [isExpanded, setIsExpanded] = useState(false)
+
+  // Ensure animations & initialization always use the latest layout
+  // without needing to recreate long-lived callbacks.
+  const layoutRef = useRef(layout)
+  useEffect(() => { layoutRef.current = layout }, [layout])
 
   // Mirror latest state to a ref for synchronous reads inside setTimeout callbacks
   // (avoids stale closures without making setCardStates impure).
@@ -349,15 +390,16 @@ export function usePuzzleEngine(
 
   const buildInitialStates = useCallback(
     (cardList: ApertureCard[], W: number, H: number): Record<string, PuzzleCardState> => {
-      const cw = cardWidth(W)
+      const layout = layoutRef.current
+      const cw = cardWidth(W, layout.cols)
       const result: Record<string, PuzzleCardState> = {}
       cardList.forEach((card, idx) => {
-        const col = idx % COLS
-        const row = Math.floor(idx / COLS)
-        const p   = slotTopLeft(col, row, W, H)
+        const col = idx % layout.cols
+        const row = Math.floor(idx / layout.cols)
+        const p   = slotTopLeft(col, row, W, H, layout)
         result[card.id] = {
           x: p.x, y: p.y,
-          width: cw, height: CARD_HEIGHT,
+          width: cw, height: layout.cardHeight,
           opacity: 1, filter: "blur(0px)", zIndex: 10,
           phase: "grid",
           homeSlot: { col, row },
@@ -395,8 +437,10 @@ export function usePuzzleEngine(
       setCardStates(updated)
     }
     window.addEventListener("resize", onResize, { passive: true })
+    // Re-apply layout whenever CardGrid changes cols / height.
+    onResize()
     return () => window.removeEventListener("resize", onResize)
-  }, [cards, containerRef, buildInitialStates])
+  }, [cards, containerRef, buildInitialStates, layout.cols, layout.cardHeight])
 
   // ── Activate Card ──────────────────────────────────────────────────────────
 
@@ -413,8 +457,15 @@ export function usePuzzleEngine(
       if (!snapshot[id]) return
 
       // Pre-compute the full animation plan from the current snapshot
-      const { frames, centerSlot } = computeFrames(id, snapshot, W, H)
-      const centerPos   = slotTopLeft(centerSlot.col, centerSlot.row, W, H)
+      const layout = layoutRef.current
+      const { frames, centerSlot } = computeFrames(id, snapshot, W, H, layout)
+      const centerPos = slotTopLeft(
+        centerSlot.col,
+        centerSlot.row,
+        W,
+        H,
+        layout,
+      )
       const totalPathMs = frames.length * STEP_MS
 
       // Step 0: mark as sliding (immediate)
@@ -447,7 +498,7 @@ export function usePuzzleEngine(
       const tAperture = setTimeout(() => {
         setCardStates(s => {
           const nonActive = Object.keys(s).filter(cid => cid !== id)
-          const gutterPos = computeGutterPositions(nonActive, s, W, H)
+          const gutterPos = computeGutterPositions(nonActive, s, W, H, layoutRef.current)
           const next = { ...s }
           next[id] = { ...s[id], x: centerPos.x, y: centerPos.y, phase: "center", zIndex: 50 }
           nonActive.forEach(cid => {

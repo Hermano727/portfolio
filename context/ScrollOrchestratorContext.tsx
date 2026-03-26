@@ -43,6 +43,13 @@ export interface ScrollOrchestratorValue {
   setRightFocusedIndex: (index: number) => void;
 
   /**
+   * Registers the scrollable deck container used for internal scroll UX.
+   * When set, the orchestrator computes `scrollProgress` /
+   * `sceneScrollProgress` from `el.scrollTop` instead of `window.scrollY`.
+   */
+  registerDeckScrollContainer: (el: HTMLDivElement | null) => void;
+
+  /**
    * Returns to the intro hero when registered (see `registerReturnToHero`);
    * otherwise smooth-scrolls to the top of the document.
    */
@@ -97,23 +104,45 @@ export function ScrollOrchestratorProvider({
   const contactModalOpenRef = useRef(contactModalOpen);
   contactModalOpenRef.current = contactModalOpen;
 
-  const flushProgress = useCallback(() => {
-    const y = latestScrollY.current;
-    const vh = window.innerHeight;
-    const maxScroll = Math.max(
-      0,
-      document.documentElement.scrollHeight - vh,
-    );
+  // Deck internal scroll registration. Stored in a ref so `flushProgress`
+  // can read it without being recreated.
+  const deckScrollElRef = useRef<HTMLDivElement | null>(null);
+  const [deckScrollElState, setDeckScrollElState] =
+    useState<HTMLDivElement | null>(null);
+  useEffect(() => {
+    deckScrollElRef.current = deckScrollElState;
+    latestScrollY.current = deckScrollElState ? deckScrollElState.scrollTop : 0;
+  }, [deckScrollElState]);
 
-    setScrollProgress(
-      maxScroll <= 0 ? 0 : Math.min(1, Math.max(0, y / maxScroll)),
-    );
+  const flushProgress = useCallback(() => {
+    const deckEl = deckScrollElRef.current;
 
     if (contactModalOpenRef.current) {
       setScrollZone("contact");
       setSceneScrollProgress(1);
       return;
     }
+
+    // Deck internal scroll path (preferred).
+    if (deckEl) {
+      const y = latestScrollY.current;
+      const maxScroll = Math.max(0, deckEl.scrollHeight - deckEl.clientHeight);
+      setScrollProgress(maxScroll <= 0 ? 0 : Math.min(1, Math.max(0, y / maxScroll)));
+      setScrollZone("deck");
+
+      // Bias the divisor so the background/scene completes slightly before
+      // the absolute bottom of the deck.
+      const denom = Math.max(1, maxScroll - deckEl.clientHeight * 0.12);
+      setSceneScrollProgress(Math.min(1, Math.max(0, y / denom)));
+      return;
+    }
+
+    // Window scroll fallback.
+    const y = latestScrollY.current;
+    const vh = window.innerHeight;
+    const maxScroll = Math.max(0, document.documentElement.scrollHeight - vh);
+
+    setScrollProgress(maxScroll <= 0 ? 0 : Math.min(1, Math.max(0, y / maxScroll)));
 
     setScrollZone("deck");
 
@@ -129,8 +158,14 @@ export function ScrollOrchestratorProvider({
   }, []);
 
   useEffect(() => {
+    const deckEl = deckScrollElRef.current;
+    const target: EventTarget = deckEl ?? window;
+
     function handleScroll() {
-      latestScrollY.current = window.scrollY;
+      latestScrollY.current = deckScrollElRef.current
+        ? deckScrollElRef.current.scrollTop
+        : window.scrollY;
+
       if (!rafPending.current) {
         rafPending.current = true;
         rafId.current = requestAnimationFrame(() => {
@@ -140,24 +175,34 @@ export function ScrollOrchestratorProvider({
       }
     }
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    latestScrollY.current = window.scrollY;
+    (target as any).addEventListener("scroll", handleScroll, { passive: true });
+
+    latestScrollY.current = deckEl ? deckEl.scrollTop : window.scrollY;
     flushProgress();
 
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      (target as any).removeEventListener("scroll", handleScroll);
       if (rafId.current !== null) cancelAnimationFrame(rafId.current);
     };
-  }, [flushProgress]);
+  }, [flushProgress, deckScrollElState]);
 
   useEffect(() => {
-    latestScrollY.current = window.scrollY;
+    latestScrollY.current = deckScrollElRef.current
+      ? deckScrollElRef.current.scrollTop
+      : window.scrollY;
     flushProgress();
   }, [contactModalOpen, flushProgress]);
 
   const registerReturnToHero = useCallback((fn: (() => void) | null) => {
     returnToHeroRef.current = fn;
   }, []);
+
+  const registerDeckScrollContainer = useCallback(
+    (el: HTMLDivElement | null) => {
+      setDeckScrollElState(el);
+    },
+    [],
+  );
 
   const jumpToHero = useCallback(() => {
     setCardExpanded(false);
@@ -195,6 +240,7 @@ export function ScrollOrchestratorProvider({
         rightFocusedIndex,
         setLeftFocusedIndex,
         setRightFocusedIndex,
+        registerDeckScrollContainer,
         jumpToHero,
         registerReturnToHero,
         jumpToFooter,
