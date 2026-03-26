@@ -616,21 +616,23 @@ function ExpandedHeader({
   card,
   accent,
   style: xs,
+  compactMode = false,
 }: {
   card: ApertureCard
   accent: string
   style?: CSSProperties
+  compactMode?: boolean
 }) {
   const hasLinks = Boolean(card.githubUrl || card.liveUrl)
   return (
     <div
       style={{
-        padding: "0.8rem 0.95rem 0.85rem 0.95rem",
+        padding: compactMode ? "0.65rem 0.75rem 0.7rem 0.75rem" : "0.8rem 0.95rem 0.85rem 0.95rem",
         borderBottom: "1px solid rgba(255,255,255,0.06)",
         flexShrink: 0,
         display: "flex",
         alignItems: "flex-start",
-        gap: "0.75rem",
+        gap: compactMode ? "0.55rem" : "0.75rem",
         ...xs,
       }}
     >
@@ -642,7 +644,7 @@ function ExpandedHeader({
             fontWeight: 800,
             letterSpacing: "-0.02em",
             margin: 0,
-            fontSize: "clamp(1.5rem, 3vw, 1.85rem)",
+            fontSize: compactMode ? "clamp(1.2rem, 3.2vw, 1.5rem)" : "clamp(1.5rem, 3vw, 1.85rem)",
             lineHeight: 1.1,
             color: IND.textPrimary,
           }}
@@ -653,7 +655,7 @@ function ExpandedHeader({
           <p
             style={{
               margin: "6px 0 0",
-              fontSize: "clamp(0.92rem, 2vw, 1.02rem)",
+              fontSize: compactMode ? "clamp(0.82rem, 1.9vw, 0.92rem)" : "clamp(0.92rem, 2vw, 1.02rem)",
               fontWeight: 600,
               letterSpacing: "-0.015em",
               lineHeight: 1.35,
@@ -663,11 +665,11 @@ function ExpandedHeader({
             {card.meta}
           </p>
         ) : null}
-        <div style={{ marginTop: 12 }}>
+        <div style={{ marginTop: compactMode ? 8 : 12 }}>
           <TypeTimelinePreview card={card} variant="expanded" showTimeline />
         </div>
         {card.tags.length > 0 && (
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.3rem", marginTop: "0.55rem" }}>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.3rem", marginTop: compactMode ? "0.4rem" : "0.55rem" }}>
             {card.tags.slice(0, 12).map((tag) => (
               <span key={tag} style={TAG_PILL_HEADER}>
                 {tag}
@@ -923,11 +925,13 @@ function ExpandedBody({
   isVisible,
   accent,
   pad = "1rem 1.1rem 1.3rem",
+  compactMode = false,
 }: {
   card: ApertureCard
   isVisible: boolean
   accent: string
   pad?: string
+  compactMode?: boolean
 }) {
   const workImages = card.images ?? []
 
@@ -956,7 +960,7 @@ function ExpandedBody({
     workImages.length > 0 && workPortrait.every(Boolean)
 
   /** SWEMaxx work screenshots live in the right side panel (full visibility) */
-  const workExamplesInSidePanel = card.id === "proj-swemaxx"
+  const workExamplesInSidePanel = !compactMode && card.id === "proj-swemaxx"
 
   // ── Shared sub-renders ───────────────────────────────────────────────────
   const contextRows = [
@@ -975,7 +979,7 @@ function ExpandedBody({
       <p
         style={{
           fontFamily: FONT_MONO,
-          fontSize: 25,
+          fontSize: compactMode ? 19 : 25,
           letterSpacing: "0.12em",
           textTransform: "uppercase",
           color: "rgba(224, 182, 255, 0.88)",
@@ -1002,19 +1006,19 @@ function ExpandedBody({
             style={{
               display: "flex",
               gap: "0.5rem",
-              fontSize: "0.865rem",
-              lineHeight: 1.65,
+              fontSize: compactMode ? "0.82rem" : "0.865rem",
+              lineHeight: compactMode ? 1.52 : 1.65,
               color: IND.textBody,
             }}
           >
             <span
               style={{
                 fontFamily: FONT_MONO,
-                fontSize: 12,
+                fontSize: compactMode ? 11 : 12,
                 letterSpacing: "0.07em",
                 textTransform: "uppercase",
                 color: "rgba(224, 182, 255, 0.74)",
-                minWidth: 66,
+                minWidth: compactMode ? 56 : 66,
                 flexShrink: 0,
                 marginTop: "0.1rem",
               }}
@@ -1036,7 +1040,7 @@ function ExpandedBody({
       <p
         style={{
           fontFamily: FONT_MONO,
-          fontSize: 25,
+          fontSize: compactMode ? 19 : 25,
           letterSpacing: "0.12em",
           textTransform: "uppercase",
           color: "rgba(224, 182, 255, 0.88)",
@@ -1063,8 +1067,8 @@ function ExpandedBody({
             style={{
               display: "flex",
               gap: "0.55rem",
-              fontSize: "0.875rem",
-              lineHeight: 1.82,
+              fontSize: compactMode ? "0.84rem" : "0.875rem",
+              lineHeight: compactMode ? 1.62 : 1.82,
               color: IND.textBody,
             }}
           >
@@ -1088,9 +1092,9 @@ function ExpandedBody({
   const descBlock = (
     <p
       style={{
-        marginTop: "1.1rem",
-        fontSize: "0.9375rem",
-        lineHeight: 1.7,
+        marginTop: compactMode ? "0.8rem" : "1.1rem",
+        fontSize: compactMode ? "0.875rem" : "0.9375rem",
+        lineHeight: compactMode ? 1.58 : 1.7,
         color: IND.textBody,
       }}
     >
@@ -1204,10 +1208,12 @@ function CardExpanded({
   card,
   onClose,
   isVisible,
+  compactMode = false,
 }: {
   card: ApertureCard
   onClose: () => void
   isVisible: boolean
+  compactMode?: boolean
 }) {
   const [isPortrait, setIsPortrait] = useState(card.imageType === "portrait")
   const accent  = card.type === "experience" ? IND.accentExp : IND.accentProj
@@ -1254,7 +1260,7 @@ function CardExpanded({
   )
 
   // ── Portrait: side-panel layout ────────────────────────────────────────────
-  if (isPortrait && hasHero) {
+  if (isPortrait && hasHero && !compactMode) {
     return (
       <div
         style={{
@@ -1304,12 +1310,13 @@ function CardExpanded({
             overflow: "hidden",
           }}
         >
-          <ExpandedHeader card={card} accent={accent} />
+          <ExpandedHeader card={card} accent={accent} compactMode={compactMode} />
           <ExpandedBody
             card={card}
             isVisible={isVisible}
             accent={accent}
             pad="0.9rem 1rem 1.3rem 0.9rem"
+            compactMode={compactMode}
           />
         </div>
       </div>
@@ -1342,8 +1349,8 @@ function CardExpanded({
             <div
               style={
                 heroFocalPos
-                  ? { position: "relative", height: 220, overflow: "hidden" }
-                  : { position: "relative", maxHeight: 220, overflow: "hidden" }
+                  ? { position: "relative", height: compactMode ? 156 : 220, overflow: "hidden" }
+                  : { position: "relative", maxHeight: compactMode ? 156 : 220, overflow: "hidden" }
               }
             >
               <img
@@ -1378,15 +1385,16 @@ function CardExpanded({
               />
             </div>
           </div>
-          <ExpandedHeader card={card} accent={accent} />
+          <ExpandedHeader card={card} accent={accent} compactMode={compactMode} />
         </div>
       ) : (
         <ExpandedHeader
           card={card}
           accent={accent}
+          compactMode={compactMode}
           style={{
             borderTop: `2px solid ${withAlpha(accent, 0.55)}`,
-            padding: "1.2rem 3.2rem 0.9rem 0.95rem",
+            padding: compactMode ? "0.8rem 2.6rem 0.7rem 0.75rem" : "1.2rem 3.2rem 0.9rem 0.95rem",
           }}
         />
       )}
@@ -1395,6 +1403,8 @@ function CardExpanded({
         card={card}
         isVisible={isVisible}
         accent={accent}
+        compactMode={compactMode}
+        pad={compactMode ? "0.72rem 0.8rem 1rem" : undefined}
       />
     </div>
   )
@@ -1837,15 +1847,32 @@ export default function CardGrid({ dealSeed }: CardGridProps) {
     isExpanded &&
     activeCard?.id === "proj-swemaxx" &&
     (activeCard?.images?.length ?? 0) > 0
-  const hasSidePanel = hasDemo || hasWorkExamplesSidePanel
+  const isCompactExpandedMode = cW <= 1120 || cH <= 760
+  const hasSidePanel = !isCompactExpandedMode && (hasDemo || hasWorkExamplesSidePanel)
 
-  // Side panel layout: main card ~60% left, panel ~33% right (demo video or SWEMaxx screenshots)
-  const expandedW = hasSidePanel ? Math.round(cW * 0.60) : Math.round(cW * 0.75)
-  const expandedH = Math.round(cH * 0.90) - 10
-  const expandedX = hasSidePanel ? Math.round(cW * 0.03) : Math.round((cW - expandedW) / 2)
-  const expandedY = Math.round((cH - expandedH) / 2) + 10
+  const expandedSafeX = isCompactExpandedMode ? Math.max(8, Math.round(cW * 0.018)) : 0
+  const expandedSafeY = isCompactExpandedMode ? Math.max(8, Math.round(cH * 0.03)) : 0
 
-  const sidePanelW = Math.round(cW * 0.33)
+  // Desktop: split panel when needed. Compact: single large panel with strong
+  // readability and internal scrolling.
+  const expandedW = isCompactExpandedMode
+    ? Math.max(320, cW - expandedSafeX * 2)
+    : hasSidePanel
+      ? Math.round(cW * 0.60)
+      : Math.round(cW * 0.75)
+  const expandedH = isCompactExpandedMode
+    ? Math.max(300, cH - expandedSafeY * 2)
+    : Math.round(cH * 0.90) - 10
+  const expandedX = isCompactExpandedMode
+    ? expandedSafeX
+    : hasSidePanel
+      ? Math.round(cW * 0.03)
+      : Math.round((cW - expandedW) / 2)
+  const expandedY = isCompactExpandedMode
+    ? expandedSafeY
+    : Math.round((cH - expandedH) / 2) + 10
+
+  const sidePanelW = isCompactExpandedMode ? 0 : Math.round(cW * 0.33)
   const sidePanelX = expandedX + expandedW + Math.round(cW * 0.015)
   const sidePanelY = expandedY
 
@@ -2055,7 +2082,12 @@ export default function CardGrid({ dealSeed }: CardGridProps) {
                   pointerEvents: showExpanded ? "auto" : "none",
                 }}
               >
-                <CardExpanded card={card} onClose={closeActive} isVisible={showExpanded} />
+                <CardExpanded
+                  card={card}
+                  onClose={closeActive}
+                  isVisible={showExpanded}
+                  compactMode={isCompactExpandedMode}
+                />
               </motion.div>
             </motion.article>
 
@@ -2106,7 +2138,7 @@ export default function CardGrid({ dealSeed }: CardGridProps) {
       })}
 
       {/* ── Demo side panel — YouTube embeds ── */}
-      {hasDemo && activeCard && (
+      {hasSidePanel && hasDemo && activeCard && (
         <motion.div
           key="demo-panel"
           initial={{ opacity: 0, x: 24 }}
@@ -2130,7 +2162,7 @@ export default function CardGrid({ dealSeed }: CardGridProps) {
       )}
 
       {/* ── Work examples side panel — SWEMaxx full screenshots ── */}
-      {hasWorkExamplesSidePanel && activeCard && (
+      {hasSidePanel && hasWorkExamplesSidePanel && activeCard && (
         <motion.div
           key="work-examples-panel"
           initial={{ opacity: 0, x: 24 }}
