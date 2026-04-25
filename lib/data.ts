@@ -40,6 +40,67 @@ export interface Project {
 
 export const projects: Project[] = [
   {
+    id: "reg2schedg",
+    title: "Reg2Schedg",
+    gridMeta: "Full-Stack · Multimodal AI",
+    description:
+      "Intelligent UCSD academic planner: upload a WebReg screenshot and get a course-intelligence dashboard with professor ratings, grade distributions, Reddit sentiment, workload fit scores, and calendar-ready planning support.",
+    longDescription:
+      "Reg2Schedg turns static WebReg screenshots into actionable planning decisions. The product uses multimodal parsing to recover schedule data, then runs a concurrent enrichment pipeline across Reddit, RateMyProfessors, and UCSD catalog sources. Results are fused into typed course intelligence with evidence extraction, relevance scoring, and logistics views for weekly planning. To keep performance and cost under control, the backend combines per-course caches with schedule-signature fast paths and TTL-based invalidation, while the frontend delivers interactive drag-reschedulable calendar planning, undo/redo flows, and campus map navigation.",
+    image: "/assets/projects/r2s_icon.png",
+    status: "In Progress",
+    progress: 85,
+    startDate: "2026-02-01",
+    timeline: "Feb 2026 – Present",
+    categories: ["Full-Stack", "Education"],
+    tools: [
+      "Next.js 15",
+      "TypeScript",
+      "React Hooks",
+      "FastAPI",
+      "Pydantic",
+      "Supabase",
+      "JWT",
+      "Gemini",
+      "Reddit ingestion",
+      "RateMyProfessors GraphQL",
+      "UCSD catalog scraping",
+      "Leaflet",
+    ],
+    liveUrl: "https://reg2schedg.com/",
+    gridPreviewBullets: [
+      "Built a UCSD student scheduling hub that consolidates RateMyProf, Reddit, grade distributions,and catalog data.",
+      "Architected a concurrent Tier 0/1/2 enrichment pipeline (Reddit, RateMyProfessors, UCSD catalog) with relevance scoring + evidence extraction.",
+      "Cut repeat compute and API cost with normalized per-course caches plus a SHA-256 schedule-signature fast path (TTL 14 days).",
+      "Shipped v1→v2 payload versioning (reference-based storage + expansion endpoint) to speed reloads and support schema evolution.",
+    ],
+    contextProblem:
+      "Built to help UCSD students move from uncertain registration screenshots to data-backed scheduling decisions with minimal manual research.",
+    contextWhen: "Feb 2026 – Present",
+    contextWhere: "Personal full-stack project focused on student scheduling workflows.",
+    contextStack:
+      "Next.js 15 + TypeScript frontend with FastAPI orchestration, Supabase auth/storage/data, and Gemini-based multimodal parsing/synthesis.",
+    takeaways: [
+      "Engineered a full-stack monorepo (Next.js 15 + FastAPI) that converts WebReg screenshots into actionable course-intelligence dashboards.",
+      "Designed a multistage research pipeline that fuses Reddit sentiment, RateMyProfessors data, and UCSD catalog signals, then synthesizes outputs into structured typed insights with Gemini.",
+      "Implemented concurrent backend tiers (parallel Tier 0/1/2) with relevance scoring and evidence extraction to improve both speed and answer quality.",
+      "Reduced repeat computation and external API cost using normalized per-course cache keys plus SHA-256 schedule-signature fast paths with a 14-day TTL.",
+      "Shipped versioned payload evolution (v1 full payload to v2 reference-based payload + expansion endpoint) to support leaner storage and scalable plan reloads.",
+      "Delivered interactive planning UX with drag-reschedulable weekly calendar, undo/redo controls, dossier modals, and map-based campus navigation.",
+    ],
+    workExamples: [
+      "/assets/projects/r2s_home.png",
+      "/assets/projects/r2s_overview.png",
+      "/assets/projects/r2s_quicklinks.png",
+    ],
+    workExampleTypes: ["landscape", "landscape", "landscape"],
+    workExampleCaptions: [
+      "Home flow — upload WebReg screenshot and launch schedule intelligence",
+      "Overview dashboard — professor, grading, sentiment, and workload synthesis",
+      "Quick links panel — actionable planning shortcuts and next-step navigation",
+    ],
+  },
+  {
     id: "echoes-of-pharloom",
     title: "Echoes of Pharloom",
     description: "A Silksong-themed study app with a built-in Pomodoro timer, automatic break scheduling, focus-loss detection, and cloud-synced streaks. Built with a full AWS serverless backend from scratch.",

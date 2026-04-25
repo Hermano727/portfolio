@@ -44,7 +44,7 @@ export interface Experience {
 export const experiences: Experience[] = [
   {
     id: "mathworks-intern-2026",
-    title: "EDG Software Intern",
+    title: "Software Engineering Intern",
     company: "MathWorks [INCOMING]",
     location: "Natick, MA",
     startDate: "2026-06-01",

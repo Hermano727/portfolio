@@ -3,7 +3,7 @@
 import { motion } from "framer-motion"
 import { jumpNavPillClassName } from "@/components/nav/jumpNavStyles"
 import { EASE_DECK } from "@/lib/motion"
-import { Github } from "lucide-react"
+import { ExternalLink, Github } from "lucide-react"
 import { Fragment, useEffect, useMemo, useRef, useState, type CSSProperties, type SyntheticEvent } from "react"
 import { useScrollOrchestrator } from "@/context/ScrollOrchestratorContext"
 import { isTypingTarget } from "@/lib/dom"
@@ -368,6 +368,40 @@ function PreviewBullets({ bullets }: { bullets: string[] }) {
   )
 }
 
+function CompactLiveButton({ card }: { card: ApertureCard }) {
+  if (card.type !== "project" || !card.liveUrl) return null
+  return (
+    <a
+      href={card.liveUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      onClick={(e) => e.stopPropagation()}
+      aria-label={`Open ${card.title} live demo`}
+      title="Open live site"
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 4,
+        height: 24,
+        padding: "0 8px",
+        borderRadius: 8,
+        border: "1px solid rgba(224, 182, 255, 0.30)",
+        background: "rgba(224, 182, 255, 0.10)",
+        color: "rgba(236, 195, 255, 0.96)",
+        textDecoration: "none",
+        fontFamily: FONT_MONO,
+        fontSize: 10,
+        letterSpacing: "0.08em",
+        textTransform: "uppercase",
+        flexShrink: 0,
+      }}
+    >
+      Live
+      <ExternalLink size={11} strokeWidth={1.75} />
+    </a>
+  )
+}
+
 function CardCompact({ card }: { card: ApertureCard }) {
   const hasImage = Boolean(card.image)
   const thumbPos = card.thumbnailObjectPosition ?? "top"
@@ -400,6 +434,16 @@ function CardCompact({ card }: { card: ApertureCard }) {
               filter: "sepia(0.15) brightness(0.85)",
             }}
           />
+          <div
+            style={{
+              position: "absolute",
+              left: 8,
+              bottom: 8,
+              zIndex: 2,
+            }}
+          >
+            <CompactLiveButton card={card} />
+          </div>
         </div>
 
         {/* Right: employer/project → role/categories → type · timeline → desc → tags */}
@@ -570,6 +614,16 @@ function CardCompact({ card }: { card: ApertureCard }) {
                 filter: "sepia(0.2) brightness(0.8)",
               }}
             />
+            <div
+              style={{
+                position: "absolute",
+                left: 4,
+                bottom: 4,
+                zIndex: 2,
+              }}
+            >
+              <CompactLiveButton card={card} />
+            </div>
           </MonitorFrame>
         </div>
       )}
