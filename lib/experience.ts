@@ -56,7 +56,7 @@ export const experiences: Experience[] = [
       "Joining MathWorks for summer 2026 on Simulink Component Interfaces within the Simulink Core Group. The project targets a consistent user experience across block dialogs for In/Out ports and In/Out Bus Element ports, which modelers interact with constantly. Work will span JavaScript, C++, and MATLAB; the team provides Simulink product ramp-up. Ahead of day one, the focus is on core Simulink familiarity and MathWorks documentation on Bus Element Ports, with deeper project context to follow during onboarding.",
     image: "/assets/experience/mathworks.png",
     categories: ["Simulink", "Desktop / UI", "C++"],
-    tools: ["JavaScript", "C++", "MATLAB", "Simulink"],
+    tools: ["Simulink", "C++", "MATLAB", "JavaScript"],
     gridPreviewBullets: [
       "Summer 2026 Simulink Core intern: clearer In/Out and Bus Element port dialogs.",
       "JavaScript, C++, MATLAB on shipping Simulink desktop UI.",
@@ -86,7 +86,7 @@ export const experiences: Experience[] = [
     longDescription: "Technical lead for Yonder Dynamics' University Rover Challenge software team (15 engineers). Drove the mission control platform from legacy tooling to a modern stack: Vite build, WHEP low-latency WebRTC camera streams, Three.js URDF arm visualization, and localized Redux state. Designed a ROS pilot/spectator handshake for safe multi-user rover control and built the workspace Git-metadata scanner for mission-time system visibility.",
     image: "/assets/yonder.png",
     categories: ["Robotics", "ROS", "WebRTC", "Full-Stack"],
-    tools: ["TypeScript", "React", "Three.js", "ROS", "Vite", "WHEP", "Python", "Leaflet"],
+    tools: ["ROS", "WHEP", "Three.js", "Vite", "Leaflet", "Python", "React", "TypeScript"],
     achievements: [
       "Architected full frontend overhaul for a 15-engineer team: migrated to Vite, replaced Janus with WHEP for low-latency WebRTC streams, integrated Three.js URDF arm visualization, and refactored Redux toward localized state — team placed 5th nationally at URC.",
       "Designed ROS middleware with pilot/spectator publish handshake for safe real-time multi-user rover control, preventing command conflicts during autonomous and teleoperated missions.",
@@ -133,7 +133,7 @@ export const experiences: Experience[] = [
     longDescription: "Engineered a robust RFID-based check-in system for the UCSD Makerspace serving over 8,000 students. Local-first architecture with async JSON caching, queue-based background threads, and automated failover. Integrates with Google Sheets and Fabman.io for data sync and machine access control.",
     image: "/assets/makerspace.jpg",
     categories: ["Backend", "IoT", "Database", "API Integration"],
-    tools: ["Python", "Threading", "Google Sheets API", "Fabman.io API", "JSON"],
+    tools: ["Raspberry Pi", "Google Sheets API", "Fabman.io API", "Threading", "JSON", "Python"],
     achievements: [
       "Refactored legacy codebase into thread-safe modular services; redesigned check-in for local-first execution, cutting average check-in time by 92%.",
       "Built async queue-based background threads with write-delay invariants, eliminating race conditions and duplicate Google Sheets writes.",
@@ -169,7 +169,7 @@ export const experiences: Experience[] = [
     longDescription: "Designed and implemented a state machine-driven IoT system for behavioral research in progressive overload training paradigms at the Wu Tsai Human Performance Alliance. Integrates SENT linear induction sensors and beam-break detection to quantify behavioral responses. Features fault-tolerant SQLite buffering, automated rsync from distributed Pi nodes, and automated hardware control for pellet dispensing and sensor calibration.",
     image: "/assets/mice-squat.jpg",
     categories: ["IoT", "Research", "Hardware", "Embedded Systems"],
-    tools: ["Python", "SQLite", "Raspberry Pi", "ESP32", "Arduino", "rsync", "SENT Protocol"],
+    tools: ["SENT Protocol", "ESP32", "SQLite", "Raspberry Pi", "rsync", "Arduino", "Python"],
     achievements: [
       "Designed event-driven state machine integrating SENT linear induction sensors and beam-break detection to quantify progressive-overload behavioral responses with reproducible precision.",
       "Achieved 100% data fidelity with local SQLite buffering and automated rsync synchronization across distributed Raspberry Pi research nodes; streamed events as structured JSON for downstream analysis.",
