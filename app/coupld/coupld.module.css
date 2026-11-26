@@ -1,0 +1,56 @@
+.site { background: #fff8f2; color: #422d35; min-height: 100vh; font-family: var(--font-manrope), Arial, sans-serif; line-height: 1.75; }
+.site * { box-sizing: border-box; }
+.site a { text-underline-offset: .22em; }
+.site a:focus-visible { outline: 3px solid #9a3359; outline-offset: 5px; border-radius: 3px; }
+.header, .main, .footer { width: min(1120px, calc(100% - 64px)); margin-inline: auto; }
+.header { display: flex; justify-content: space-between; align-items: center; gap: 24px; padding-block: 28px; border-bottom: 1px solid #e9d9d5; }
+.brand { display: inline-flex; align-items: center; gap: 12px; font-size: 1.5rem; font-weight: 800; text-decoration: none; letter-spacing: -.05em; }
+.brand img { border-radius: 10px; }
+.nav { display: flex; gap: 26px; font-size: .9375rem; }
+.nav a { text-decoration: none; }
+.nav a:hover, .footer a:hover { text-decoration: underline; }
+.hero { display: grid; grid-template-columns: 1.35fr 1fr; gap: 60px; align-items: center; padding-block: 90px 80px; }
+.eyebrow { color: #883d59; font-weight: 700; font-size: .875rem; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 18px; }
+.hero h1 { font-size: clamp(2.8rem, 5vw, 4.25rem); line-height: 1.1; letter-spacing: -.06em; font-weight: 800; margin: 0 0 26px; }
+.intro { font-size: 1.125rem; max-width: 510px; color: #694f59; margin-bottom: 22px; }
+.beta { font-size: .9375rem; color: #694f59; margin-bottom: 20px; }
+.button { display: inline-flex; justify-content: center; background: #913b5a; color: #fff8f2; padding: 12px 25px; font-weight: 700; border-radius: 8px; text-decoration: none; }
+.button:hover { background: #762d48; }
+.art { display: flex; flex-direction: column; gap: 24px; align-items: center; justify-content: center; padding: 40px 20px; background: #f5deda; border-radius: 46% 46% 14px 14px; }
+.appIcon { width: min(100%, 280px); height: auto; border-radius: 23%; box-shadow: 0 18px 38px #722b4c20; }
+.artCaption { font-family: Georgia, serif; font-style: italic; font-size: 1.5rem; color: #783c50; }
+.features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; padding-block: 35px 65px; border-bottom: 1px solid #e9d9d5; }
+.motif { color: #913b5a; font-size: 1.75rem; line-height: 1; display: block; margin-bottom: 18px; }
+.features h2 { font-size: 1.25rem; font-weight: 800; margin-bottom: 12px; letter-spacing: -.035em; }
+.features p, .privacyNote p { color: #694f59; margin-bottom: 16px; }
+.privacyNote { display: grid; grid-template-columns: 1fr 1.3fr; gap: 70px; padding-block: 65px 80px; }
+.privacyNote h2 { font-size: 2rem; line-height: 1.25; font-weight: 800; letter-spacing: -.04em; }
+.textLink { color: #883d59; font-weight: 700; text-decoration: underline; }
+.footer { border-top: 1px solid #e9d9d5; display: grid; grid-template-columns: 1fr auto; column-gap: 32px; row-gap: 24px; padding-block: 32px; font-size: .9375rem; color: #694f59; }
+.footer strong { color: #422d35; font-size: 1.125rem; }
+.footerLinks { display: flex; flex-wrap: wrap; gap: 12px 24px; align-content: start; }
+.footerLinks a { overflow-wrap: anywhere; }
+.credit { grid-column: 1 / -1; font-size: .875rem; }
+.legal { max-width: 760px; margin: auto; padding-block: 65px 80px; }
+.legal h1 { font-size: clamp(2.4rem, 6vw, 3.5rem); font-weight: 800; line-height: 1.15; letter-spacing: -.05em; margin-bottom: 16px; }
+.updated { color: #694f59; font-size: .875rem; margin-bottom: 28px; }
+.lead { font-size: 1.125rem; margin-bottom: 36px; }
+.legal section { margin-block: 30px; }
+.legal h2 { font-size: 1.375rem; line-height: 1.4; font-weight: 800; margin-bottom: 10px; letter-spacing: -.025em; }
+.legal p { margin-bottom: 16px; }
+.legal a { color: #883d59; text-decoration: underline; overflow-wrap: anywhere; }
+.skip { position: absolute; top: 8px; left: 8px; z-index: 10; padding: 10px 16px; color: white; background: #762d48; transform: translateY(-160%); }
+.skip:focus { transform: translateY(0); }
+@media (max-width: 760px) {
+  .header, .main, .footer { width: calc(100% - 40px); }
+  .header { padding-block: 20px; gap: 16px; flex-wrap: wrap; }
+  .nav { gap: 20px; font-size: .875rem; }
+  .hero { grid-template-columns: 1fr; gap: 36px; padding-block: 48px; }
+  .art { max-width: 400px; width: 100%; justify-self: center; padding: 32px 20px; }
+  .appIcon { max-width: 210px; }
+  .features { grid-template-columns: 1fr; gap: 30px; padding-block: 25px 40px; }
+  .privacyNote { grid-template-columns: 1fr; gap: 20px; padding-block: 40px; }
+  .footer { grid-template-columns: 1fr; }
+  .footerLinks { flex-direction: column; align-items: flex-start; }
+  .legal { padding-block: 40px 48px; }
+}
